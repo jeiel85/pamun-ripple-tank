@@ -1293,6 +1293,8 @@ function renderFallback() {
     fbImg = fbSmall.getContext('2d').createImageData(NX, NY);
   }
   const d = fbImg.data;
+  // 스트로보 홀드 교체 중이면 직전 홀드와 섞는다(셰이더의 uHoldMix와 같은 70 ms 크로스페이드)
+  const prev = strobeOn && holdMix < 1 && brawPrevHold && brawPrevHold.length === N ? brawPrevHold : null;
   for (let j = 0; j < NY; j++) {
     const row = (NY - 1 - j) * NX;
     for (let i = 0; i < NX; i++) {
@@ -1301,7 +1303,8 @@ function renderFallback() {
       if (!wet[k]) {
         if (i === 0 || j === 0 || i === NX - 1 || j === NY - 1) { r = 12; g = 29; b = 31; } else { r = 217; g = 211; b = 191; }
       } else {
-        const idx = clamp(Math.round((B_MID + uContrast * braw[k]) * 255), 0, 255) * 4;
+        const bv = prev ? prev[k] + (braw[k] - prev[k]) * holdMix : braw[k];
+        const idx = clamp(Math.round((B_MID + uContrast * bv) * 255), 0, 255) * 4;
         r = LUT[idx]; g = LUT[idx + 1]; b = LUT[idx + 2];
         const gc = glassCov[k] * 0.08;
         if (gc > 0) { r += (111 - r) * gc; g += (165 - g) * gc; b += (150 - b) * gc; }
@@ -1324,9 +1327,10 @@ function renderFallback() {
 
 /* ---------- (P2) 스트로보: braw 계산·업로드를 1/f_s 간격으로, 70 ms 크로스페이드 ---------- */
 let strobeOn = false, strobeF = 7, strobeNextT = 0, holdMix = 1, holdStartWall = 0;
-let brawHold = null, strobeFirst = true;
+let brawHold = null, brawPrevHold = null, strobeFirst = true;
 function strobeHold(now) {
-  if (!brawHold || brawHold.length !== N) { brawHold = new Float32Array(N); strobeFirst = true; }
+  if (!brawHold || brawHold.length !== N) { brawHold = new Float32Array(N); brawPrevHold = new Float32Array(N); strobeFirst = true; }
+  const first = strobeFirst;
   computeBraw();
   // 켠 직후 첫 홀드는 비어 있거나 지난번 것과 비교하게 되므로 D를 재지 않는다
   if (strobeFirst) { strobeFirst = false; strobeLimit = 1; }
@@ -1336,12 +1340,14 @@ function strobeHold(now) {
     const D = c ? s / c : 0;
     strobeLimit = D > 0.08 ? Math.max(0.4, 0.08 / D) : 1;
   } else strobeLimit = 1;
+  // 직전 홀드: 폴백 렌더러가 GL의 이전 텍스처(glT.prev)처럼 70 ms 크로스페이드에 쓴다. 첫 홀드는 지금 값에서 시작한다.
+  brawPrevHold.set(first ? braw : brawHold);
   brawHold.set(braw);
   if (renderMode === 'gl' && gl && !gl.isContextLost()) {
     const t = glT.prev; glT.prev = glT.field; glT.field = t;
     uploadField();
-    holdMix = 0; holdStartWall = now;
   }
+  holdMix = 0; holdStartWall = now;   // GL·폴백 공통: 홀드 교체는 늘 크로스페이드로(광과민 안전, 4.9)
   if (strobeF <= 8) audioTick();
 }
 
@@ -2173,13 +2179,20 @@ function setVolume(v) {
   if (actx && audioState === 'on') master.gain.setTargetAtTime(volume, actx.currentTime, 0.02);
 }
 const panOf = (u) => clamp((u / TANK_W) * 1.6 - 0.8, -1, 1);
-function voiceOut(u, send, dest) {
+// 보이스 출력단: 게인 → 스테레오 팬 → 드라이(+ 잔향 센드). 계속 울리는 보이스는 pan을 들고 있다가 음원이 움직이면 옮긴다.
+function voiceChain(u, send, dest) {
   const out = actx.createGain();
   const pan = actx.createStereoPanner();
   pan.pan.value = panOf(u);
   out.connect(pan); pan.connect(dest || dryBus);
   if (send > 0) { const s = actx.createGain(); s.gain.value = send; pan.connect(s); s.connect(reverbIn); }
-  return out;
+  return { out, pan };
+}
+function voiceOut(u, send, dest) { return voiceChain(u, send, dest).out; }
+function followPan(v, u, t) {
+  if (v.u === u) return;
+  v.u = u;
+  v.pan.pan.setTargetAtTime(panOf(u), t, 0.05);
 }
 // 합쳐 28 보이스. 넘치면 가장 오래된 보이스를 10 ms 릴리스로 훔친다
 function claimVoice() {
@@ -2293,15 +2306,16 @@ function updateContinuous(wallDt) {
     let v = sustainVoices.get(st.id);
     if (!v) {
       if (g < 0.003 || sustainVoices.size >= 12) continue;
-      const out = voiceOut(st.u, 0.2), lp = actx.createBiquadFilter(), gg = actx.createGain();
+      const { out, pan } = voiceChain(st.u, 0.2), lp = actx.createBiquadFilter(), gg = actx.createGain();
       lp.type = 'lowpass'; lp.frequency.value = 1800;
       gg.gain.setValueAtTime(0, t);
       const srcs = [1, 1.004].map((r) => { const o = actx.createOscillator(), h2 = actx.createGain(); h2.gain.value = 0.5; o.frequency.value = noteHz(st.lane) * r; o.connect(h2); h2.connect(lp); o.start(t); return o; });
       lp.connect(gg); gg.connect(out);
-      v = { g: gg, srcs, quiet: 0, lane: st.lane };
+      v = { g: gg, srcs, quiet: 0, lane: st.lane, pan, u: st.u };
       sustainVoices.set(st.id, v);
     }
     v.g.gain.setTargetAtTime(g, t, 0.05);
+    followPan(v, st.u, t);
     if (v.lane !== st.lane || v.scale !== scaleName) {
       v.lane = st.lane; v.scale = scaleName;
       v.srcs[0].frequency.setTargetAtTime(noteHz(st.lane), t, 0.03);
@@ -2316,7 +2330,7 @@ function updateContinuous(wallDt) {
     liveO.add(o.id);
     let v = humVoices.get(o.id);
     if (!v) {
-      const out = voiceOut(o.u, 0.2), lp = actx.createBiquadFilter(), gg = actx.createGain();
+      const { out, pan } = voiceChain(o.u, 0.2), lp = actx.createBiquadFilter(), gg = actx.createGain();
       lp.type = 'lowpass'; lp.frequency.value = 900;
       gg.gain.setValueAtTime(0, t);
       const tri = actx.createOscillator(), sine = actx.createOscillator(), gt = actx.createGain(), gs = actx.createGain();
@@ -2324,10 +2338,11 @@ function updateContinuous(wallDt) {
       tri.frequency.value = sine.frequency.value = humHz(o);
       tri.connect(gt); sine.connect(gs); gt.connect(lp); gs.connect(lp); lp.connect(gg); gg.connect(out);
       tri.start(t); sine.start(t);
-      v = { g: gg, srcs: [tri, sine] };
+      v = { g: gg, srcs: [tri, sine], pan, u: o.u };
       humVoices.set(o.id, v);
     }
     v.g.gain.setTargetAtTime(0.06 * gAuto * o.amp, t, 0.05);   // 켜지는 동안의 진폭 램프(o.amp)를 화면과 같이 따른다
+    followPan(v, o.u, t);
     for (const s of v.srcs) s.frequency.setTargetAtTime(humHz(o), t, 0.03);
   }
   for (const [id, v] of humVoices) if (!liveO.has(id)) { releaseVoice(v, t); humVoices.delete(id); }
