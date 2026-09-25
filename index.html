@@ -1,0 +1,3142 @@
+<!doctype html>
+<html lang="ko" class="booting">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>파문 투영기</title>
+<meta name="description" content="불 끈 물리실험실의 물결통에 파라핀으로 벽을 그리고 울림돌을 놓으면, 물결이 닿는 거리가 박자가 되고 놓인 높이가 음정이 되는 파동 악기.">
+<meta name="theme-color" content="#12272A">
+<meta property="og:title" content="파문 투영기">
+<meta property="og:description" content="물결이 닿는 거리가 박자가 되고 놓인 높이가 음정이 되는 파동 악기. 파라핀으로 벽을 그리고 울림돌을 놓아 보세요.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://jeiel85.github.io/pamun-ripple-tank/">
+<meta property="og:image" content="https://jeiel85.github.io/pamun-ripple-tank/docs/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@600;700&family=IBM+Plex+Sans+KR:wght@400;500&family=IBM+Plex+Mono&display=swap">
+<style>
+:root{
+  --bg:#12272A;
+  --panel:rgba(220,228,225,0.92);
+  --panel-solid:#DCE4E1;
+  --line:rgba(27,46,48,0.18);
+  --line-2:rgba(27,46,48,0.36);
+  --text:#1B2E30;
+  --text-dim:#4A5F60;
+  --accent:#B8843C;
+  --accent-2:#3E6B61;
+  --focus:#B8843C;
+  --serif:'Hahmlet','Nanum Myeongjo','Noto Serif KR',serif;
+  --sans:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'D2Coding',monospace;
+  --sat:env(safe-area-inset-top,0px);
+  --sar:env(safe-area-inset-right,0px);
+  --sab:env(safe-area-inset-bottom,0px);
+  --sal:env(safe-area-inset-left,0px);
+  --side-h:64px;
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --dur:180ms;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --panel:rgba(18,39,42,0.74);
+    --panel-solid:#16302F;
+    --line:rgba(217,211,191,0.16);
+    --line-2:rgba(217,211,191,0.32);
+    --text:#D9D3BF;
+    --text-dim:rgba(217,211,191,0.64);
+    --accent-2:#6FA596;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --panel:rgba(18,39,42,0.74);
+  --panel-solid:#16302F;
+  --line:rgba(217,211,191,0.16);
+  --line-2:rgba(217,211,191,0.32);
+  --text:#D9D3BF;
+  --text-dim:rgba(217,211,191,0.64);
+  --accent-2:#6FA596;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;margin:0}
+html{background:#12272A;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{background:#12272A;color:var(--text);font:400 13px/1.45 var(--sans);overflow:hidden;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
+.reduced{--dur:0ms}
+.mono,.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+#gl,#fallback,#stage{position:fixed;left:0;top:0;width:100%;height:100%;display:block}
+#gl,#fallback{pointer-events:none}
+#fallback[hidden]{display:none}
+#stage{touch-action:none;outline:none;cursor:crosshair;-webkit-user-select:none;user-select:none}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+#stage:focus-visible{outline:none}
+/* 부팅(첫 프레임 동기 렌더) 전에는 UI 크롬을 숨긴다 — 빈 투영면 위에 명판·버튼만 먼저 보이지 않게(수용 기준 1) */
+.booting #top,.booting #dock,.booting #side{visibility:hidden}
+
+/* 명판·발음 스트립 */
+#top{position:fixed;left:calc(16px + var(--sal));top:calc(16px + var(--sat));display:flex;flex-direction:column;align-items:flex-start;gap:8px;z-index:2;pointer-events:none;max-width:calc(100vw - 32px)}
+#plaque{border-top:1px solid var(--accent);border-bottom:1px solid var(--accent);padding:5px 10px 6px;background:var(--panel);color:var(--text)}
+#plaque h1{margin:0;font:700 17px/1.25 var(--serif);letter-spacing:-0.01em}
+#readout{margin:2px 0 0;font-size:12px;line-height:1.35;white-space:nowrap}
+#ro-mach{transition:opacity 1.5s linear}
+#ro-mach.fade{opacity:0}
+#ro-short{display:none}
+#strip{width:280px;height:64px;display:block;background:var(--panel);border:1px solid var(--line);border-radius:2px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) #plaque{background:none;padding-left:0;padding-right:0;text-shadow:0 0 3px #0C1D1F,0 0 6px #0C1D1F}}
+:root[data-theme="dark"] #plaque{background:none;padding-left:0;padding-right:0;text-shadow:0 0 3px #0C1D1F,0 0 6px #0C1D1F}
+
+/* 도구 레일·힌트 */
+/* 떠 있는 UI 상자의 투명한 여백이 수조 위 탭을 가로채지 않도록 컨테이너는 통과시키고 조작 요소만 받는다(명세 5.1) */
+#dock{position:fixed;left:calc(16px + var(--sal));bottom:calc(16px + var(--sab));z-index:3;display:flex;flex-direction:column;align-items:flex-start;gap:8px;pointer-events:none}
+#tools{pointer-events:auto}
+#hint{pointer-events:none;margin:0;max-width:min(360px,calc(100vw - 32px));font-size:12px;line-height:1.4;padding:6px 10px;border-radius:4px;background:var(--panel);color:var(--text);transition:opacity var(--dur) var(--ease)}
+#hint:empty{opacity:0;padding:0}
+#hint.toast{background:var(--panel-solid);border-left:3px solid var(--accent);font-weight:500}
+#tools{display:flex;flex-direction:column;gap:2px}
+.tool{display:flex;align-items:center;gap:8px;width:96px;height:36px;padding:0 8px 0 9px;border:0;border-left:3px solid transparent;border-radius:2px;background:var(--panel);color:var(--text);font-size:13px;text-align:left;cursor:pointer;transition:background-color var(--dur) var(--ease)}
+.tool[hidden]{display:none}
+.tool svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
+.tool[aria-checked="true"]{border-left-color:var(--accent);font-weight:500}
+.tool:hover{background:var(--panel-solid)}
+#tools-more .chev{margin-left:auto;font-size:10px;transition:transform var(--dur) var(--ease)}
+#tools-more[aria-expanded="true"] .chev{transform:rotate(90deg)}
+
+/* 소리·계기판 */
+#side{position:fixed;right:calc(16px + var(--sar));bottom:calc(16px + var(--sab));z-index:4;display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:none}
+#side > button,#panel{pointer-events:auto}
+#sound-toggle{order:3;height:36px;padding:0 18px;border-radius:999px;border:1px solid var(--accent);background:var(--panel);color:var(--text);font-weight:500;cursor:pointer}
+#sound-toggle[aria-pressed="true"]{background:var(--accent);color:#12272A}
+#sound-toggle:disabled{opacity:.6;cursor:not-allowed}
+#mute-note{order:4;display:none;margin:0;font-size:11px;color:var(--text-dim);background:var(--panel);padding:2px 6px;border-radius:2px}
+.touch #mute-note{display:block}
+#panel-toggle{order:2;height:32px;padding:0 14px;border:1px solid var(--line-2);border-radius:6px 6px 2px 2px;background:var(--panel);color:var(--text);cursor:pointer}
+#panel-toggle[aria-expanded="true"]{border-color:var(--accent)}
+#panel{order:1;width:300px;max-height:calc(100vh - 140px);overflow-y:auto;overscroll-behavior:contain;border-radius:10px;background:var(--panel);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(0,0,0,0.35);color:var(--text);padding:4px 14px 10px;transform-origin:bottom right;transition:opacity var(--dur) var(--ease),transform var(--dur) var(--ease)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#panel{background:var(--panel-solid)}}
+#panel[hidden]{display:none}
+#panel.opening{opacity:0;transform:translateY(8px)}
+#panel section{padding:8px 0 6px;border-bottom:1px solid var(--line)}
+#panel section:last-child{border-bottom:0}
+#panel h2{margin:0 0 4px;font:500 12px var(--sans);color:var(--text-dim);letter-spacing:.02em}
+.row{display:flex;align-items:center;gap:8px;min-height:32px}
+.row label{flex:0 0 auto;min-width:74px}
+.row output,.row .num{margin-left:auto;text-align:right;font-size:12px;min-width:48px}
+.row.sub{min-height:18px;margin-top:-4px}
+.row.sub output{font-size:11px;color:var(--text-dim)}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;min-width:0;height:24px;background:transparent;cursor:pointer;--fill:50%}
+input[type=range]::-webkit-slider-runnable-track{height:2px;background:linear-gradient(to right,var(--accent) var(--fill),var(--line-2) var(--fill))}
+input[type=range]::-moz-range-track{height:2px;background:var(--line-2)}
+input[type=range]::-moz-range-progress{height:2px;background:var(--accent)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;margin-top:-6px;border-radius:3px;background:var(--accent);border:0}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:3px;background:var(--accent);border:0}
+input[type=range]:disabled{opacity:.45;cursor:not-allowed}
+input[role=switch]{-webkit-appearance:none;appearance:none;position:relative;width:30px;height:16px;margin:0 0 0 auto;border:1px solid var(--line-2);border-radius:3px;background:transparent;cursor:pointer;flex:none;transition:background-color var(--dur) var(--ease)}
+input[role=switch]::before{content:"";position:absolute;left:2px;top:2px;width:10px;height:10px;border-radius:2px;background:var(--text-dim);transition:transform var(--dur) var(--ease)}
+input[role=switch]:checked{background:var(--accent);border-color:var(--accent)}
+input[role=switch]:checked::before{transform:translateX(14px);background:#12272A}
+input[role=switch]:disabled{opacity:.45;cursor:not-allowed}
+select{margin-left:auto;min-width:0;max-width:170px;height:28px;padding:0 6px;border:1px solid var(--line-2);border-radius:2px;background:var(--panel-solid);color:var(--text)}
+.btns{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0}
+.btn{height:32px;padding:0 12px;border:1px solid var(--line-2);border-radius:2px;background:transparent;color:var(--text);cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#12272A}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.meter{flex:1;height:6px;border:1px solid var(--line-2);border-radius:1px;position:relative;overflow:hidden}
+.meter i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--accent-2)}
+.note{margin:2px 0 4px;font-size:11px;color:var(--text-dim)}
+/* 터치 기기: 0장 '터치 대상 최소 44 px'을 7.5 형태 규격보다 우선한다. 보이는 스위치·슬라이더 크기는 그대로 두고
+   행 높이·레이블 히트 영역·슬라이더 입력 상자를 44 px로 넓힌다. 버튼·select는 44 px로 키운다. */
+.touch .row:not(.sub){min-height:44px}
+.touch .row label{align-self:stretch;display:flex;align-items:center}
+.touch .row:has(> input[role=switch]) label{flex:1 1 auto}
+.touch input[type=range]{height:44px}
+.touch .btn,.touch select{height:44px}
+#src-link{display:inline-block;margin-top:8px;font-size:11px;color:var(--text-dim);text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
+
+/* 폰 세로: 위쪽 명판 + 하단 시트 */
+.lay-port #top{left:calc(16px + var(--sal));right:calc(16px + var(--sar));top:calc(8px + var(--sat));gap:6px;align-items:stretch}
+.lay-port #plaque{padding:3px 8px 4px}
+.lay-port #plaque h1{font-size:15px}
+.lay-port #readout{font-size:11px}
+.lay-port #ro-main{display:none}
+.lay-port #ro-short{display:inline}
+.lay-port #strip{width:100%;height:30px}
+.lay-port #dock{left:0;right:0;bottom:var(--side-h);gap:0;align-items:stretch;padding:6px calc(8px + var(--sar)) 4px calc(8px + var(--sal));background:var(--panel-solid)}
+.lay-port #hint{position:absolute;left:calc(8px + var(--sal));bottom:calc(100% + 6px);max-width:calc(100vw - 16px)}
+.lay-port #tools{flex-direction:row;flex-wrap:wrap-reverse;gap:4px}
+.lay-port .tool{width:calc((100% - 12px) / 4);height:44px;padding:0 6px;gap:6px;font-size:13px;background:transparent;border-left-width:3px}
+.lay-port .tool[aria-checked="true"]{background:var(--panel)}
+.lay-port #side{left:0;right:0;bottom:0;display:grid;grid-template-columns:1fr 1fr;gap:4px 6px;align-items:stretch;padding:2px calc(8px + var(--sar)) calc(6px + var(--sab)) calc(8px + var(--sal));background:var(--panel-solid)}
+.lay-port #dock,.lay-port #side{pointer-events:auto}
+.lay-port #sound-toggle{grid-column:1;grid-row:1;height:44px;text-align:left;padding-left:14px}
+.lay-port #panel-toggle{grid-column:2;grid-row:1;height:44px;border-radius:2px;text-align:left;padding-left:14px}
+.lay-port #mute-note{grid-column:1 / 3;grid-row:2;background:none;padding:0 2px}
+.lay-port #panel{position:fixed;left:0;right:0;bottom:var(--side-h);width:auto;height:45vh;max-height:45vh;border-radius:10px 10px 0 0;padding:4px calc(16px + var(--sar)) 12px calc(16px + var(--sal));transform-origin:bottom center}
+/* 폰 가로: 왼쪽 아이콘 레일 */
+.lay-land #top{left:calc(62px + var(--sal));top:calc(6px + var(--sat));gap:4px}
+.lay-land #plaque{display:flex;align-items:baseline;gap:10px;padding:2px 8px}
+.lay-land #plaque h1{font-size:14px}
+.lay-land #readout{margin:0;font-size:11px}
+.lay-land #strip{width:180px;height:24px}
+.lay-land #dock{left:calc(6px + var(--sal));top:calc(6px + var(--sat));bottom:calc(6px + var(--sab));justify-content:flex-end}
+.lay-land #tools{overflow-y:auto;max-height:100%}
+.lay-land .tool{position:relative;width:44px;height:44px;padding:0 0 0 11px}
+.lay-land .tool:focus-visible{outline-offset:-3px}   /* 스크롤 레일(overflow)이 바깥 링을 자르므로 안쪽에 그린다 */
+.lay-land .tool span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.lay-land #tools-more .chev{position:absolute;right:3px;bottom:1px;margin:0;font-size:9px}
+.lay-land #hint{position:fixed;left:calc(62px + var(--sal));bottom:calc(8px + var(--sab))}
+.lay-land #side{top:calc(6px + var(--sat));bottom:auto;flex-direction:row;align-items:flex-start}
+.lay-land #sound-toggle{order:2;height:44px}
+.lay-land #panel-toggle{order:1;height:44px;border-radius:2px}
+.lay-land #mute-note{display:none}
+/* 사이드 시트는 오른쪽 위 두 버튼(6 + 44 px) 아래에서 시작해 계기판을 연 채로도 닫기·소리 버튼을 누를 수 있다 */
+.lay-land #panel{position:fixed;right:0;top:calc(56px + var(--sat));bottom:0;width:320px;max-height:none;border-radius:10px 0 0 10px;padding:4px calc(14px + var(--sar)) calc(10px + var(--sab)) 14px}
+</style>
+</head>
+<body>
+<canvas id="gl" aria-hidden="true"></canvas>
+<canvas id="fallback" aria-hidden="true" hidden></canvas>
+<canvas id="stage" tabindex="0" role="application" aria-label="물결통 투영면. 화살표로 조준경을 옮기고 Enter로 현재 도구를 씁니다. 1~7로 도구를 고릅니다."></canvas>
+
+<div id="top">
+  <header id="plaque">
+    <h1>파문 투영기</h1>
+    <p id="readout" class="mono"><span id="ro-main"></span><span id="ro-short"></span><span id="ro-extra"></span><span id="ro-mach" class="fade"></span></p>
+  </header>
+  <canvas id="strip" role="img" aria-label="최근 두 마디 발음 기록"></canvas>
+</div>
+
+<div id="dock">
+  <p id="hint"></p>
+  <div id="tools" role="radiogroup" aria-label="도구">
+    <button type="button" class="tool" id="tool-drop" role="radio" aria-checked="true" data-tool="drop" aria-label="물방울"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.2C8 2.2 3.8 7 3.8 9.9a4.2 4.2 0 0 0 8.4 0C12.2 7 8 2.2 8 2.2Z"/></svg><span>물방울</span></button>
+    <button type="button" class="tool" id="tool-wall" role="radio" aria-checked="false" data-tool="wall" aria-label="파라핀"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="5.5" width="11" height="7.5" rx="1"/><path d="M6 5.5v2.2M9.5 5.5v1.4"/></svg><span>파라핀</span></button>
+    <button type="button" class="tool" id="tool-stone" role="radio" aria-checked="false" data-tool="stone" aria-label="울림돌"><svg viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="9.2" rx="5.6" ry="4"/><path d="M5.2 8.4a3.2 2.2 0 0 1 3-1.7"/></svg><span>울림돌</span></button>
+    <button type="button" class="tool" id="tools-more" aria-expanded="false" aria-controls="tool-glass tool-dropper tool-osc tool-erase"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="4" cy="8" r="1.2"/><circle cx="8" cy="8" r="1.2"/><circle cx="12" cy="8" r="1.2"/></svg><span>장치</span><b class="chev" aria-hidden="true">▸</b></button>
+    <button type="button" class="tool" id="tool-glass" role="radio" aria-checked="false" data-tool="glass" aria-label="유리판" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5h8v11H4z"/><path d="M6 6.5l3.5-2M6 9.5l4-2.4"/></svg><span>유리판</span></button>
+    <button type="button" class="tool" id="tool-dropper" role="radio" aria-checked="false" data-tool="dropper" aria-label="점적기" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.6 2.2l3.2 3.2-1.6 1.6-3.2-3.2z"/><path d="M9.8 5.6 3.6 11.8V13.4h1.6l6.2-6.2"/></svg><span>점적기</span></button>
+    <button type="button" class="tool" id="tool-osc" role="radio" aria-checked="false" data-tool="osc" aria-label="진동자" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 8c1.6-5 3.2-5 4.8 0s3.2 5 4.8 0 2.2-4 3.4-2"/></svg><span>진동자</span></button>
+    <button type="button" class="tool" id="tool-erase" role="radio" aria-checked="false" data-tool="erase" aria-label="지우개" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.6 2.4l4 4-6.6 6.6H3.4L2.4 12z"/><path d="M5.8 6.2l4 4M7.2 13h6.4"/></svg><span>지우개</span></button>
+  </div>
+</div>
+
+<div id="side">
+  <button type="button" id="sound-toggle" aria-pressed="false">소리 켜기</button>
+  <p id="mute-note">소리가 안 들리면 기기의 무음 스위치를 확인하세요</p>
+  <button type="button" id="panel-toggle" aria-expanded="false" aria-controls="panel">계기판</button>
+  <div id="panel" role="region" aria-label="계기판" hidden>
+    <section aria-labelledby="h-sound"><h2 id="h-sound">소리</h2>
+      <div class="row"><label for="volume">음량</label><input type="range" id="volume" min="0" max="100" step="1" value="70"><output id="volume-out" for="volume" class="num">70</output></div>
+      <div class="row"><label for="scale">음계</label><select id="scale"><option value="pyeong">평조</option><option value="gyemyeon">계면조</option><option value="harmonic">배음렬</option></select></div>
+      <p class="note">황종 311.1 Hz 기준, 평균율 근사</p>
+    </section>
+    <section aria-labelledby="h-water"><h2 id="h-water">물</h2>
+      <div class="row"><label for="depth">수심</label><input type="range" id="depth" min="3" max="12" step="0.5" value="6"><output id="depth-out" for="depth" class="num">6.0 mm</output></div>
+      <div class="row sub"><output id="depth-readout" for="depth" class="num">c 24.1 cm/s · 1박 17.2 cm</output></div>
+      <div class="row"><label for="damping">점성</label><input type="range" id="damping" min="0.04" max="0.5" step="0.01" value="0.12"><output id="damping-out" for="damping" class="num">감쇠 0.12/s</output></div>
+      <div class="row"><label for="beach-toggle">소파 장치</label><input type="checkbox" role="switch" id="beach-toggle" checked></div>
+    </section>
+    <section aria-labelledby="h-beat"><h2 id="h-beat">박자</h2>
+      <div class="row"><label for="tempo">템포</label><input type="range" id="tempo" min="60" max="160" step="1" value="84"><output id="tempo-out" for="tempo" class="num">♩=84</output></div>
+      <div class="row"><label for="grid-toggle">박자 눈금 늘 보기</label><input type="checkbox" role="switch" id="grid-toggle"></div>
+      <div class="row"><label for="snap-toggle">박자 스냅</label><input type="checkbox" role="switch" id="snap-toggle"></div>
+    </section>
+    <section aria-labelledby="h-dev"><h2 id="h-dev">장치</h2>
+      <div class="row"><label for="brush-size">유리판 붓</label><input type="range" id="brush-size" min="0.6" max="1.6" step="0.1" value="1"><output id="brush-out" for="brush-size" class="num">1.0 cm</output></div>
+      <div class="row"><label for="osc-freq">진동자 주파수</label><input type="range" id="osc-freq" min="3" max="14" step="0.01" value="7" disabled><output id="osc-out" for="osc-freq" class="num">7.00 Hz</output></div>
+      <div class="row"><label for="pitch-snap">음정 스냅</label><input type="checkbox" role="switch" id="pitch-snap"></div>
+    </section>
+    <section aria-labelledby="h-obs"><h2 id="h-obs">관찰</h2>
+      <div class="row"><label for="rain-toggle">비</label><input type="checkbox" role="switch" id="rain-toggle"></div>
+      <div class="row"><span id="res-label">공명</span><div class="meter" id="resonance" role="meter" aria-labelledby="res-label" aria-valuemin="-5" aria-valuemax="0" aria-valuenow="-5"><i></i></div></div>
+      <div class="row"><label for="strobe-toggle">스트로보</label><input type="checkbox" role="switch" id="strobe-toggle" aria-describedby="strobe-note"></div>
+      <div class="row"><label for="strobe-freq">스트로보 주파수</label><input type="range" id="strobe-freq" min="1" max="15" step="0.05" value="7" aria-describedby="strobe-note"><output id="strobe-out" for="strobe-freq" class="num">7.00 Hz</output></div>
+      <div class="btns"><button type="button" class="btn" id="strobe-match" aria-describedby="strobe-note">진동자에 맞춤</button></div>
+      <p class="note" id="strobe-note">빛에 민감하면 스트로보를 켜지 마세요.</p>
+    </section>
+    <section aria-labelledby="h-op"><h2 id="h-op">조작</h2>
+      <div class="row"><label for="preset">프리셋</label><select id="preset"><option value="first">첫 장면</option><option value="slit">이중 슬릿</option><option value="echo">메아리 북</option><option value="ellipse">속삭이는 타원</option><option value="cavity">공명실</option></select></div>
+      <div class="btns">
+        <button type="button" class="btn" id="undo">되돌리기</button>
+        <button type="button" class="btn" id="calm">수면 잠재우기</button>
+        <button type="button" class="btn" id="pause" aria-pressed="false">멈춤</button>
+      </div>
+      <div class="row"><label for="motion-toggle">움직임 줄이기</label><input type="checkbox" role="switch" id="motion-toggle"></div>
+      <div class="btns">
+        <button type="button" class="btn" id="loop-rec" aria-pressed="false">손짓 루프 녹음</button>
+        <button type="button" class="btn" id="loop-clear">루프 지우기</button>
+      </div>
+      <a id="src-link" href="https://github.com/jeiel85/pamun-ripple-tank" target="_blank" rel="noopener">소스 코드 · GitHub</a>
+    </section>
+  </div>
+</div>
+<div id="live" class="sr-only" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+// 모든 함수는 맨 끝 boot() 이후(또는 그 뒤의 이벤트)에만 호출된다. 함수가 뒤쪽에서 선언한 let/const
+// (soundBtn·undoBtn·acc·holdMix 등)를 참조하므로, 모듈 초기화 중에 함수를 부르면 TDZ 오류가 난다 — 부르지 말 것.
+// 편차 표기: 명세와 다르게 구현한 곳은 '[편차 절]' 또는 '(튜닝)'으로 적고, 목록은 docs/DEVIATIONS.md에 있다.
+// (P2) 색인: 스트로보는 GL 절의 하위 블록, 손짓 루프는 오디오 절 뒤 독립 절, 배음렬은 설정 절의 SCALES.
+
+/* ================================================================
+   설정 · 수조 · 뷰 변환
+   ================================================================ */
+const $ = (id) => document.getElementById(id);
+const clamp = (x, a, b) => (x < a ? a : x > b ? b : x);
+const TANK_W = 64, TANK_H = 36, LANES = 10, LANE_H = 3.6, LANE_V0 = 1.8;
+const G_CM = 981, COURANT = 0.55, C2 = COURANT * COURANT;
+const H_SAT = 1.2, B_NL = 0.02, E_SOFT = 0.12, GAMMA_MAX = 0.35;   // (튜닝) H_SAT·B_NL·E_SOFT. E_SOFT는 국소 E(computeEnergy) 기준으로 0.20 → 0.12
+// (튜닝) A_REF: 명세 초기값 0.25는 실제 링 진폭(1박 거리 약 0.027)의 10배라 vel이 하한에 붙었다.
+// 버스트 최대 기준 1박 거리 링 ≈ vel 0.35~0.4, 가까운 링은 1로 포화하도록 실측 진폭 규모에 맞춘다.
+const K_ON = 2.2, A_REF = 0.07;
+// (튜닝) 표시 원천 braw: 명세 초기값 12·0.75에서 4.2 톤 목표 쪽으로 올림. 단 목표 하한(밝음 8%)은 미달이다(실측 약 6.6~8%):
+// 전역 대비 제한 min(1, 0.14/m)이 걸리는 동안에는 κ를 키워도 밝은 비율이 분포 모양으로만 정해진다. BACKLOG.md 참조.
+const KAPPA = 32, SIGMA_S = 2.0;
+const B_MID = 0.46;                                                // 밝기 B = B_MID + uContrast·braw(셰이더·폴백·diag.tone 공통)
+const LU = -0.6, LV = 0.8;                                          // 램프 쪽 방향 ℓ (수조 좌표)
+const P_W = 25, Q_OSC = 7;                                          // (튜닝) 항적·진동자 세기. Q는 5 cm 거리 진폭 ≈ 0.08 목표에 맞춰 12 → 7
+const SIG_TAP = 2.2, SIG_RAIN = 2.0, SIG_MIN = 1.8;
+const A_TAP = 1.0, A_DROPPER = 0.85, A_RAIN = 0.55;
+const BEACH_CM = 2.8, OBJ_INSET = 3.3;
+const WET_GAIN = { beach: 0.18, open: 0.38 };                     // 잔향 wet: 해변이 켜지면 반사가 줄어 작게
+const LIMITS = { droppers: 6, oscs: 2, stones: 12, wallPts: 6000, glass: 4000 };
+const DIVS = [1, 1 / 2, 1 / 3, 1 / 4, 3 / 4, 2 / 3];
+const DIV_LABEL = ['1박', '½박', '⅓박', '¼박', '¾박', '⅔박'];
+const HWANGJONG = 311.1;
+const laneV = (L) => LANE_V0 + LANE_H * L;
+// 저장값 검증: SCALES[name]의 참/거짓만 보면 'constructor' 같은 프로토타입 키가 통과해 부팅이 멈춘다
+const isScale = (n) => typeof n === 'string' && Object.prototype.hasOwnProperty.call(SCALES, n);
+const vToLane = (v) => clamp(Math.floor(v / LANE_H), 0, LANES - 1);
+const COARSE = matchMedia('(pointer: coarse)').matches;
+const IS_PHONE = COARSE && Math.min(screen.width, screen.height) < 600;
+const SIM_BUDGET_MS = IS_PHONE ? 9 : 6;
+// [편차 3.12] 선행 계산: 명세 예산(120/250 ms)은 스텝 0.25 ms 가정이지만 실측은 0.55~0.9 ms라 명세가 보장한다는 최소 1.2 s를
+// 채우지 못했다. 1.2 s까지는 예산을 넘겨도 계속하고 PRE_HARD_MS에서만 끊는다(수용 기준 1의 1.5 s 안).
+const PRE_BUDGET_MS = IS_PHONE ? 250 : 120, PRE_HARD_MS = IS_PHONE ? 900 : 600, PRE_MIN_S = 1.2;
+const SCALES = {
+  pyeong: { name: '평조', names: ['배임', '배남', '황', '태', '중', '임', '남', '청황', '청태', '청중'],
+    hz: [233.1, 261.6, 311.1, 349.2, 415.3, 466.2, 523.3, 622.3, 698.5, 830.6] },
+  gyemyeon: { name: '계면조', names: ['배임', '배무', '황', '협', '중', '임', '무', '청황', '청협', '청중'],
+    hz: [233.1, 277.2, 311.1, 370.0, 415.3, 466.2, 554.4, 622.3, 739.9, 830.6] },
+  harmonic: { name: '배음렬', names: ['3배', '4배', '5배', '6배', '7배', '8배', '9배', '10배', '11배', '12배'],
+    hz: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => (HWANGJONG / 4) * n) },
+};
+const root = document.documentElement;
+const stage = $('stage'), glCanvas = $('gl'), fbCanvas = $('fallback'), stripCv = $('strip');
+const live = $('live');
+if (COARSE) root.classList.add('touch');
+
+// 뷰: 수조 cm → CSS px. land = 가로(u→오른쪽, v→위), port = 시계 방향 90°(u→아래, v→오른쪽)
+// 회전·여백 규칙은 toCss·toTank·screenDirToTank·screenToTankMat3와 renderFallback의 setTransform 다섯 곳에 같은
+// 식으로 들어 있다. 한 곳을 바꾸면 나머지도 함께 바꾼다(입력·오버레이·투영이 어긋나지 않게).
+const view = { mode: 'land', layout: 'desk', s: 20, ox: 0, oy: 0, W: 1, H: 1, dpr: 1 };
+function toCss(u, v) {
+  return view.mode === 'land'
+    ? [view.ox + u * view.s, view.oy + (TANK_H - v) * view.s]
+    : [view.ox + v * view.s, view.oy + u * view.s];
+}
+function toTank(X, Y) {
+  return view.mode === 'land'
+    ? [(X - view.ox) / view.s, TANK_H - (Y - view.oy) / view.s]
+    : [(Y - view.oy) / view.s, (X - view.ox) / view.s];
+}
+// 화면 방향 단위 이동(dX, dY)을 수조 좌표 변위로 (조준경용)
+function screenDirToTank(dX, dY) {
+  return view.mode === 'land' ? [dX, -dY] : [dY, dX];
+}
+// GLSL mat3(열 우선): CSS px → 수조 cm
+function screenToTankMat3() {
+  const s = view.s, ox = view.ox, oy = view.oy;
+  return view.mode === 'land'
+    ? new Float32Array([1 / s, 0, 0, 0, -1 / s, 0, -ox / s, oy / s + TANK_H, 1])
+    : new Float32Array([0, 1 / s, 0, 1 / s, 0, 0, -oy / s, -ox / s, 1]);
+}
+function tankRectCss() {
+  const [x0, y0] = toCss(0, TANK_H), [x1, y1] = toCss(TANK_W, 0);
+  return { x: Math.min(x0, x1), y: Math.min(y0, y1), w: Math.abs(x1 - x0), h: Math.abs(y1 - y0) };
+}
+
+/* ================================================================
+   솔버 · 소스 · 안정성 · c_eff 보정
+   ================================================================ */
+let NX = 320, NY = 180, DX = 0.2, N = NX * NY, BEACH_CELLS = 14, gridLow = false;
+let h, hp, kc, gm, wet, glassCov, braw, brawTmp, wallRaw, glassRaw;
+let depth = 0.60, beta = 0.12, bpm = 84, beachOn = true;      // depth: cm
+let cDeep = 0, dt = 0, rho = 1, ceff = 0, thetaFloor = 0.01, decF = 0;
+let calN = 0.5, calP2 = 0.05;
+let simTime = 0, beatPos = 0, gAuto = 1, energy = 0, nanResets = 0;
+// 벡터 저장소(cm) — 되돌리기·저장·재래스터화의 원본
+let walls = [], glass = [], droppers = [], oscs = [], stones = [];
+let nextId = 1;
+let wallPtCount = 0;
+
+function allocGrid(nx, ny, dx) {
+  NX = nx; NY = ny; DX = dx; N = nx * ny; BEACH_CELLS = Math.round(BEACH_CM / dx);
+  h = new Float32Array(N); hp = new Float32Array(N); kc = new Float32Array(N); gm = new Float32Array(N);
+  wet = new Float32Array(N); glassCov = new Float32Array(N); braw = new Float32Array(N); brawTmp = new Float32Array(N);
+  wallRaw = new Uint8Array(N); glassRaw = new Uint8Array(N);
+}
+function updateTiming() {
+  const old = dt;
+  cDeep = Math.sqrt(G_CM * depth);
+  dt = COURANT * DX / cDeep;
+  ceff = rho * cDeep;
+  decF = Math.exp(-dt / 0.035);
+  if (old > 0 && old !== dt) {
+    const r = dt / old;                       // 내재 속도 보존: hp = h − (h − hp)·(dt_new/dt_old)
+    for (let k = 0; k < N; k++) hp[k] = h[k] - (h[k] - hp[k]) * r;
+  }
+  updateThetaFloor();
+}
+function updateThetaFloor() {
+  const pFar = calP2 * Math.pow(70 / 300, calN) * Math.exp(-beta * (300 * DX) / ceff);
+  thetaFloor = clamp(0.35 * 0.85 * pFar, 0.006, 0.03);
+}
+function beachGamma(i, j) {
+  if (!beachOn) return 0;
+  const e = Math.max(0, Math.min(i, j, NX - 1 - i, NY - 1 - j) - 1);
+  if (e >= BEACH_CELLS) return 0;
+  const x = (BEACH_CELLS - e) / BEACH_CELLS;
+  return 0.25 * x * x;
+}
+// 영향받은 셀의 wet·glassCov·kc·gm을 다시 계산한다. 새로 벽이 된 셀은 h = hp = 0.
+function updateRegion(i0, j0, i1, j1) {
+  i0 = Math.max(0, i0 - 1); j0 = Math.max(0, j0 - 1); i1 = Math.min(NX - 1, i1 + 1); j1 = Math.min(NY - 1, j1 + 1);
+  const base = 2 * beta * dt;
+  for (let j = j0; j <= j1; j++) {
+    for (let i = i0; i <= i1; i++) {
+      const k = i + j * NX;
+      const border = i === 0 || j === 0 || i === NX - 1 || j === NY - 1;
+      const w = border || wallRaw[k] ? 0 : 1;
+      wet[k] = w;
+      if (!w) { h[k] = 0; hp[k] = 0; }
+      let s = 0, c = 0;
+      for (let b = -1; b <= 1; b++) {
+        const jj = j + b; if (jj < 0 || jj >= NY) continue;
+        for (let a = -1; a <= 1; a++) { const ii = i + a; if (ii < 0 || ii >= NX) continue; s += glassRaw[ii + jj * NX]; c++; }
+      }
+      const gc = s / c;
+      glassCov[k] = gc;
+      kc[k] = C2 * (1 - 0.65 * gc);
+      gm[k] = Math.min(GAMMA_MAX, base + beachGamma(i, j));
+    }
+  }
+}
+function updateAllCells() { updateRegion(0, 0, NX - 1, NY - 1); }
+
+// 벽 물리 래스터: 선분 캡슐 거리 ≤ 0.9셀
+function rasterSeg(u0, v0, u1, v1) {
+  const x0 = u0 / DX - 0.5, y0 = v0 / DX - 0.5, x1 = u1 / DX - 0.5, y1 = v1 / DX - 0.5, r = 0.9, r2 = r * r;
+  const ia = Math.max(0, Math.floor(Math.min(x0, x1) - r)), ib = Math.min(NX - 1, Math.ceil(Math.max(x0, x1) + r));
+  const ja = Math.max(0, Math.floor(Math.min(y0, y1) - r)), jb = Math.min(NY - 1, Math.ceil(Math.max(y0, y1) + r));
+  const ex = x1 - x0, ey = y1 - y0, L2 = ex * ex + ey * ey;
+  for (let j = ja; j <= jb; j++) {
+    for (let i = ia; i <= ib; i++) {
+      let t = L2 > 0 ? ((i - x0) * ex + (j - y0) * ey) / L2 : 0;
+      t = t < 0 ? 0 : t > 1 ? 1 : t;
+      const px = x0 + t * ex - i, py = y0 + t * ey - j;
+      if (px * px + py * py <= r2) wallRaw[i + j * NX] = 1;
+    }
+  }
+  return [ia, ja, ib, jb];
+}
+function rasterWall(w) {
+  const p = w.pts;
+  if (p.length === 2) rasterSeg(p[0], p[1], p[0], p[1]);
+  else for (let q = 0; q + 3 < p.length; q += 2) rasterSeg(p[q], p[q + 1], p[q + 2], p[q + 3]);
+}
+function rasterDab(d) {
+  const cx = d.u / DX - 0.5, cy = d.v / DX - 0.5, r = d.r / DX, r2 = r * r, val = d.sign > 0 ? 1 : 0;
+  const ia = Math.max(0, Math.floor(cx - r)), ib = Math.min(NX - 1, Math.ceil(cx + r));
+  const ja = Math.max(0, Math.floor(cy - r)), jb = Math.min(NY - 1, Math.ceil(cy + r));
+  for (let j = ja; j <= jb; j++) for (let i = ia; i <= ib; i++) {
+    const a = i - cx, b = j - cy;
+    if (a * a + b * b <= r2) glassRaw[i + j * NX] = val;
+  }
+  return [ia, ja, ib, jb];
+}
+
+// 표시용 마스크(640×360, 10 px/cm). 불투명 검정 바탕에 흰색으로 그려 R8 업로드 시 가장자리 AA가 유지되게 한다.
+const MASK_W = 640, MASK_H = 360, MASK_PX = 10;
+function makeMask() { const c = document.createElement('canvas'); c.width = MASK_W; c.height = MASK_H; return c; }
+const wallMask = makeMask(), glassMask = makeMask();
+const wmx = wallMask.getContext('2d'), gmx = glassMask.getContext('2d');
+const maskDirty = { wall: true, glass: true };
+function maskClear(ctx) { ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, MASK_W, MASK_H); }
+function maskWallSeg(u0, v0, u1, v1) {
+  wmx.strokeStyle = '#fff'; wmx.lineWidth = 1.8 * DX * MASK_PX; wmx.lineCap = 'round'; wmx.lineJoin = 'round';
+  wmx.beginPath(); wmx.moveTo(u0 * MASK_PX, (TANK_H - v0) * MASK_PX); wmx.lineTo(u1 * MASK_PX + 0.01, (TANK_H - v1) * MASK_PX); wmx.stroke();
+}
+function maskWall(w) {
+  const p = w.pts;
+  wmx.strokeStyle = '#fff'; wmx.lineWidth = 1.8 * DX * MASK_PX; wmx.lineCap = 'round'; wmx.lineJoin = 'round';
+  wmx.beginPath(); wmx.moveTo(p[0] * MASK_PX, (TANK_H - p[1]) * MASK_PX);
+  if (p.length === 2) wmx.lineTo(p[0] * MASK_PX + 0.01, (TANK_H - p[1]) * MASK_PX);
+  for (let q = 2; q + 1 < p.length; q += 2) wmx.lineTo(p[q] * MASK_PX, (TANK_H - p[q + 1]) * MASK_PX);
+  wmx.stroke();
+}
+function maskDab(d) {
+  gmx.fillStyle = d.sign > 0 ? '#fff' : '#000';
+  gmx.beginPath(); gmx.arc(d.u * MASK_PX, (TANK_H - d.v) * MASK_PX, d.r * MASK_PX, 0, Math.PI * 2); gmx.fill();
+}
+// 지우기·되돌리기·프리셋 로드: 벡터에서 전부 다시 만든다
+function rebuildGeometry() {
+  wallRaw.fill(0); glassRaw.fill(0);
+  wallPtCount = 0;
+  for (const w of walls) { rasterWall(w); wallPtCount += w.pts.length / 2; }
+  for (const d of glass) rasterDab(d);
+  updateAllCells();
+  maskClear(wmx); for (const w of walls) maskWall(w);
+  maskClear(gmx); for (const d of glass) maskDab(d);
+  maskDirty.wall = maskDirty.glass = true;
+}
+function cellIndex(u, v) {
+  const i = clamp(Math.floor(u / DX), 0, NX - 1), j = clamp(Math.floor(v / DX), 0, NY - 1);
+  return i + j * NX;
+}
+const isWetAt = (u, v) => wet[cellIndex(u, v)] > 0;
+
+// 멕시칸햇 방울: h와 hp에 똑같이 더한다(정지 상태에서 놓은 변위)
+function injectDrop(u, v, A, sig) {
+  sig = Math.max(SIG_MIN, sig);
+  const cx = u / DX - 0.5, cy = v / DX - 0.5, R = 6 * sig, R2 = R * R;
+  const s2 = 1 / (2 * sig * sig), s8 = 1 / (8 * sig * sig);
+  const ia = Math.max(1, Math.ceil(cx - R)), ib = Math.min(NX - 2, Math.floor(cx + R));
+  const ja = Math.max(1, Math.ceil(cy - R)), jb = Math.min(NY - 2, Math.floor(cy + R));
+  for (let j = ja; j <= jb; j++) {
+    const b = j - cy;
+    for (let i = ia; i <= ib; i++) {
+      const a = i - cx, r2 = a * a + b * b;
+      if (r2 > R2) continue;
+      const k = i + j * NX;
+      if (!wet[k]) continue;
+      const val = A * (Math.exp(-r2 * s2) - 0.25 * Math.exp(-r2 * s8));
+      h[k] += val; hp[k] += val;
+    }
+  }
+}
+function gaussAdd(u, v, amt, sig, rad) {
+  const cx = u / DX - 0.5, cy = v / DX - 0.5, s2 = 1 / (2 * sig * sig);
+  const ia = Math.max(1, Math.ceil(cx - rad)), ib = Math.min(NX - 2, Math.floor(cx + rad));
+  const ja = Math.max(1, Math.ceil(cy - rad)), jb = Math.min(NY - 2, Math.floor(cy + rad));
+  for (let j = ja; j <= jb; j++) for (let i = ia; i <= ib; i++) {
+    const a = i - cx, b = j - cy, r2 = a * a + b * b;
+    if (r2 > rad * rad) continue;
+    const k = i + j * NX;
+    h[k] += amt * Math.exp(-r2 * s2) * wet[k];
+  }
+}
+function sampleH(u, v) {
+  const x = clamp(u / DX - 0.5, 0, NX - 1.001), y = clamp(v / DX - 0.5, 0, NY - 1.001);
+  const i = Math.floor(x), j = Math.floor(y), fx = x - i, fy = y - j, k = i + j * NX;
+  return (h[k] * (1 - fx) + h[k + 1] * fx) * (1 - fy) + (h[k + NX] * (1 - fx) + h[k + NX + 1] * fx) * fy;
+}
+
+// 9점 등방 라플라시안 + 진폭 의존 포화 감쇠. 벽은 곱셈으로 처리(분기 없음)
+function stepCore() {
+  const a = h, b = hp, nx = NX, ny = NY, W = wet, K = kc, Gm = gm;
+  for (let j = 1; j < ny - 1; j++) {
+    let k = j * nx + 1;
+    const end = k + nx - 2;
+    // 이웃 값을 밀어 가며 재사용(셀당 새로 읽는 값 3개). u = j−1 행(아래), d = j+1 행(위)
+    let uL = a[k - nx - 1], uC = a[k - nx], dL = a[k + nx - 1], dC = a[k + nx], cL = a[k - 1], c = a[k];
+    for (; k < end; k++) {
+      const uR = a[k - nx + 1], dR = a[k + nx + 1], cR = a[k + 1];
+      const L = (4 * (cL + cR + uC + dC) + (uL + uR + dL + dR) - 20 * c) * 0.16666666666666666;
+      let g = Gm[k];
+      const ab = (c < 0 ? -c : c) - H_SAT;
+      if (ab > 0) { g += B_NL * ab; if (g > GAMMA_MAX) g = GAMMA_MAX; }
+      b[k] = (c + (1 - g) * (c - b[k]) + K[k] * L) * W[k];
+      uL = uC; uC = uR; dL = dC; dC = dR; cL = c; c = cR;
+    }
+  }
+  h = b; hp = a;
+}
+// [편차 3.6] E: 명세는 수조 전체 물 셀 평균이지만, 공명실처럼 물 면적의 10%인 공동이 공명해도 전역 평균은
+// 1e-2에 머물러 g_auto·게이지가 동작하지 않았다. 32×32셀 블록(물 셀 1/4 이상) 평균의 최댓값 = 국소 에너지로
+// 정의한다(정규화는 같아 E ≈ 진폭²). 게이지 구간(−5~0)은 명세 그대로, E_SOFT(튜닝)만 이 척도에 맞췄다.
+// 실측(소파 끔): 모드 4·3(4.00 Hz)에서 g_auto가 동작해 E ≈ 0.12(게이지 약 82%), 3.60 Hz는 0.024(약 68%), 첫 장면 약 0.013.
+const EB = 32;
+function computeEnergy() {
+  let best = 0;
+  for (let bj = 0; bj < NY; bj += EB) {
+    for (let bi = 0; bi < NX; bi += EB) {
+      let s = 0, n = 0;
+      const j1 = Math.min(NY, bj + EB), i1 = Math.min(NX, bi + EB);
+      for (let j = bj; j < j1; j++) {
+        for (let k = j * NX + bi, e = j * NX + i1; k < e; k++) {
+          if (!wet[k]) continue;
+          const v = h[k], d = (v - hp[k]) / 0.216;
+          s += v * v + d * d; n++;
+        }
+      }
+      if (n * 4 >= (j1 - bj) * (i1 - bi) && s / n > best) best = s / n;
+    }
+  }
+  energy = best;
+}
+function removeDC() {
+  let s = 0, n = 0;
+  for (let k = 0; k < N; k++) if (wet[k]) { s += h[k]; n++; }
+  if (!n) return;
+  const m = 0.5 * s / n;
+  for (let k = 0; k < N; k++) if (wet[k]) { h[k] -= m; hp[k] -= m; }
+}
+function fieldIsFinite() {
+  let s = 0;
+  for (let k = 0; k < N; k += 7) s += h[k] + hp[k];
+  return Number.isFinite(s);
+}
+function calmField() {
+  h.fill(0); hp.fill(0);
+  for (const st of stones) resetReadout(st);
+}
+
+// c_eff 실측: 180×180 scratch 격자, 탐침 r1 = 25셀, r2 = 70셀(+u, −v 평균)
+function calibrate() {
+  const n = 180, NN = n * n, c0 = 90, sig = 2.2;
+  let a = new Float32Array(NN), b = new Float32Array(NN);
+  const s2 = 1 / (2 * sig * sig), s8 = 1 / (8 * sig * sig), R2 = 36 * sig * sig;
+  for (let j = 1; j < n - 1; j++) for (let i = 1; i < n - 1; i++) {
+    const x = i - c0, y = j - c0, r2 = x * x + y * y;
+    if (r2 > R2) continue;
+    const val = Math.exp(-r2 * s2) - 0.25 * Math.exp(-r2 * s8);
+    a[i + j * n] = val; b[i + j * n] = val;
+  }
+  const probes = [[c0 + 25, c0], [c0, c0 - 25], [c0 + 70, c0], [c0, c0 - 70]].map(([i, j]) => i + j * n);
+  const steps = Math.ceil((70 + 20) / COURANT) + 1;
+  const hist = probes.map(() => new Float32Array(steps + 1));
+  for (let s = 1; s <= steps; s++) {
+    for (let j = 1; j < n - 1; j++) {
+      let k = j * n + 1; const end = k + n - 2;
+      for (; k < end; k++) {
+        const c = a[k];
+        const L = (4 * (a[k - 1] + a[k + 1] + a[k - n] + a[k + n]) +
+          (a[k - n - 1] + a[k - n + 1] + a[k + n - 1] + a[k + n + 1]) - 20 * c) / 6;
+        b[k] = c + (c - b[k]) + C2 * L;
+      }
+    }
+    const t = a; a = b; b = t;
+    // 확산에 따라 |x| 최대 로브가 양(선두 마루)↔음(뒤 골)으로 바뀌므로, 두 탐침 모두 같은 선두 마루(부호 있는 최대)를 잰다
+    for (let p = 0; p < 4; p++) hist[p][s] = a[probes[p]];
+  }
+  const peak = (arr) => {
+    let mi = 2;
+    for (let s = 2; s < arr.length - 1; s++) if (arr[s] > arr[mi]) mi = s;
+    const y0 = arr[mi - 1], y1 = arr[mi], y2 = arr[mi + 1], den = y0 - 2 * y1 + y2;
+    const off = den !== 0 ? clamp(0.5 * (y0 - y2) / den, -0.5, 0.5) : 0;
+    return [mi + off, y1];
+  };
+  const pk = hist.map(peak);
+  const t1 = (pk[0][0] + pk[1][0]) / 2, t2 = (pk[2][0] + pk[3][0]) / 2;
+  const p1 = (pk[0][1] + pk[1][1]) / 2, p2 = (pk[2][1] + pk[3][1]) / 2;
+  const r = (70 - 25) / (COURANT * (t2 - t1));      // 셀/스텝 비율 = c_eff / c
+  // 이론상 0.9~1.0. 측정이 비정상이면(수치 오류) 안전 범위로 제한하고, 경고를 남기며 diag.calRaw에 원값을 둔다.
+  calRaw = r;
+  rho = Number.isFinite(r) ? clamp(r, 0.85, 1.05) : 1;
+  if (rho !== r) console.warn(`파문 투영기: c_eff 보정 이상 — 측정 비율 ${r}을 ${rho}로 제한했습니다(박자 표시·스냅이 어긋날 수 있음)`);
+  calN = p2 > 0 && p1 > 0 ? clamp(Math.log(p1 / p2) / Math.log(70 / 25), 0.2, 1.2) : 0.5;
+  calP2 = p2 > 0 ? p2 : 0.05;
+  ceff = rho * cDeep;
+  // 선두 마루의 절편: 멕시칸햇의 폭만큼 링이 직선 예측보다 일찍 도착한다(거리와 무관한 상수).
+  // [편차 3.10] r_lead(cm) = r1 − c_셀·t1. 박자 링·스냅·지연 예측에 더해 '마루가 박에 닿는' 위치를 그린다.
+  const lead = (25 - COURANT * r * t1) * DX;
+  rLead = Number.isFinite(lead) ? clamp(lead, 0, 1.5) : 0;
+  if (rLead !== lead) console.warn(`파문 투영기: 선두 마루 절편 이상 — ${lead} cm를 ${rLead} cm로 제한했습니다`);
+  updateThetaFloor();
+}
+let calRaw = 1, rLead = 0;
+// 메아리 왕복 지연(셀): 벽 반사(부호 반전)와 초점 통과(2D 위상 이동)로 가장 밝은 재집속이
+// 직선 왕복보다 늦게 온다. 원형 공동에서 실측한 값(격자·Courant가 고정이라 기기·수심과 무관).
+const ECHO_LAG_CELLS = 1.75;
+
+/* ================================================================
+   시계 · transport · 점적기 · 스텝
+   ================================================================ */
+// 프레임 루프·dilation·simRate·오디오 사상 호출 순서(명세 3.3)는 파일 끝 「프레임 루프」 절에 있다.
+// simTime(초)이 유일한 마스터 시계. beatPos는 매 스텝 dt·BPM/60으로 파생한다.
+const pendingDrops = [];     // 탭 물방울: 다음 프레임 첫 스텝에 주입
+let frameEvents = [];        // 이번 프레임의 발음·방울 이벤트(정확한 simTime 도장)
+let precomputing = false;
+const rainQueue = [];        // {k, u, v} 이번 프레임의 무작위 스텝에 떨어질 빗방울
+const wakeJobs = [];         // {u0, v0, u1, v1, str} 이번 프레임 포인터 선분
+const stripTicks = [];       // {beat, t, lane, vel}
+const stripFires = [];       // {beat}
+let loopHook = null;         // (P2) 손짓 루프 재생: 스텝마다 호출
+
+const XBUF = 64;            // 울림돌별 최근 x 기록(발음 로브 되짚기용, 최소 수심에서도 약 0.4 s)
+// 판독 필드: st = 상태(RS_*), ef/es = 빠른·느린 포락선, rms2 = 지속음 RMS², tStart = 버스트 시작, tFire = 확정 시각,
+// tOn = 마지막 발음 시각, lastPeak = 병합 기준 진폭, tIdle = IDLE 진입 시각, bmax/maxT = 버스트 최대 로브 진폭·시각,
+// candT/candA = 선두 마루 후보 시각·진폭, lsg/lpk/lt/ldone = 현재 로브 부호·피크·피크 시각·완료 여부,
+// xb/tb/bi = 최근 x·시각 링버퍼와 쓰기 위치
+function makeStone(u, lane) {
+  return { id: nextId++, u, lane, st: RS_IDLE, ef: 0, es: 0, rms2: 0, tStart: 0, tFire: -9, tOn: -9,
+    lastPeak: 0, tIdle: -9, bmax: 0, maxT: 0, candT: -1, candA: 0, lsg: 1, lpk: 0, lt: 0, ldone: false, flashT: -99, flashVel: 0, strikes: 0, cal: [],
+    xb: new Float32Array(XBUF), tb: new Float64Array(XBUF).fill(-9), bi: 0 };
+}
+function resetReadout(st) { st.st = RS_IDLE; st.ef = 0; st.es = 0; st.rms2 = 0; st.lastPeak = 0; st.tFire = -9; st.tOn = -9; st.tIdle = -9; st.tb.fill(-9); }
+function makeDropper(u, v, div) {
+  const d = { id: nextId++, u, v, div, nextBeat: 0, fires: [], pulseT: -99 };
+  anchorDropper(d);
+  return d;
+}
+// 배치·이동 시 16분음표에 스냅한 뒤 beatPos보다 커질 때까지 div를 더한다
+function anchorDropper(d) {
+  let nb = Math.round(beatPos * 4) / 4;
+  while (nb <= beatPos) nb += DIVS[d.div];
+  d.nextBeat = nb;
+}
+// amp: 새로 켜진 진동자는 OSC_A0에서 시간 상수 OSC_T로 지수적으로 키워 1에서 멈춘다(약 5 s).
+// 울림돌의 느린 포락선 es(τ 0.4 s)는 지수 증가를 1/(1 + 0.4/OSC_T) 비율로 따라오므로, OSC_T > 1 s이면
+// 임계 2.2·es가 늘 진동자 진폭 위에 있어 켜지는 동안에도 연타하지 않는다(명세 3.8 '연속 성분은 지속음 경로로').
+// 선형 램프는 es의 지연 때문에 길이와 무관하게 연타한다(실측). 부팅 첫 장면은 선행 계산이 흡수하므로 1로 시작.
+const OSC_A0 = 0.03, OSC_T = 1.5;
+function makeOsc(u, v, f) { return { id: nextId++, u, v, f, ph: 0, amp: OSC_A0 }; }
+
+function step(kStep, nSteps) {
+  const t0 = simTime;
+  if (kStep === 0 && pendingDrops.length) {
+    for (const d of pendingDrops) {
+      injectDrop(d.u, d.v, d.A, d.sig);
+      if (!precomputing) frameEvents.push({ type: 'drop', t: t0, u: d.u, gain: d.gain });
+    }
+    pendingDrops.length = 0;
+  }
+  for (let q = 0; q < rainQueue.length; q++) {
+    const r = rainQueue[q];
+    if (r.k !== kStep) continue;
+    injectDrop(r.u, r.v, A_RAIN, SIG_RAIN);
+    frameEvents.push({ type: 'drop', t: t0, u: r.u, gain: 0.02 });
+  }
+  for (let q = 0; q < wakeJobs.length; q++) {
+    const w = wakeJobs[q];
+    const f0 = kStep / nSteps, f1 = (kStep + 1) / nSteps;
+    const ax = w.u0 + (w.u1 - w.u0) * f0, ay = w.v0 + (w.v1 - w.v0) * f0;
+    const bx = w.u0 + (w.u1 - w.u0) * f1, by = w.v0 + (w.v1 - w.v0) * f1;
+    const cells = Math.hypot(bx - ax, by - ay) / DX;
+    const m = cells > 1 ? Math.min(8, Math.ceil(cells)) : 1;
+    for (let s = 1; s <= m; s++) {
+      const f = s / m;
+      gaussAdd(ax + (bx - ax) * f, ay + (by - ay) * f, -w.str / m, 1.6, 5);
+    }
+  }
+  const dB = dt * bpm / 60;
+  // 방울은 스텝 경계에서만 주입할 수 있으므로, 이상적 발사 시각(tf)에 가장 가까운 경계(이 스텝의 시작 t0)에서
+  // 주입한다. 그러면 주입 시각과 기록 시각의 차이가 ±dt/2로 치우침 없이 흩어진다.
+  let minDiv = Infinity;
+  for (const d of droppers) {
+    minDiv = Math.min(minDiv, DIVS[d.div]);
+    if (beatPos + 0.5 * dB >= d.nextBeat) {
+      const tf = t0 + (d.nextBeat - beatPos) / (bpm / 60);
+      injectDrop(d.u, d.v, A_DROPPER, SIG_TAP);
+      d.fires.push(tf); if (d.fires.length > 64) d.fires.shift();
+      d.pulseT = tf;
+      stripFires.push({ beat: d.nextBeat });
+      if (!precomputing) frameEvents.push({ type: 'drop', t: tf, u: d.u, gain: 0.03 });
+      d.nextBeat += DIVS[d.div];
+      if (d.nextBeat <= beatPos + 0.5 * dB) anchorDropper(d);
+    }
+  }
+  mergeT = Math.min(0.15, 0.6 * minDiv * 60 / bpm);
+  if (loopHook) loopHook(t0, beatPos, dB);
+  for (const o of oscs) {
+    o.ph += 2 * Math.PI * o.f * dt;
+    if (o.ph > 2 * Math.PI) o.ph -= 2 * Math.PI;
+    if (o.amp < 1) o.amp = Math.min(1, o.amp * (1 + dt / OSC_T));
+    gaussAdd(o.u, o.v, Q_OSC * gAuto * o.amp * dt * Math.sin(o.ph), 1.5, 5);
+  }
+  stepCore();
+  simTime = t0 + dt;
+  beatPos += dB;
+  for (let s = 0; s < stones.length; s++) readStone(stones[s], simTime);
+}
+
+/* ================================================================
+   판독 · 레인 · 음계 · 박자 기하 · 캘리퍼
+   ================================================================ */
+let scaleName = 'pyeong';
+let mergeT = 0.15;           // 버스트 병합 창(s): 불응 직후 같은 링의 꼬리 로브를 새 발음으로 치지 않는다(step()이 분할에 맞춰 갱신)
+const MERGE_ARR_AHEAD = 0.05, MERGE_ARR_BEHIND = 0.025;   // 병합 창 예외: 직선 도달 예측 허용 폭(s, directArrivalNear)
+// 판독 창(s). 서로 맞물린 값이며 오디오 여유 READ_LAG(오디오 절)가 이 확정 지연을 전제로 한다 — 바꾸면 함께 검토.
+const READ_REVIVE_S = 0.06;      // 트리거 직전 되살리는 로브 창(임계가 높아 골에서 잡힌 경우)
+const READ_CAND_HOLD_S = 0.09;   // 선두 마루 후보 뒤 다음 로브를 기다리는 최대 시간
+const READ_BURST_MAX_S = 0.15;   // 후보 없이 버스트를 모으는 최대 시간(그 뒤 최대 로브에서 발음)
+const REFRACT_S = 0.070;         // 불응(명세 3.8)
+const RS_IDLE = 0, RS_BURST = 1, RS_REFRACT = 2;   // 판독 상태(명세 RISING = 구현의 버스트 로브 분석)
+// 상태기계 RS_IDLE → RS_BURST → RS_REFRACT(명세 3.8의 IDLE / RISING / REFRACT). 빠른·느린 포락선 대비 적응 임계,
+// 하한은 부팅 실측(THETA_FLOOR).
+// [편차 3.8] 수용 기준 5·7·17을 위해 명세와 다른 점. 임계·불응·vel 식은 명세 그대로이고, RISING 대신 '버스트 로브 분석'을 쓴다.
+//  · 발음 시각 = 버스트에서 처음으로 |x|최대의 0.5배 이상이 된 양의 로브(선두 마루). c_eff 보정·박자 링이 선두 마루
+//    기준이므로, 방울 링(작은 음의 전구 → 마루 → 골)을 전구·마루·골 어느 로브에서 잡든 같은 시각이 나온다.
+//    임계가 높아 골에서 잡힌 경우를 위해 트리거 직전 READ_REVIVE_S의 로브를 기록에서 되살린다.
+//  · 후보 마루 뒤에 완성된 로브가 후보의 2배 미만이면 확정(방울 링), 2배 이상이면 후보를 버리고 계속 모은다
+//    (메아리 북처럼 로브마다 커지는 수렴파는 가장 밝은 재집속에서 발음).
+//  · 불응(확정 시점 tFire부터 REFRACT_S) 뒤 mergeT 안에서는 max(thr, 0.9·lastPeak)를 넘어야 새 발음(유리 뒤 분산 꼬리 병합).
+//    lastPeak는 불응 동안 버스트의 최대 |x|로 갱신한다.
+//  · 단, 어떤 점적기 발사의 직선 도달 예측과 맞는 트리거는 병합하지 않는다(directArrivalNear). 불응 중이라도
+//    발음 시각 tOn부터 REFRACT_S가 지났으면 곧바로 새 버스트를 연다(다른 점적기의 링이 80~220 ms 뒤 도착하는 배치).
+//  확정은 발음 시각보다 늦으므로(판독 창 상수 참조) 오디오 사상에 READ_LAG를 더한다(scheduleAudio).
+function readStone(st, t) {
+  const x = sampleH(st.u, laneV(st.lane)), a = x < 0 ? -x : x;
+  st.bi = (st.bi + 1) % XBUF; st.xb[st.bi] = x; st.tb[st.bi] = t;
+  st.ef = Math.max(a, st.ef * decF);
+  st.es += (a - st.es) * (dt / 0.40);
+  st.rms2 += (x * x - st.rms2) * (dt / 0.25);
+  const thr = Math.max(thetaFloor, K_ON * st.es);
+  if (st.st === RS_IDLE) {
+    if (a > thr && (t - st.tIdle >= mergeT || a > 0.9 * st.lastPeak || directArrivalNear(st, t))) startBurst(st, x, a, t);
+  } else if (st.st === RS_BURST) {
+    const sg = x >= 0 ? 1 : -1;
+    if (sg !== st.lsg) {
+      if (!st.ldone) lobeDone(st, st.lsg, st.lpk, st.lt);
+      if (st.st !== RS_BURST) return;
+      st.lsg = sg; st.lpk = a; st.lt = t; st.ldone = false;
+    } else if (a > st.lpk) { st.lpk = a; st.lt = t; }
+    else if (!st.ldone && a < 0.8 * st.lpk) { st.ldone = true; lobeDone(st, sg, st.lpk, st.lt); if (st.st !== RS_BURST) return; }
+    if (st.candT >= 0 ? t - st.candT > READ_CAND_HOLD_S : t - st.tStart > READ_BURST_MAX_S) fireStone(st, st.candT >= 0 ? st.candT : st.maxT, t);
+  } else {
+    if (a > st.lastPeak) st.lastPeak = a;
+    if (t - st.tFire >= REFRACT_S && st.ef < Math.max(thr, 0.35 * st.lastPeak)) { st.st = RS_IDLE; st.tIdle = t; }
+    // 앞 링의 꼬리가 가시기 전에 다른 발사의 직선 도달이 겹치면(가까운 두 도달) 곧바로 새 버스트.
+    // 이 경로의 불응은 명세대로 발음 시각(선두 마루)부터 70 ms다.
+    else if (t - st.tOn >= REFRACT_S && a > thr && directArrivalNear(st, t)) { st.tIdle = t; startBurst(st, x, a, t); }
+  }
+}
+// 병합 창 예외: 어떤 점적기 발사의 직선 도달 예측(선두 마루)이 지금 트리거 근처면 꼬리가 아니라 새 링이다.
+// 트리거는 선두 마루보다 조금 앞(전구 골·오르막)에서 걸리므로 예측이 [t − 과거 허용, t + 미래 허용] 안이면 인정한다.
+function directArrivalNear(st, t) {
+  const sv = laneV(st.lane);
+  for (const d of droppers) {
+    const p0 = arrivalS(Math.hypot(d.u - st.u, d.v - sv));
+    for (let q = d.fires.length - 1; q >= 0; q--) {
+      const p = d.fires[q] + p0;
+      if (p > t + MERGE_ARR_AHEAD) continue;
+      if (p >= t - MERGE_ARR_BEHIND) return true;
+      break;
+    }
+  }
+  return false;
+}
+function startBurst(st, x, a, t) {
+  st.st = RS_BURST; st.tStart = t; st.bmax = 0; st.maxT = t; st.candT = -1; st.candA = 0;
+  // 트리거 직전 로브(불응 이후, READ_REVIVE_S 안)를 시간순으로 되살린다
+  const lim = Math.max(t - READ_REVIVE_S, st.tIdle), segs = [];
+  let j = (st.bi + XBUF - 1) % XBUF, n = 0, sg = 0, pk = 0, pt = 0;
+  while (n < XBUF - 1 && st.tb[j] > lim) {
+    const v = st.xb[j], s = v >= 0 ? 1 : -1, av = v < 0 ? -v : v;
+    if (s !== sg) { if (sg) segs.push([sg, pk, pt]); sg = s; pk = 0; }
+    if (av > pk) { pk = av; pt = st.tb[j]; }
+    j = (j + XBUF - 1) % XBUF; n++;
+  }
+  if (sg) segs.push([sg, pk, pt]);
+  const cur = x >= 0 ? 1 : -1;
+  if (segs.length && segs[0][0] === cur) segs.shift();   // 트리거 샘플과 붙은 같은 부호 구간은 현재 로브의 일부
+  for (let q = segs.length - 1; q >= 0; q--) if (segs[q][1] >= thetaFloor) lobeDone(st, segs[q][0], segs[q][1], segs[q][2]);
+  st.lsg = cur; st.lpk = a; st.lt = t; st.ldone = false;
+}
+function lobeDone(st, sg, amp, tl) {
+  if (amp > st.bmax) { st.bmax = amp; st.maxT = tl; }
+  if (st.candT >= 0 && tl > st.candT && amp >= 0.25 * st.candA) {
+    if (amp < 2 * st.candA) { fireStone(st, st.candT, tl); return; }
+    st.candT = -1; st.candA = 0;
+  }
+  if (st.candT < 0 && sg > 0 && amp >= 0.5 * st.bmax) { st.candT = tl; st.candA = amp; }
+}
+function fireStone(st, tOn, tLast) {
+  const vel = clamp((st.bmax - 0.5 * st.es) / A_REF, 0.06, 1);
+  st.st = RS_REFRACT; st.tFire = tLast; st.tOn = tOn; st.lastPeak = st.bmax;
+  onStrike(st, tOn, vel);
+}
+function onStrike(st, t, vel) {
+  st.strikes++;
+  st.flashT = t; st.flashVel = vel;
+  stripTicks.push({ beat: beatPos - (simTime - t) * bpm / 60, t, lane: st.lane, vel });
+  caliperRecord(st, t);
+  if (!precomputing) frameEvents.push({ type: 'strike', t, stone: st, vel });
+}
+const sustainGain = (st) => clamp((Math.sqrt(st.rms2) - 0.02) * 3, 0, 0.5);
+const noteName = (lane) => SCALES[scaleName].names[lane];
+const noteHz = (lane) => SCALES[scaleName].hz[lane];
+const beatCm = () => ceff * 60 / bpm;
+// 박자 링: 선두 마루가 n/4박에 지나는 반지름(간격은 c_eff·박/4 그대로, 전체가 r_lead만큼 바깥)
+const ringR = (n) => ceff * n * (60 / bpm) / 4 + rLead;
+// 직선 도달 시간(s): 선두 마루 절편을 뺀 거리 / c_eff
+const arrivalS = (dist) => Math.max(0, dist - rLead) / ceff;
+const fMax = () => Math.min(14, ceff / (8 * DX));
+const wallHalf = () => 0.9 * DX;
+function nearestDropper(u, v) {
+  let best = null, bd = Infinity;
+  for (const d of droppers) { const e = Math.hypot(d.u - u, d.v - v); if (e < bd) { bd = e; best = d; } }
+  return best;
+}
+function straightBeats(st, d) { return arrivalS(Math.hypot(d.u - st.u, d.v - laneV(st.lane))) * bpm / 60; }
+// 박자 스냅: 레인(v)은 유지한 채 가장 가까운 r_n 위로 u를 푼다
+function snapU(u, v, d) {
+  const dist = Math.hypot(u - d.u, v - d.v), dv = v - d.v, sign = u >= d.u ? 1 : -1;
+  let best = u, be = Infinity;
+  for (let n = 1; n <= 16; n++) {
+    const r = ringR(n);
+    if (r * r < dv * dv) continue;
+    const cand = d.u + sign * Math.sqrt(r * r - dv * dv);
+    if (cand < OBJ_INSET || cand > TANK_W - OBJ_INSET) continue;
+    const e = Math.abs(dist - r);
+    if (e < be) { be = e; best = cand; }
+  }
+  return best;
+}
+// 캘리퍼: 기준 점적기 발사 가운데 (onset − fire)가 [0.5·예측, 2.0·예측]이고 예측과 가장 가까운 것.
+// 다른 점적기의 직선 도달로 훨씬 잘 설명되는 타격(그 점적기의 링)은 짝짓지 않는다.
+function arrivalErr(d, v, st, onset) {
+  const pred = arrivalS(Math.hypot(d.u - st.u, d.v - v));
+  let e = Infinity;
+  for (const f of d.fires) e = Math.min(e, Math.abs(onset - f - pred));
+  return e;
+}
+function caliperRecord(st, onset) {
+  const v = laneV(st.lane), d = nearestDropper(st.u, v);
+  if (!d) return;
+  const pred = arrivalS(Math.hypot(d.u - st.u, d.v - v));
+  let best = null, be = Infinity;
+  for (const f of d.fires) {
+    const dl = onset - f;
+    if (dl < 0.5 * pred || dl > 2 * pred) continue;
+    const e = Math.abs(dl - pred);
+    if (e < be) { be = e; best = dl; }
+  }
+  if (best === null) return;
+  for (const o of droppers) {
+    if (o === d) continue;
+    const eo = arrivalErr(o, v, st, onset);
+    if (eo < 0.05 && eo < 0.5 * be) return;
+  }
+  st.cal.push({ d: best, ref: d.id });
+  if (st.cal.length > 6) st.cal.shift();
+}
+// [편차 3.10] 실측: 명세는 최근 3회 짝의 평균이지만, 반사·산란 경로의 타격이 섞이면 평균이 끌려간다(첫 장면 남 −16%).
+// 최근 6회 짝 가운데 서로 max(15 ms, 5%·예측) 안에 모이는 가장 큰 무리(같으면 예측에 가까운 무리)의
+// 최근 3개 평균을 쓴다(무리가 2개 미만이면 —).
+function caliperMean(cal, pred) {
+  const tol = Math.max(0.015, 0.05 * pred);
+  const mean = (m) => m.reduce((a, c) => a + c.d, 0) / m.length;
+  let best = null, bestErr = Infinity;
+  for (let i = cal.length - 1; i >= 0; i--) {
+    const all = cal.filter((c) => Math.abs(c.d - cal[i].d) <= tol), m = all.slice(-3), e = Math.abs(mean(m) - pred);
+    if (!best || all.length > best.n || (all.length === best.n && e < bestErr)) { best = { n: all.length, m }; bestErr = e; }
+  }
+  return best && best.n >= 2 ? mean(best.m) : null;
+}
+function stoneLabel(st) {
+  const name = noteName(st.lane);
+  const d = nearestDropper(st.u, laneV(st.lane));
+  if (!d) return name;
+  const sb = straightBeats(st, d);
+  let s = `${name} · 직선 ${sb.toFixed(2)}박`;
+  const m = caliperMean(st.cal.filter((c) => c.ref === d.id), sb * 60 / bpm);
+  if (m === null) return s + ' · 실측 —';
+  const mb = m * bpm / 60;
+  const pct = Math.round((mb / sb - 1) * 100);
+  const amb = Math.abs(mb - sb) > DIVS[d.div] / 2 ? '≈' : '';
+  return `${s} · 실측 ${amb}${mb.toFixed(2)}박 (${pct >= 0 ? '+' : '−'}${Math.abs(pct)}%)`;
+}
+// 메아리 라벨: 파라핀 획이 원이면 닫고 반사 왕복 박수를 붙인다
+function detectCircle(w) {
+  const p = w.pts, n = p.length / 2;
+  if (n < 12) return null;
+  let len = 0, cu = 0, cv = 0;
+  for (let i = 0; i < n; i++) { cu += p[2 * i]; cv += p[2 * i + 1]; if (i) len += Math.hypot(p[2 * i] - p[2 * i - 2], p[2 * i + 1] - p[2 * i - 1]); }
+  cu /= n; cv /= n;
+  const gap = Math.hypot(p[0] - p[2 * n - 2], p[1] - p[2 * n - 1]);
+  if (gap >= 0.06 * len) return null;
+  let R = 0; const rs = [];
+  for (let i = 0; i < n; i++) { const r = Math.hypot(p[2 * i] - cu, p[2 * i + 1] - cv); rs.push(r); R += r; }
+  R /= n;
+  const sd = Math.sqrt(rs.reduce((a, r) => a + (r - R) * (r - R), 0) / n);
+  if (sd / R >= 0.12) return null;
+  return { cu, cv, R };
+}
+// [편차 3.10] 메아리 박수: 명세 식 2(R − 0.18)/c_eff에 실측 왕복 지연(2·ECHO_LAG)을 더한다(라벨과 실제 재집속 일치).
+const echoLag = () => ECHO_LAG_CELLS * DX;
+const echoBeats = (e) => 2 * (e.R - wallHalf() + echoLag()) / ceff * bpm / 60;
+const humHz = (o) => o.f * 32;
+function snapOscPitch(f) {
+  const hum = f * 32;
+  let best = hum, be = Infinity;
+  for (const base of SCALES[scaleName].hz) {
+    for (let k = -3; k <= 3; k++) {
+      const c = base * Math.pow(2, k), e = Math.abs(Math.log(c / hum));
+      if (e < be) { be = e; best = c; }
+    }
+  }
+  return clamp(best / 32, 3, fMax());
+}
+
+/* ================================================================
+   GL 렌더 · 셰이더 · 폴백 · 컨텍스트
+   ================================================================ */
+let uContrast = 1, contrastSm = 1, strobeLimit = 1, strobeLimSm = 1, brawMeanAbs = 0;
+let quality = 0, renderScale = 1, dispOn = true;
+let renderMode = 'gl', permFallback = false, lostTimer = 0;
+let reduced = false;
+// CPU 표시 원천: 곡률과 기울기를 격자 해상도에서 한 채널로 합친다(마름모 격자 무늬 방지)
+function computeBraw() {
+  const a = h, nx = NX, ny = NY, B = braw, W = wet, K = kc, kap = KAPPA, ss = SIGMA_S, invC2 = 1 / C2;
+  const gu = 0.5 * LU, gv = 0.5 * LV;
+  let sum = 0, cnt = 0;
+  for (let j = 1; j < ny - 1; j++) {
+    let k = j * nx + 1;
+    const end = k + nx - 2;
+    let uL = a[k - nx - 1], uC = a[k - nx], dL = a[k + nx - 1], dC = a[k + nx], cL = a[k - 1], c = a[k];
+    for (; k < end; k++) {
+      const uR = a[k - nx + 1], dR = a[k + nx + 1], cR = a[k + 1];
+      if (W[k]) {
+        const L = (4 * (cL + cR + uC + dC) + (uL + uR + dL + dR) - 20 * c) * 0.16666666666666666;
+        // 유리(얕은 물)에서는 파수가 1/√r배가 되어 곡률이 1/r배로 커진다. 표시만 r = kc/C²로 정규화해
+        // 렌즈 안이 잡음 얼룩처럼 타 버리지 않게 한다(물리는 그대로).
+        const r = K[k] * invC2;
+        const v = r * (-kap * L) - Math.sqrt(r) * ss * ((cR - cL) * gu + (dC - uC) * gv);
+        B[k] = v;
+        if ((k & 7) === 0) { sum += v < 0 ? -v : v; cnt++; }
+      } else B[k] = 0;
+      uL = uC; uC = uR; dL = dC; dC = dR; cL = c; c = cR;
+    }
+  }
+  brawMeanAbs = cnt ? sum / cnt : 0;
+  smoothGlassBraw();
+}
+// [편차 4.2b] 유리 칸 표시 평활: 얕은 물에서는 격자 규모(2~4셀) 잔파가 빠져나가지 못하고 남는데,
+// 곡률 표시가 짧은 파장을 k²배로 키워 렌즈 안이 반점 무늬가 된다. 표시에만 3×3 이항(1-2-1) 필터를
+// glassCov 가중으로 GLASS_SMOOTH_PASSES번 섞는다. 물리·판독·캘리퍼는 그대로다.
+const GLASS_SMOOTH_PASSES = 2;
+function smoothGlassBraw() {
+  if (!glass.length) return;
+  const nx = NX, G = glassCov, W = wet, B = braw, T = brawTmp;
+  for (let p = 0; p < GLASS_SMOOTH_PASSES; p++) {
+    T.set(B);
+    for (let j = 1; j < NY - 1; j++) {
+      for (let k = j * nx + 1, end = k + nx - 2; k < end; k++) {
+        const g = G[k];
+        if (g <= 0 || !W[k]) continue;
+        const s = (4 * T[k] + 2 * (T[k - 1] + T[k + 1] + T[k - nx] + T[k + nx])
+          + T[k - nx - 1] + T[k - nx + 1] + T[k + nx - 1] + T[k + nx + 1]) * 0.0625;
+        B[k] = T[k] + (s - T[k]) * g;
+      }
+    }
+  }
+}
+// 전역 광과민 안전: 평균 |braw|로 대비를 제한(τ 0.5 s). 감쇠 모드에서 ×0.6.
+// [편차 4.10] 하한: 명세 0.45는 κ 12 기준이다. κ를 튜닝으로 키웠으므로 실효 대비(κ·uContrast)의 하한이 같도록 0.45·12/κ로 둔다.
+const CONTRAST_FLOOR = 0.45 * 12 / KAPPA;
+function updateContrast(wallDt) {
+  const target = brawMeanAbs > 1e-6 ? Math.min(1, 0.14 / brawMeanAbs) : 1;
+  const k = 1 - Math.exp(-wallDt / 0.5);
+  contrastSm += (target - contrastSm) * k;
+  // 스트로보 대비 제한은 계단이 되지 않도록 τ 0.3 s로 평활한다(수용 기준 19)
+  strobeLimSm += (strobeLimit - strobeLimSm) * (1 - Math.exp(-wallDt / 0.3));
+  uContrast = Math.max(CONTRAST_FLOOR, contrastSm) * (reduced ? 0.6 : 1) * strobeLimSm;
+}
+// 진단(diag.tone): 화면 픽셀은 셀 값이 아니라 B-스플라인 바이큐빅(봉우리를 깎는 근사 필터)을 거친 값이므로,
+// 물 셀마다 셰이더와 같은 가중으로 2×2 부표본(텍셀 좌표 +0.25/+0.75 — 셀 격자를 반 칸 민 균일 표본)을 재서
+// 픽셀 분포를 근사한다(수용 기준 2·4.2 튜닝 목표).
+function bsplineW(f, w) {
+  const f2 = f * f, f3 = f2 * f, g = 1 - f;
+  w[0] = g * g * g / 6; w[1] = (3 * f3 - 6 * f2 + 4) / 6; w[2] = (-3 * f3 + 3 * f2 + 3 * f + 1) / 6; w[3] = f3 / 6;
+}
+function toneStats() {
+  let br = 0, dk = 0, n = 0;
+  const wx = [0, 0, 0, 0], wy = [0, 0, 0, 0], offs = [0.25, 0.75];
+  for (let j = 2; j < NY - 2; j++) {
+    for (let i = 2; i < NX - 2; i++) {
+      if (!wet[i + j * NX]) continue;
+      for (const oy of offs) {
+        bsplineW(oy, wy);
+        for (const ox of offs) {
+          bsplineW(ox, wx);
+          // 텍셀 좌표 i + ox(floor = i, 분수 = ox. 셀 중심이 i이므로 +0.75는 다음 셀 쪽): 이웃 i−1..i+2
+          let v = 0;
+          for (let b = 0; b < 4; b++) {
+            const row = (j - 1 + b) * NX;
+            let r = 0;
+            for (let a = 0; a < 4; a++) r += wx[a] * braw[row + i - 1 + a];
+            v += wy[b] * r;
+          }
+          const B = B_MID + uContrast * v;
+          if (B >= 0.70) br++;
+          if (B <= 0.50) dk++;
+          n++;
+        }
+      }
+    }
+  }
+  return { bright: n ? +(br / n).toFixed(4) : 0, dark: n ? +(dk / n).toFixed(4) : 0 };
+}
+
+// LUT 5스톱, sRGB 직접 보간
+const LUT = new Uint8Array(256 * 4);
+(() => {
+  const stops = [[0, 0x0C1D1F], [0.34, 0x12272A], [0.52, 0x3A5A57], [0.80, 0xF3DCA2], [1.0, 0xFFF8E8]];
+  for (let i = 0; i < 256; i++) {
+    const B = i / 255;
+    let s = 0;
+    while (s < stops.length - 2 && B > stops[s + 1][0]) s++;
+    const [b0, c0] = stops[s], [b1, c1] = stops[s + 1], f = clamp((B - b0) / (b1 - b0), 0, 1);
+    for (let ch = 0; ch < 3; ch++) {
+      const sh = 16 - ch * 8, x0 = (c0 >> sh) & 255, x1 = (c1 >> sh) & 255;
+      LUT[i * 4 + ch] = Math.round(x0 + (x1 - x0) * f);
+    }
+    LUT[i * 4 + 3] = 255;
+  }
+})();
+
+const VS = `#version 300 es
+void main(){
+  vec2 p = vec2(gl_VertexID == 1 ? 3.0 : -1.0, gl_VertexID == 2 ? 3.0 : -1.0);
+  gl_Position = vec4(p, 0.0, 1.0);
+}`;
+const FS = `#version 300 es
+precision highp float;
+uniform mat3 uS2T;
+uniform float uBackH, uPx, uDx, uContrast, uHoldMix, uBeach, uDisp;
+uniform vec2 uGrid;
+uniform sampler2D uField, uPrev, uWall, uGlass, uLut;
+const vec2 LDIR = vec2(-0.6, 0.8);
+const vec2 TANK = vec2(${TANK_W.toFixed(1)}, ${TANK_H.toFixed(1)});
+out vec4 outColor;
+vec4 bsw(float f){
+  float f2 = f * f, f3 = f2 * f, g = 1.0 - f;
+  return vec4(g * g * g, 3.0 * f3 - 6.0 * f2 + 4.0, -3.0 * f3 + 3.0 * f2 + 3.0 * f + 1.0, f3) / 6.0;
+}
+float bicubic(sampler2D t, vec2 x){
+  vec2 i = floor(x), f = x - i;
+  vec4 wx = bsw(f.x), wy = bsw(f.y);
+  vec2 g0 = vec2(wx.x + wx.y, wy.x + wy.y), g1 = vec2(wx.z + wx.w, wy.z + wy.w);
+  vec2 h0 = vec2(wx.y / g0.x, wy.y / g0.y) - 1.0, h1 = vec2(wx.w / g1.x, wy.w / g1.y) + 1.0;
+  vec2 p0 = (i + h0 + 0.5) / uGrid, p1 = (i + h1 + 0.5) / uGrid;
+  return g0.y * (g0.x * texture(t, p0).r + g1.x * texture(t, vec2(p1.x, p0.y)).r)
+       + g1.y * (g0.x * texture(t, vec2(p0.x, p1.y)).r + g1.x * texture(t, p1).r);
+}
+float fieldAt(vec2 x){
+  float c = bicubic(uField, x);
+  if (uHoldMix < 0.999) c = mix(bicubic(uPrev, x), c, uHoldMix);
+  return c;
+}
+vec4 lut(float B){ return texture(uLut, vec2(clamp(B, 0.0, 1.0) * (255.0 / 256.0) + 0.5 / 256.0, 0.5)); }
+float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+float wallAt(vec2 tk){ return texture(uWall, vec2(tk.x / TANK.x, 1.0 - tk.y / TANK.y)).r; }
+void main(){
+  vec2 css = vec2(gl_FragCoord.x, uBackH - gl_FragCoord.y) / uPx;
+  vec2 tk = (uS2T * vec3(css, 1.0)).xy;
+  // 미분(fwidth)은 균일 제어 흐름에서만 정의되므로 분기 전에 구한다(소파 철망 선 폭)
+  float q1 = (tk.x + tk.y) / 0.7, q2 = (tk.x - tk.y) / 0.7;
+  float fq1 = fwidth(q1), fq2 = fwidth(q2);
+  vec3 col;
+  float dout = length(max(max(-tk, tk - TANK), 0.0));
+  if (dout > 0.0) {
+    col = lut(0.40 + (hash(floor(css)) - 0.5) * 0.012).rgb;
+    col *= mix(0.35, 1.0, smoothstep(0.0, 0.8, dout));
+  } else {
+    vec2 x = tk / uDx - 0.5;
+    float bg = fieldAt(x), br = bg, bb = bg;
+    if (uDisp > 0.5) { vec2 o = LDIR * 0.35; br = fieldAt(x + o); bb = fieldAt(x - o); }
+    vec3 B = ${B_MID.toFixed(2)} + uContrast * vec3(br, bg, bb);
+    col = vec3(lut(B.r).r, lut(B.g).g, lut(B.b).b);
+    vec2 mt = vec2(tk.x / TANK.x, 1.0 - tk.y / TANK.y);
+    float gc = texture(uGlass, mt).r;
+    col = mix(col, vec3(0.435, 0.647, 0.588), 0.08 * smoothstep(0.3, 0.7, gc));
+    col += (1.0 - smoothstep(0.0, 0.12, abs(gc - 0.5))) * 0.12 * vec3(0.612, 0.788, 0.737);
+    float wc = texture(uWall, mt).r;
+    float ws = wallAt(tk + LDIR * 0.30);
+    float a = smoothstep(0.35, 0.65, wc);
+    col *= 1.0 - 0.40 * ws * (1.0 - a);
+    if (wc > 0.01) {
+      vec2 gr = vec2(wallAt(tk + vec2(0.1, 0.0)) - wallAt(tk - vec2(0.1, 0.0)),
+                     wallAt(tk + vec2(0.0, 0.1)) - wallAt(tk - vec2(0.0, 0.1)));
+      vec2 n = dot(gr, gr) > 1e-6 ? normalize(gr) : vec2(0.0);
+      vec3 wax = vec3(0.851, 0.827, 0.749) * (0.80 + 0.20 * dot(-n, LDIR));
+      wax *= mix(0.80, 1.0, smoothstep(0.45, 0.6, wc));
+      col = mix(col, wax, a);
+    }
+    float ein = min(min(tk.x, TANK.x - tk.x), min(tk.y, TANK.y - tk.y));
+    if (uBeach > 0.5 && ein < 2.8) {
+      float d1 = 0.5 - abs(fract(q1) - 0.5), d2 = 0.5 - abs(fract(q2) - 0.5);
+      float m = max(1.0 - smoothstep(0.0, fq1, d1), 1.0 - smoothstep(0.0, fq2, d2));
+      col = mix(col, vec3(0.047, 0.114, 0.122), 0.06 * m);
+    }
+    col *= mix(0.55, 1.0, smoothstep(0.0, 0.3, ein));
+  }
+  col *= 1.0 - 0.18 * smoothstep(0.3, 1.1, length(tk - TANK * 0.5) / length(TANK * 0.5));
+  outColor = vec4(col, 1.0);
+}`;
+
+let gl = null, glProg = null, glU = null, glT = null, glFailReason = '';
+function glShader(type, src) {
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { glFailReason = 'shader: ' + gl.getShaderInfoLog(s); return null; }
+  return s;
+}
+function glTex(internal, w, h2, fmt, type, data, filter) {
+  const t = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.texImage2D(gl.TEXTURE_2D, 0, internal, w, h2, 0, fmt, type, data);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  return t;
+}
+function makeFieldTextures() {
+  if (glT && glT.field) { gl.deleteTexture(glT.field); gl.deleteTexture(glT.prev); }
+  glT.field = glTex(gl.R16F, NX, NY, gl.RED, gl.FLOAT, null, gl.LINEAR);
+  glT.prev = glTex(gl.R16F, NX, NY, gl.RED, gl.FLOAT, null, gl.LINEAR);
+  gl.bindTexture(gl.TEXTURE_2D, glT.field);
+  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, NX, NY, gl.RED, gl.FLOAT, braw);
+  gl.bindTexture(gl.TEXTURE_2D, glT.prev);
+  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, NX, NY, gl.RED, gl.FLOAT, braw);
+}
+// 부팅·복구 검사: 셰이더 컴파일·링크, R16F 생성 + FLOAT 업로드 후 getError
+function setupGL() {
+  glFailReason = '';
+  if (!gl || gl.isContextLost()) { glFailReason = 'no context'; return false; }
+  const vs = glShader(gl.VERTEX_SHADER, VS), fs = glShader(gl.FRAGMENT_SHADER, FS);
+  if (!vs || !fs) return false;
+  const p = gl.createProgram();
+  gl.attachShader(p, vs); gl.attachShader(p, fs); gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) { glFailReason = 'link: ' + gl.getProgramInfoLog(p); return false; }
+  glProg = p;
+  glU = {};
+  for (const n of ['uS2T', 'uBackH', 'uPx', 'uDx', 'uContrast', 'uHoldMix', 'uBeach', 'uDisp', 'uGrid', 'uField', 'uPrev', 'uWall', 'uGlass', 'uLut']) glU[n] = gl.getUniformLocation(p, n);
+  gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+  glT = {};
+  makeFieldTextures();
+  glT.wall = glTex(gl.R8, MASK_W, MASK_H, gl.RED, gl.UNSIGNED_BYTE, null, gl.LINEAR);
+  glT.glass = glTex(gl.R8, MASK_W, MASK_H, gl.RED, gl.UNSIGNED_BYTE, null, gl.LINEAR);
+  glT.lut = glTex(gl.RGBA8, 256, 1, gl.RGBA, gl.UNSIGNED_BYTE, LUT, gl.LINEAR);
+  maskDirty.wall = maskDirty.glass = true;
+  gl.useProgram(p);
+  gl.uniform1i(glU.uField, 0); gl.uniform1i(glU.uPrev, 1); gl.uniform1i(glU.uWall, 2); gl.uniform1i(glU.uGlass, 3); gl.uniform1i(glU.uLut, 4);
+  const err = gl.getError();
+  if (err !== gl.NO_ERROR) { glFailReason = 'getError ' + err; return false; }
+  return true;
+}
+function initGL() {
+  try {
+    gl = glCanvas.getContext('webgl2', { antialias: false, alpha: false, depth: false, stencil: false, premultipliedAlpha: false, powerPreference: 'high-performance' });
+  } catch (e) { gl = null; glFailReason = String(e && e.message || e); }
+  if (!gl) { if (!glFailReason) glFailReason = 'WebGL2 없음'; return false; }
+  glCanvas.addEventListener('webglcontextlost', (e) => {
+    e.preventDefault();
+    setRenderMode('fallback');
+    toast('투영기를 다시 켜는 중…');
+    clearTimeout(lostTimer);
+    lostTimer = setTimeout(() => { permFallback = true; updatePlaque(); }, 3000);
+  });
+  glCanvas.addEventListener('webglcontextrestored', () => {
+    if (permFallback) return;
+    clearTimeout(lostTimer);
+    if (setupGL()) {
+      setRenderMode('gl');
+      if (toastText === '투영기를 다시 켜는 중…') { toastUntil = 0; refreshHint(); }
+      announce('투영기가 돌아왔습니다');
+    } else { permFallback = true; console.warn('파문 투영기: GL 복구 실패, 간이 투영 유지 —', glFailReason); updatePlaque(); }
+  });
+  return setupGL();
+}
+function setRenderMode(m) {
+  renderMode = m;
+  fbCanvas.hidden = m !== 'fallback';
+  glCanvas.style.visibility = m === 'gl' ? 'visible' : 'hidden';
+  sizeCanvases();
+  updatePlaque();
+}
+let lastMaskUpload = 0;
+function uploadField() {
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, glT.field);
+  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, NX, NY, gl.RED, gl.FLOAT, braw);
+}
+function renderGL(now) {
+  if (!gl || gl.isContextLost()) return;
+  if ((maskDirty.wall || maskDirty.glass) && now - lastMaskUpload >= 33) {
+    lastMaskUpload = now;
+    if (maskDirty.wall) { gl.bindTexture(gl.TEXTURE_2D, glT.wall); gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, gl.RED, gl.UNSIGNED_BYTE, wallMask); maskDirty.wall = false; }
+    if (maskDirty.glass) { gl.bindTexture(gl.TEXTURE_2D, glT.glass); gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, gl.RED, gl.UNSIGNED_BYTE, glassMask); maskDirty.glass = false; }
+  }
+  gl.viewport(0, 0, glCanvas.width, glCanvas.height);
+  gl.useProgram(glProg);
+  const units = [glT.field, glT.prev, glT.wall, glT.glass, glT.lut];
+  for (let i = 0; i < units.length; i++) { gl.activeTexture(gl.TEXTURE0 + i); gl.bindTexture(gl.TEXTURE_2D, units[i]); }
+  gl.uniformMatrix3fv(glU.uS2T, false, screenToTankMat3());
+  gl.uniform1f(glU.uBackH, glCanvas.height);
+  gl.uniform1f(glU.uPx, glCanvas.width / view.W);
+  gl.uniform1f(glU.uDx, DX);
+  gl.uniform2f(glU.uGrid, NX, NY);
+  gl.uniform1f(glU.uContrast, uContrast);
+  gl.uniform1f(glU.uHoldMix, holdMix);
+  gl.uniform1f(glU.uBeach, beachOn ? 1 : 0);
+  gl.uniform1f(glU.uDisp, dispOn ? 1 : 0);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+// Canvas2D 폴백: braw → B → 같은 LUT. 벽·유리는 물리 래스터 값으로 섞는다
+const fbSmall = document.createElement('canvas');
+let fbImg = null;
+const fbCtx = fbCanvas.getContext('2d');
+function renderFallback() {
+  if (!fbImg || fbSmall.width !== NX || fbSmall.height !== NY) {
+    fbSmall.width = NX; fbSmall.height = NY;
+    fbImg = fbSmall.getContext('2d').createImageData(NX, NY);
+  }
+  const d = fbImg.data;
+  for (let j = 0; j < NY; j++) {
+    const row = (NY - 1 - j) * NX;
+    for (let i = 0; i < NX; i++) {
+      const k = i + j * NX, o = (i + row) * 4;
+      let r, g, b;
+      if (!wet[k]) {
+        if (i === 0 || j === 0 || i === NX - 1 || j === NY - 1) { r = 12; g = 29; b = 31; } else { r = 217; g = 211; b = 191; }
+      } else {
+        const idx = clamp(Math.round((B_MID + uContrast * braw[k]) * 255), 0, 255) * 4;
+        r = LUT[idx]; g = LUT[idx + 1]; b = LUT[idx + 2];
+        const gc = glassCov[k] * 0.08;
+        if (gc > 0) { r += (111 - r) * gc; g += (165 - g) * gc; b += (150 - b) * gc; }
+      }
+      d[o] = r; d[o + 1] = g; d[o + 2] = b; d[o + 3] = 255;
+    }
+  }
+  fbSmall.getContext('2d').putImageData(fbImg, 0, 0);
+  const c = fbCtx, sc = fbCanvas.width / view.W, s = view.s * DX;
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  const o40 = Math.round(0.40 * 255) * 4;
+  c.fillStyle = `rgb(${LUT[o40]},${LUT[o40 + 1]},${LUT[o40 + 2]})`;
+  c.fillRect(0, 0, fbCanvas.width, fbCanvas.height);
+  if (view.mode === 'land') c.setTransform(s * sc, 0, 0, s * sc, view.ox * sc, view.oy * sc);
+  else c.setTransform(0, s * sc, -s * sc, 0, (view.ox + TANK_H * view.s) * sc, view.oy * sc);
+  c.imageSmoothingEnabled = true;
+  c.imageSmoothingQuality = 'high';
+  c.drawImage(fbSmall, 0, 0);
+}
+
+/* ---------- (P2) 스트로보: braw 계산·업로드를 1/f_s 간격으로, 70 ms 크로스페이드 ---------- */
+let strobeOn = false, strobeF = 7, strobeNextT = 0, holdMix = 1, holdStartWall = 0;
+let brawHold = null, strobeFirst = true;
+function strobeHold(now) {
+  if (!brawHold || brawHold.length !== N) { brawHold = new Float32Array(N); strobeFirst = true; }
+  computeBraw();
+  // 켠 직후 첫 홀드는 비어 있거나 지난번 것과 비교하게 되므로 D를 재지 않는다
+  if (strobeFirst) { strobeFirst = false; strobeLimit = 1; }
+  else if (strobeF > 3) {
+    let s = 0, c = 0;
+    for (let k = 0; k < N; k += 16) { const d = braw[k] - brawHold[k]; s += d < 0 ? -d : d; c++; }
+    const D = c ? s / c : 0;
+    strobeLimit = D > 0.08 ? Math.max(0.4, 0.08 / D) : 1;
+  } else strobeLimit = 1;
+  brawHold.set(braw);
+  if (renderMode === 'gl' && gl && !gl.isContextLost()) {
+    const t = glT.prev; glT.prev = glT.field; glT.field = t;
+    uploadField();
+    holdMix = 0; holdStartWall = now;
+  }
+  if (strobeF <= 8) audioTick();
+}
+
+/* ================================================================
+   오버레이 · 발음 스트립
+   ================================================================ */
+const octx = stage.getContext('2d');
+const staticCv = document.createElement('canvas');
+const sctx = staticCv.getContext('2d');
+const stripCtx = stripCv.getContext('2d');
+const chrome = { accent2: '#3E6B61', line: 'rgba(27,46,48,0.36)', dim: '#4A5F60' };
+const SERIF = "Hahmlet, 'Nanum Myeongjo', 'Noto Serif KR', serif";
+const MONO = "'IBM Plex Mono', ui-monospace, 'D2Coding', monospace";
+let stageFocusVisible = false;
+const cross = { u: 32, v: 18 };
+let ringDroppers = [];          // 이번 프레임 박자 링을 그릴 점적기
+let dragLabel = null;           // {text, u, v}
+
+function readChrome() {
+  const cs = getComputedStyle(root);
+  chrome.accent2 = cs.getPropertyValue('--accent-2').trim() || chrome.accent2;
+  chrome.line = cs.getPropertyValue('--line-2').trim() || chrome.line;
+  chrome.dim = cs.getPropertyValue('--text-dim').trim() || chrome.dim;
+  stripBeatDrawn = -1;
+}
+// 정적 레이어: 레인 경계 점선·율명 라벨. 리사이즈(layout)·음계(setScale)·폰트 로드·소리 실패(audioFail, 버튼 폭 변화)
+// 때만 다시 그린다. 색은 투영면 상수라 테마 변경(readChrome)과 무관하다.
+function drawStatic() {
+  staticCv.width = stage.width; staticCv.height = stage.height;
+  const c = sctx, dpr = view.dpr;
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  c.clearRect(0, 0, view.W, view.H);
+  const r = tankRectCss();
+  c.save();
+  c.strokeStyle = 'rgba(217,211,191,0.05)';
+  c.lineWidth = 1;
+  c.setLineDash([2, 4]);
+  for (let L = 1; L < LANES; L++) {
+    const [x0, y0] = toCss(0, L * LANE_H), [x1, y1] = toCss(TANK_W, L * LANE_H);
+    c.beginPath();
+    c.moveTo(Math.round(x0) + 0.5, Math.round(y0) + 0.5);
+    c.lineTo(Math.round(x1) + 0.5, Math.round(y1) + 0.5);
+    c.stroke();
+  }
+  c.restore();
+  const fs = view.mode === 'port' || IS_PHONE ? 11 : 13;
+  c.font = `600 ${fs}px ${SERIF}`;
+  c.textBaseline = 'alphabetic';
+  c.fillStyle = 'rgba(217,211,191,0.66)';
+  c.shadowColor = 'rgba(12,29,31,0.9)';
+  c.shadowBlur = 3;
+  const names = SCALES[scaleName].names;
+  // 수조 위에 떠 있는 버튼(소리·계기판·무음 안내)에 가려지는 라벨은 그 버튼 왼쪽으로 비켜 놓는다
+  const obst = [soundBtn, panelToggle, $('mute-note')].map((el) => el.getBoundingClientRect()).filter((b) => b.width > 0 && b.height > 0);
+  for (let L = 0; L < LANES; L++) {
+    const w = c.measureText(names[L]).width;
+    if (view.mode === 'land') {
+      const margin = view.W - (r.x + r.w);
+      const y = toCss(TANK_W, laneV(L))[1] + fs * 0.36;
+      let x = margin >= 22 + w ? r.x + r.w + 6 : r.x + r.w - 6 - w;
+      for (const b of obst) {
+        if (x < b.right + 4 && x + w > b.left - 4 && y > b.top - 4 && y - fs < b.bottom + 4) x = Math.min(x, b.left - 6 - w);
+      }
+      c.fillText(names[L], x, y);
+    } else {
+      const margin = r.y - (view.availY || 0);
+      const x = toCss(0, L * LANE_H)[0] + 3;
+      const y = margin >= 22 ? r.y - 6 : r.y + 6 + fs;
+      c.fillText(names[L], x, y);
+    }
+  }
+}
+function drawTag(c, text, x, y) {
+  c.font = `11px ${MONO}`;
+  const w = c.measureText(text).width + 10;
+  const bx = clamp(x, 4, view.W - w - 4), by = clamp(y - 16, 4, view.H - 20);
+  c.fillStyle = 'rgba(12,29,31,0.74)';
+  c.fillRect(bx, by, w, 17);
+  c.fillStyle = '#D9D3BF';
+  c.textBaseline = 'middle';
+  c.fillText(text, bx + 5, by + 9);
+  c.textBaseline = 'alphabetic';
+}
+function stoneRadius() { return Math.max(0.45 * view.s, 9); }
+function dropperPath(c, x, y, sz) {
+  c.beginPath();
+  c.moveTo(x, y - sz * 0.62);
+  c.bezierCurveTo(x + sz * 0.1, y - sz * 0.35, x + sz * 0.42, y - sz * 0.02, x + sz * 0.42, y + sz * 0.16);
+  c.arc(x, y + sz * 0.16, sz * 0.42, 0, Math.PI, false);
+  c.bezierCurveTo(x - sz * 0.42, y - sz * 0.02, x - sz * 0.1, y - sz * 0.35, x, y - sz * 0.62);
+  c.closePath();
+}
+function drawOverlay(nowWall) {
+  const c = octx, dpr = view.dpr, s = view.s;
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  c.clearRect(0, 0, stage.width, stage.height);
+  c.drawImage(staticCv, 0, 0);
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const tr = tankRectCss();
+  c.save();
+  c.beginPath(); c.rect(tr.x, tr.y, tr.w, tr.h); c.clip();
+  // 박자 링(직선 기준)
+  for (const d of ringDroppers) {
+    const [cx, cy] = toCss(d.u, d.v);
+    for (let n = 1; n <= 16; n++) {
+      const bold = n % 4 === 0;
+      if (!bold && quality >= 2) continue;
+      c.beginPath(); c.arc(cx, cy, ringR(n) * s, 0, Math.PI * 2);
+      c.strokeStyle = bold ? 'rgba(217,211,191,0.42)' : 'rgba(217,211,191,0.16)';
+      c.lineWidth = bold ? 1.5 : 1;
+      c.stroke();
+    }
+    const rr = ringR(4) * s;
+    drawTag(c, '직선 기준 · 1박', cx + rr * 0.72, cy - rr * 0.72);
+  }
+  // 메아리 라벨
+  for (const w of walls) {
+    if (!w.echo) continue;
+    const [cx, cy] = toCss(w.echo.cu, w.echo.cv);
+    const txt = `메아리 ${echoBeats(w.echo).toFixed(2)}박`;
+    c.font = `11px ${MONO}`;
+    drawTag(c, txt, cx - c.measureText(txt).width / 2 - 5, cy - w.echo.R * s - 6);
+  }
+  // 점적기
+  for (const d of droppers) {
+    const [x, y] = toCss(d.u, d.v);
+    const age = simTime - d.pulseT;
+    let glow = 0;
+    if (age >= 0 && age < 0.35) {
+      if (reduced) glow = 1 - age / 0.35;
+      else {
+        c.beginPath(); c.arc(x, y, 7 + (age / 0.35) * 14, 0, Math.PI * 2);
+        c.strokeStyle = `rgba(184,132,60,${(0.8 * (1 - age / 0.35)).toFixed(3)})`;
+        c.lineWidth = 1.5; c.stroke();
+      }
+    }
+    dropperPath(c, x, y, 14);
+    c.fillStyle = glow > 0 ? `rgb(${184 + 50 * glow | 0},${132 + 60 * glow | 0},${60 + 60 * glow | 0})` : '#B8843C';
+    c.fill();
+    c.strokeStyle = 'rgba(12,29,31,0.7)'; c.lineWidth = 1; c.stroke();
+    c.font = `10px ${MONO}`;
+    c.fillStyle = '#D9D3BF';
+    c.shadowColor = 'rgba(12,29,31,0.9)'; c.shadowBlur = 2;
+    c.fillText(DIV_LABEL[d.div], x + 12, y + 4);
+    c.shadowBlur = 0;
+  }
+  // 진동자: 청동녹 링 + 황동 핀 (깜박임 없음)
+  for (const o of oscs) {
+    const [x, y] = toCss(o.u, o.v);
+    c.beginPath(); c.arc(x, y, 8, 0, Math.PI * 2);
+    c.strokeStyle = '#6FA596'; c.lineWidth = 2; c.stroke();
+    c.beginPath(); c.arc(x, y, 2.5, 0, Math.PI * 2);
+    c.fillStyle = '#B8843C'; c.fill();
+    c.font = `10px ${MONO}`;
+    c.fillStyle = '#D9D3BF';
+    c.shadowColor = 'rgba(12,29,31,0.9)'; c.shadowBlur = 2;
+    c.fillText(`${o.f.toFixed(2)} Hz`, x + 14, y + 4);
+    c.shadowBlur = 0;
+  }
+  // 울림돌
+  const R = stoneRadius();
+  for (const st of stones) {
+    const [x, y] = toCss(st.u, laneV(st.lane));
+    const g = c.createRadialGradient(x - R * 0.3, y - R * 0.3, R * 0.1, x, y, R);
+    g.addColorStop(0, '#6FA596'); g.addColorStop(1, '#3E6B61');
+    c.beginPath(); c.arc(x, y, R, 0, Math.PI * 2);
+    c.fillStyle = g; c.fill();
+    c.strokeStyle = 'rgba(12,29,31,0.55)'; c.lineWidth = 1; c.stroke();
+    const age = simTime - st.flashT;
+    if (age >= 0 && age < 1.5) {
+      const a = st.flashVel * Math.exp(-age / 0.25);
+      c.beginPath(); c.arc(x, y, R + 1, 0, Math.PI * 2);
+      c.strokeStyle = `rgba(243,220,162,${a.toFixed(3)})`; c.lineWidth = 2.2; c.stroke();
+      if (!reduced && age < 0.3) {
+        c.beginPath(); c.arc(x, y, R + 1.2 * s * (age / 0.3), 0, Math.PI * 2);
+        c.strokeStyle = `rgba(243,220,162,${(0.5 * st.flashVel * (1 - age / 0.3)).toFixed(3)})`; c.lineWidth = 1.2; c.stroke();
+      }
+    }
+  }
+  c.restore();
+  // 선택·길게 누르기 진행
+  if (selected) {
+    const o = selected.obj;
+    const [x, y] = selected.kind === 'stone' ? toCss(o.u, laneV(o.lane)) : toCss(o.u, o.v);
+    c.beginPath(); c.arc(x, y, (selected.kind === 'stone' ? R : 10) + 5, 0, Math.PI * 2);
+    c.setLineDash([3, 3]); c.strokeStyle = '#B8843C'; c.lineWidth = 1.2; c.stroke(); c.setLineDash([]);
+    if (!dragLabel) {
+      const txt = selected.kind === 'stone' ? stoneLabel(o) : selected.kind === 'dropper' ? `점적기 · ${DIV_LABEL[o.div]}`
+        : `진동자 · ${o.f.toFixed(2)} Hz · 허밍 ${humHz(o).toFixed(1)} Hz`;
+      drawTag(c, txt, x + 14, y - 12);
+    }
+  }
+  if (dragLabel) { const [x, y] = toCss(dragLabel.u, dragLabel.v); drawTag(c, dragLabel.text, x + 14, y - 12); }
+  for (const p of pointers.values()) {
+    if (!p.lpTarget || p.moved) continue;
+    const el = nowWall - p.downT;
+    if (el < LP_ARC_START) continue;
+    const f = clamp((el - LP_ARC_START) / (LONG_MS - LP_ARC_START), 0, 1);
+    c.beginPath(); c.arc(p.x, p.y, 20, -Math.PI / 2, -Math.PI / 2 + f * Math.PI * 2);
+    c.strokeStyle = '#B8843C'; c.lineWidth = 2.5; c.stroke();
+  }
+  if (loopGhostDraw) loopGhostDraw(c);
+  // 키보드 포커스: 테두리 안쪽 2 px 황동 링 + 조준경(가운데 틈 4 px)
+  if (stageFocusVisible) {
+    c.strokeStyle = '#B8843C'; c.lineWidth = 2;
+    c.strokeRect(tr.x + 1, tr.y + 1, tr.w - 2, tr.h - 2);
+    const [x, y] = toCss(cross.u, cross.v), X = Math.round(x) + 0.5, Y = Math.round(y) + 0.5;
+    c.lineWidth = 1; c.beginPath();
+    c.moveTo(X - 12, Y); c.lineTo(X - 2, Y); c.moveTo(X + 2, Y); c.lineTo(X + 12, Y);
+    c.moveTo(X, Y - 12); c.lineTo(X, Y - 2); c.moveTo(X, Y + 2); c.lineTo(X, Y + 12);
+    c.stroke();
+  }
+}
+// 발음 스트립: 최근 8박, 오른쪽이 현재. 감쇠 모드에서는 1박 단위 갱신
+let stripBeatDrawn = -1;
+function drawStrip() {
+  const w = stripCv.clientWidth, hh = stripCv.clientHeight;
+  if (!w || !hh) return;
+  const now = reduced ? Math.floor(beatPos) : beatPos;
+  if (reduced && now === stripBeatDrawn) return;
+  stripBeatDrawn = reduced ? now : -1;
+  const dpr = view.dpr;
+  const c = stripCtx;
+  c.setTransform(dpr, 0, 0, dpr, 0, 0);
+  c.clearRect(0, 0, w, hh);
+  const bx = (b) => w - (now - b) / 8 * w;
+  for (let b = Math.ceil(now - 8); b <= Math.floor(now); b++) {
+    const x = Math.round(bx(b)) + 0.5, bar = ((b % 4) + 4) % 4 === 0;
+    c.strokeStyle = bar ? '#B8843C' : chrome.line;
+    c.globalAlpha = bar ? 0.9 : 0.55;
+    c.lineWidth = 1;
+    c.beginPath(); c.moveTo(x, 0); c.lineTo(x, hh); c.stroke();
+  }
+  c.globalAlpha = 0.6; c.fillStyle = chrome.line; c.fillRect(0, 1, w, 1);
+  c.globalAlpha = 1; c.fillStyle = '#B8843C';
+  for (const f of stripFires) {
+    if (f.beat > now || now - f.beat > 8) continue;
+    c.beginPath(); c.arc(bx(f.beat), 1.5, 1.6, 0, Math.PI * 2); c.fill();
+  }
+  const top = 4, rowH = (hh - top - 1) / LANES;
+  for (const t of stripTicks) {
+    if (t.beat > now || now - t.beat > 8) continue;
+    const recent = !reduced && simTime - t.t < 0.25;
+    c.globalAlpha = recent ? 1 : t.vel;
+    c.fillStyle = recent ? '#F3DCA2' : chrome.accent2;
+    c.fillRect(Math.round(bx(t.beat)) - 1, top + (LANES - 1 - t.lane) * rowH, 2, Math.max(1, rowH - 0.6));
+  }
+  c.globalAlpha = 1;
+  while (stripTicks.length && beatPos - stripTicks[0].beat > 9) stripTicks.shift();
+  while (stripFires.length && beatPos - stripFires[0].beat > 9) stripFires.shift();
+}
+
+/* ================================================================
+   입력 · 도구 · 조준경 · 되돌리기
+   ================================================================ */
+// 단일 규칙: 첫 손가락 = 현재 도구, 추가 손가락·오른쪽 버튼 = 언제나 물
+let tool = 'drop';
+let selected = null;               // {kind: 'stone'|'dropper'|'osc', obj}
+const pointers = new Map();
+let snapHeld = false, snapToggle = false, gridAlways = false;
+let brushR = 1.0;
+let inputCount = 0, lastInputWall = 0;
+let machEma = 0, machActive = false, machAbove = false, lastMachAnnounce = -1e9;
+const undoStack = [];
+const MOVE_PX = 6, LONG_MS = 550, LP_ARC_START = 150;   // 길게 누르기 진행 호는 LP_ARC_START부터 LONG_MS까지 찬다
+const REMOVED_OBJ = { stone: '울림돌을', dropper: '점적기를', osc: '진동자를' };   // 길게 눌러 치우기 알림(조사 포함)
+const TOOL_NAMES = { drop: '물방울', wall: '파라핀', stone: '울림돌', glass: '유리판', dropper: '점적기', osc: '진동자', erase: '지우개' };
+const EXTRA_TOOLS = ['glass', 'dropper', 'osc', 'erase'];
+
+function snapshot() {
+  return {
+    walls: walls.map((w) => ({ id: w.id, pts: w.pts.slice(), echo: w.echo ? { ...w.echo } : null })),
+    glass: glass.map((d) => ({ u: d.u, v: d.v, r: d.r, sign: d.sign })),
+    droppers: droppers.map((d) => ({ id: d.id, u: d.u, v: d.v, div: d.div })),
+    oscs: oscs.map((o) => ({ id: o.id, u: o.u, v: o.v, f: o.f })),
+    stones: stones.map((s) => ({ id: s.id, u: s.u, lane: s.lane })),
+  };
+}
+// 같은 id의 오브젝트는 판독·발사 상태를 이어 쓴다
+function restoreSnapshot(sn) {
+  const byId = (arr) => new Map(arr.map((o) => [o.id, o]));
+  const oldD = byId(droppers), oldO = byId(oscs), oldS = byId(stones);
+  walls = sn.walls.map((w) => ({ id: w.id, pts: w.pts.slice(), echo: w.echo ? { ...w.echo } : null }));
+  glass = sn.glass.map((d) => ({ ...d }));
+  droppers = sn.droppers.map((d) => {
+    const o = oldD.get(d.id);
+    if (o) { const moved = o.u !== d.u || o.v !== d.v || o.div !== d.div; Object.assign(o, { u: d.u, v: d.v, div: d.div }); if (moved) anchorDropper(o); return o; }
+    const x = makeDropper(d.u, d.v, d.div); x.id = d.id; return x;
+  });
+  oscs = sn.oscs.map((d) => { const o = oldO.get(d.id); if (o) return Object.assign(o, { u: d.u, v: d.v, f: d.f }); const x = makeOsc(d.u, d.v, d.f); x.id = d.id; return x; });
+  stones = sn.stones.map((d) => {
+    const o = oldS.get(d.id);
+    if (o) { if (o.u !== d.u || o.lane !== d.lane) o.cal = []; return Object.assign(o, { u: d.u, lane: d.lane }); }
+    const x = makeStone(d.u, d.lane); x.id = d.id; return x;
+  });
+  for (const x of [...walls, ...droppers, ...oscs, ...stones]) nextId = Math.max(nextId, x.id + 1);
+  rebuildGeometry();
+  selected = null;
+  objectsChanged();
+}
+function pushUndo(pre) {
+  if (!pre) return;
+  undoStack.push(pre);
+  if (undoStack.length > 40) undoStack.shift();
+  undoBtn.disabled = false;
+  markSave();
+}
+function undo() {
+  const sn = undoStack.pop();
+  undoBtn.disabled = undoStack.length === 0;
+  if (!sn) { announce('되돌릴 것이 없습니다'); return; }
+  restoreSnapshot(sn);
+  announce('되돌렸습니다');
+  markSave();
+}
+const inTank = (u, v) => u >= 0 && u <= TANK_W && v >= 0 && v <= TANK_H;
+const clampObjU = (u) => clamp(u, OBJ_INSET, TANK_W - OBJ_INSET);
+const clampObjV = (v) => clamp(v, OBJ_INSET, TANK_H - OBJ_INSET);
+function hitTest(kind, x, y) {
+  const rad = Math.max(0.8 * view.s, 22);
+  const arr = kind === 'stone' ? stones : kind === 'dropper' ? droppers : oscs;
+  let best = null, bd = rad;
+  for (const o of arr) {
+    const [ox, oy] = kind === 'stone' ? toCss(o.u, laneV(o.lane)) : toCss(o.u, o.v);
+    const d = Math.hypot(ox - x, oy - y);
+    if (d <= bd) { bd = d; best = o; }
+  }
+  return best;
+}
+// 유휴 비(12 s) 타이머: 수조뿐 아니라 계기판·키보드·버튼 입력도 활동으로 센다(첫 힌트 카운트와는 별개)
+const noteActivity = () => { lastInputWall = performance.now(); };
+for (const ev of ['pointerdown', 'keydown', 'input', 'change', 'wheel']) document.addEventListener(ev, noteActivity, { capture: true, passive: true });
+function noteInput() {
+  inputCount++;                                   // lastInputWall은 캡처 리스너 noteActivity가 같은 이벤트에서 갱신한다
+  if (firstHintOn && inputCount >= 3) { firstHintOn = false; refreshHint(); }
+}
+function dropAt(u, v, recordLoop) {
+  if (!inTank(u, v) || !isWetAt(u, v)) return false;
+  pendingDrops.push({ u, v, A: A_TAP, sig: SIG_TAP, gain: 0.05 });
+  if (recordLoop && loopRec) loopRec.tap(u, v);
+  return true;
+}
+function select(kind, obj) {
+  selected = obj ? { kind, obj } : null;
+  if (selected && kind === 'osc') linkOscSlider(obj);
+  if (selected) announce(kind === 'stone' ? stoneLabel(obj) : kind === 'dropper' ? `점적기 ${DIV_LABEL[obj.div]}` : `진동자 ${obj.f.toFixed(2)} Hz`);
+}
+
+function pointerDown(e) {
+  const kbd = e.pointerType === 'kbd';
+  if (!kbd && e.pointerType === 'mouse' && e.button !== 0 && e.button !== 2) return;
+  if (!kbd) stage.setPointerCapture(e.pointerId);
+  const x = e.clientX, y = e.clientY, [u, v] = toTank(x, y);
+  const water = e.button === 2 || pointers.size > 0;
+  const now = performance.now();
+  const p = { id: e.pointerId, x, y, x0: x, y0: y, u, v, wu: u, wv: v, downT: now, moved: false, wake: false,
+    mode: water ? 'water' : tool, target: null, lpTarget: null, lpTimer: 0, lpDone: false, pre: null, stroke: null, gu: u, gv: v };
+  pointers.set(p.id, p);
+  noteInput();
+  switch (p.mode) {
+    case 'water': case 'drop':
+      dropAt(u, v, true);
+      break;
+    case 'wall': startWall(p); break;
+    case 'glass':
+      if (!inTank(u, v)) { p.mode = 'none'; break; }
+      p.pre = snapshot(); addDab(u, v, brushR, 1); break;
+    case 'erase':
+      p.pre = snapshot(); p.changed = eraseAt(u, v); break;
+    default: objDown(p);
+  }
+}
+function pointerMove(e) {
+  const p = pointers.get(e.pointerId);
+  if (!p) return;
+  const x = e.clientX, y = e.clientY;
+  const [u, v] = toTank(x, y);
+  p.x = x; p.y = y; p.u = u; p.v = v;
+  if (!p.moved && Math.hypot(x - p.x0, y - p.y0) > MOVE_PX) {
+    p.moved = true;
+    clearTimeout(p.lpTimer);
+    if (p.mode === 'water' || p.mode === 'drop') { p.wake = true; machActive = true; ro.mach.classList.remove('fade'); if (loopRec) loopRec.dragStart(p); }
+  }
+  switch (p.mode) {
+    case 'wall': if (p.stroke) extendWall(p, clamp(u, 0, TANK_W), clamp(v, 0, TANK_H)); break;
+    case 'glass': glassTo(p, u, v); break;
+    case 'erase': if (eraseAt(u, v)) p.changed = true; break;
+    case 'stone': case 'dropper': case 'osc': if (p.moved) objMove(p, u, v); break;
+    default: break;
+  }
+}
+function pointerUp(e) {
+  const p = pointers.get(e.pointerId);
+  if (!p) return;
+  pointers.delete(p.id);
+  clearTimeout(p.lpTimer);
+  switch (p.mode) {
+    case 'wall': endWall(p); break;
+    case 'glass': pushUndo(p.pre); break;
+    case 'erase': if (p.changed) pushUndo(p.pre); break;     // 아무것도 지우지 않은 획은 되돌리기 단계를 쓰지 않는다
+    case 'stone': case 'dropper': case 'osc': objUp(p); break;
+    default: break;
+  }
+  if (p.wake && loopRec) loopRec.dragEnd(p);
+  if (![...pointers.values()].some((q) => q.wake)) {
+    if (machActive) { machActive = false; ro.mach.classList.add('fade'); }
+  }
+  ringDroppers = gridAlways ? droppers.slice() : [];
+  dragLabel = null;
+}
+
+/* ---------- 파라핀 ---------- */
+function startWall(p) {
+  if (!inTank(p.u, p.v)) { p.mode = 'none'; return; }
+  if (wallPtCount >= LIMITS.wallPts) { toast(`파라핀 벽은 점 ${LIMITS.wallPts.toLocaleString('ko-KR')}개까지`); p.mode = 'none'; return; }
+  p.pre = snapshot();
+  const w = { id: nextId++, pts: [p.u, p.v], echo: null };
+  walls.push(w); p.stroke = w; wallPtCount++;
+  const bb = rasterSeg(p.u, p.v, p.u, p.v);
+  updateRegion(bb[0], bb[1], bb[2], bb[3]);
+  maskWallSeg(p.u, p.v, p.u, p.v); maskDirty.wall = true;
+}
+function extendWall(p, u, v) {
+  const pts = p.stroke.pts;
+  let lu = pts[pts.length - 2], lv = pts[pts.length - 1], d = Math.hypot(u - lu, v - lv);
+  while (d >= 0.3) {
+    if (wallPtCount >= LIMITS.wallPts) { if (!p.limitToast) { toast(`파라핀 벽은 점 ${LIMITS.wallPts.toLocaleString('ko-KR')}개까지`); announce(`상한 도달: 벽 점 ${LIMITS.wallPts.toLocaleString('ko-KR')}개`); p.limitToast = true; } break; }
+    const nu = lu + (u - lu) * 0.3 / d, nv = lv + (v - lv) * 0.3 / d;
+    pts.push(nu, nv); wallPtCount++;
+    const bb = rasterSeg(lu, lv, nu, nv);
+    updateRegion(bb[0], bb[1], bb[2], bb[3]);
+    maskWallSeg(lu, lv, nu, nv);
+    lu = nu; lv = nv; d = Math.hypot(u - lu, v - lv);
+  }
+  maskDirty.wall = true;
+}
+function endWall(p) {
+  const w = p.stroke;
+  if (!w) return;
+  const pts = w.pts;
+  let len = 0;
+  for (let q = 2; q < pts.length; q += 2) len += Math.hypot(pts[q] - pts[q - 2], pts[q + 1] - pts[q - 1]);
+  if (len < 0.4) { w.pts = [pts[0], pts[1]]; rebuildGeometry(); }
+  else {
+    const circ = detectCircle(w);
+    if (circ) {
+      const n = pts.length;
+      const bb = rasterSeg(pts[n - 2], pts[n - 1], pts[0], pts[1]);
+      pts.push(pts[0], pts[1]); wallPtCount++;
+      updateRegion(bb[0], bb[1], bb[2], bb[3]);
+      maskWall(w); maskDirty.wall = true;
+      w.echo = circ;
+      announce(`메아리 ${echoBeats(circ).toFixed(2)}박`);
+    }
+  }
+  pushUndo(p.pre);
+}
+/* ---------- 유리판 ---------- */
+function addDab(u, v, r, sign) {
+  if (glass.length >= LIMITS.glass) { toast(`유리판은 칠 ${LIMITS.glass.toLocaleString('ko-KR')}번까지`); announce(`상한 도달: 유리 ${LIMITS.glass.toLocaleString('ko-KR')}`); return false; }
+  const d = { u, v, r, sign };
+  glass.push(d);
+  const bb = rasterDab(d);
+  updateRegion(bb[0], bb[1], bb[2], bb[3]);
+  maskDab(d); maskDirty.glass = true;
+  return true;
+}
+function glassTo(p, u, v) {
+  const sp = 0.35 * brushR;
+  let d = Math.hypot(u - p.gu, v - p.gv);
+  while (d >= sp) {
+    p.gu += (u - p.gu) * sp / d; p.gv += (v - p.gv) * sp / d;
+    if (inTank(p.gu, p.gv) && !addDab(p.gu, p.gv, brushR, 1)) break;
+    d = Math.hypot(u - p.gu, v - p.gv);
+  }
+}
+/* ---------- 지우개 ---------- */
+function eraseAt(u, v) {
+  const R = 1.0;
+  let wallsChanged = false;
+  const out = [];
+  for (const w of walls) {
+    const p = w.pts;
+    let hit = false;
+    for (let i = 0; i < p.length; i += 2) if (Math.hypot(p[i] - u, p[i + 1] - v) <= R) { hit = true; break; }
+    if (!hit) { out.push(w); continue; }
+    wallsChanged = true;
+    let cur = [];
+    for (let i = 0; i < p.length; i += 2) {
+      if (Math.hypot(p[i] - u, p[i + 1] - v) <= R) { if (cur.length) out.push({ id: nextId++, pts: cur, echo: null }); cur = []; }
+      else cur.push(p[i], p[i + 1]);
+    }
+    if (cur.length) out.push({ id: nextId++, pts: cur, echo: null });
+  }
+  if (wallsChanged) { walls = out; rebuildGeometry(); }
+  // 유리: 덮인 셀이 있으면 빼기 dab
+  const ci = u / DX - 0.5, cj = v / DX - 0.5, rc = R / DX;
+  let glassHit = false;
+  for (let j = Math.max(0, Math.floor(cj - rc)); j <= Math.min(NY - 1, Math.ceil(cj + rc)) && !glassHit; j++) {
+    for (let i = Math.max(0, Math.floor(ci - rc)); i <= Math.min(NX - 1, Math.ceil(ci + rc)); i++) {
+      if (glassRaw[i + j * NX] && (i - ci) ** 2 + (j - cj) ** 2 <= rc * rc) { glassHit = true; break; }
+    }
+  }
+  const glassChanged = glassHit && addDab(u, v, R, -1);
+  const near = (x, y) => Math.hypot(x - u, y - v) <= R + 0.3;
+  const nd = droppers.length, no = oscs.length, ns = stones.length;
+  droppers = droppers.filter((d) => !near(d.u, d.v));
+  oscs = oscs.filter((o) => !near(o.u, o.v));
+  stones = stones.filter((s) => !near(s.u, laneV(s.lane)));
+  const objChanged = nd !== droppers.length || no !== oscs.length || ns !== stones.length;
+  if (objChanged) { selected = null; objectsChanged(); }
+  return wallsChanged || glassChanged || objChanged;
+}
+/* ---------- 울림돌 · 점적기 · 진동자 ---------- */
+function objDown(p) {
+  const hit = hitTest(p.mode, p.x, p.y);
+  p.pre = snapshot();
+  if (hit) {
+    p.target = hit; p.lpTarget = hit;
+    select(p.mode, hit);
+    p.lpTimer = setTimeout(() => longPress(p), LONG_MS);
+  }
+}
+function longPress(p) {
+  if (p.moved || !pointers.has(p.id) || !p.target) return;
+  p.lpDone = true;
+  const t = p.target;
+  if (p.mode === 'stone') stones = stones.filter((s) => s !== t);
+  else if (p.mode === 'dropper') droppers = droppers.filter((d) => d !== t);
+  else oscs = oscs.filter((o) => o !== t);
+  selected = null; p.target = null; p.lpTarget = null;
+  announce(`${REMOVED_OBJ[p.mode]} 치웠습니다`);
+  pushUndo(p.pre);
+  objectsChanged();
+}
+function objMove(p, u, v) {
+  const t = p.target;
+  if (!t) return;
+  if (p.mode === 'stone') {
+    const lane = vToLane(v);
+    let nu = clampObjU(u);
+    const d = nearestDropper(nu, laneV(lane));
+    if (d && (snapHeld || snapToggle)) nu = snapU(nu, laneV(lane), d);
+    if (nu !== t.u || lane !== t.lane) { t.u = nu; t.lane = lane; t.cal = []; }
+    ringDroppers = droppers.slice();
+    dragLabel = { text: stoneLabel(t), u: t.u, v: laneV(t.lane) };
+  } else {
+    t.u = clampObjU(u); t.v = clampObjV(v);
+    if (p.mode === 'dropper') { ringDroppers = [t]; dragLabel = { text: `점적기 · ${DIV_LABEL[t.div]}`, u: t.u, v: t.v }; }
+  }
+}
+function objUp(p) {
+  const kind = p.mode;
+  if (p.target) {
+    if (p.lpDone) return;
+    if (p.moved) {
+      if (kind === 'dropper') anchorDropper(p.target);
+      if (kind === 'stone' && isWetAt(p.target.u, laneV(p.target.lane)) === false) {
+        restoreSnapshot(p.pre); toast('벽 위에는 놓을 수 없어요'); return;
+      }
+      pushUndo(p.pre);
+      objectsChanged();
+      return;
+    }
+    if (kind === 'dropper') {
+      p.target.div = (p.target.div + 1) % DIVS.length;
+      anchorDropper(p.target);
+      announce(`점적기 ${DIV_LABEL[p.target.div]}`);
+      pushUndo(p.pre);
+      objectsChanged();
+    }
+    return;
+  }
+  if (p.moved || performance.now() - p.downT >= LONG_MS) return;
+  if (!inTank(p.u, p.v)) return;
+  if (kind === 'stone') {
+    if (stones.length >= LIMITS.stones) { toast(`울림돌은 ${LIMITS.stones}개까지`); announce(`상한 도달: 울림돌 ${LIMITS.stones}개`); return; }
+    const lane = vToLane(p.v), u = clampObjU(p.u);
+    if (!isWetAt(u, laneV(lane))) { toast('벽 위에는 놓을 수 없어요'); return; }
+    const st = makeStone(u, lane);
+    stones.push(st); select('stone', st);
+  } else if (kind === 'dropper') {
+    if (droppers.length >= LIMITS.droppers) { toast(`점적기는 ${LIMITS.droppers}개까지`); announce(`상한 도달: 점적기 ${LIMITS.droppers}개`); return; }
+    const u = clampObjU(p.u), v = clampObjV(p.v);
+    if (!isWetAt(u, v)) { toast('벽 위에는 놓을 수 없어요'); return; }
+    const d = makeDropper(u, v, 0);
+    droppers.push(d); select('dropper', d);
+  } else {
+    if (oscs.length >= LIMITS.oscs) { toast(`진동자는 ${LIMITS.oscs}개까지`); announce(`상한 도달: 진동자 ${LIMITS.oscs}개`); return; }
+    const u = clampObjU(p.u), v = clampObjV(p.v);
+    if (!isWetAt(u, v)) { toast('벽 위에는 놓을 수 없어요'); return; }
+    const o = makeOsc(u, v, 7);
+    oscs.push(o); select('osc', o);
+  }
+  // 키보드로 놓았으면 조준경을 스냅된 위치로 옮겨 곧바로 길게 누르기·끌기가 되게 한다
+  if (p.id === 'kbd' && selected) { cross.u = selected.obj.u; cross.v = selected.kind === 'stone' ? laneV(selected.obj.lane) : selected.obj.v; }
+  pushUndo(p.pre);
+  objectsChanged();
+}
+function onWheel(e) {
+  if (tool === 'glass') {
+    e.preventDefault();
+    setBrush(brushR + (e.deltaY < 0 ? 0.1 : -0.1));
+    return;
+  }
+  const o = hitTest('osc', e.clientX, e.clientY);
+  if (o && tool === 'osc') {
+    e.preventDefault();
+    setOscFreq(o, o.f + (e.deltaY < 0 ? 1 : -1) * (e.shiftKey ? 0.5 : 0.05));
+  }
+}
+stage.addEventListener('pointerdown', pointerDown);
+stage.addEventListener('pointermove', pointerMove);
+stage.addEventListener('pointerup', pointerUp);
+stage.addEventListener('pointercancel', pointerUp);   // 진행 중인 획은 그대로 확정
+stage.addEventListener('contextmenu', (e) => e.preventDefault());
+stage.addEventListener('wheel', onWheel, { passive: false });
+stage.addEventListener('focus', () => { stageFocusVisible = stage.matches(':focus-visible'); });
+stage.addEventListener('blur', () => { stageFocusVisible = false; });
+
+// 물 손가락 항적: 이번 프레임의 포인터 선분을 스텝 수로 나눠 주입한다. 마하는 고정 척도(cm)로 환산
+function buildWakeJobs(wallDt, rate) {
+  wakeJobs.length = 0;
+  let mMax = 0;
+  for (const p of pointers.values()) {
+    if (!p.wake) continue;
+    const dist = Math.hypot(p.u - p.wu, p.v - p.wv);
+    const vSim = wallDt > 0 ? dist / wallDt / Math.max(rate, 1e-3) : 0;
+    mMax = Math.max(mMax, vSim / ceff);
+    if (dist > 1e-4 && inTank(p.u, p.v)) {
+      wakeJobs.push({ u0: p.wu, v0: p.wv, u1: p.u, v1: p.v, str: P_W * dt * Math.min(1, vSim / ceff) });
+    }
+    p.wu = p.u; p.wv = p.v;
+  }
+  if (machActive) {
+    machEma += (mMax - machEma) * (1 - Math.exp(-wallDt / 0.08));
+    const above = machEma >= 1;
+    if (above !== machAbove) {
+      machAbove = above;
+      const now = performance.now();
+      if (now - lastMachAnnounce > 2000) { lastMachAnnounce = now; announce(above ? `마하 1 돌파 · M ${machEma.toFixed(2)}` : '마하 1 아래'); }
+    }
+  }
+}
+
+/* ---------- 키보드 ---------- */
+let kbdDown = false;
+function kbdEvent(type) {
+  const [x, y] = toCss(cross.u, cross.v);
+  const e = { pointerId: 'kbd', pointerType: 'kbd', button: 0, clientX: x, clientY: y };
+  if (type === 'down') pointerDown(e); else if (type === 'move') pointerMove(e); else pointerUp(e);
+}
+function moveCross(dX, dY, big) {
+  const stepCm = big ? 2 : 0.5;
+  const [du, dv] = screenDirToTank(dX, dY);
+  cross.u = clamp(cross.u + du * stepCm, 0.2, TANK_W - 0.2);
+  cross.v = clamp(cross.v + dv * stepCm, 0.2, TANK_H - 0.2);
+  if (kbdDown) kbdEvent('move');
+}
+const TOOL_KEYS = { 1: 'drop', 2: 'wall', 3: 'glass', 4: 'dropper', 5: 'osc', 6: 'stone', 7: 'erase' };
+function onKeyDown(e) {
+  const t = e.target;
+  const inCtl = t && (/^(INPUT|SELECT|BUTTON|TEXTAREA)$/.test(t.tagName) || t.isContentEditable);
+  if (e.key === 'Escape') {
+    selected = null;
+    if (!panelEl.hidden) { setPanel(false); panelToggle.focus(); }
+    return;
+  }
+  if (e.key === 'Shift') snapHeld = true;
+  if (inCtl) return;
+  const onStage = document.activeElement === stage;
+  const k = e.key;
+  // 키 자동 반복: 화살표·PageUp/PageDown·[ ]·되돌리기만 반복을 허용한다(토글·순환 키가 초당 수십 번 뒤집히지 않게)
+  if (e.repeat && !/^(Arrow|Page)/.test(k) && k !== '[' && k !== ']' && !((e.ctrlKey || e.metaKey) && k.toLowerCase() === 'z')) return;
+  if ((e.ctrlKey || e.metaKey) && !e.altKey && k.toLowerCase() === 'z') { e.preventDefault(); undo(); return; }
+  if (e.ctrlKey || e.metaKey) return;
+  if (TOOL_KEYS[k]) { setTool(TOOL_KEYS[k]); e.preventDefault(); return; }
+  if (k.startsWith('Arrow')) {
+    e.preventDefault();
+    const dX = k === 'ArrowRight' ? 1 : k === 'ArrowLeft' ? -1 : 0, dY = k === 'ArrowDown' ? 1 : k === 'ArrowUp' ? -1 : 0;
+    if (onStage && !e.altKey) { stageFocusVisible = true; moveCross(dX, dY, e.shiftKey); return; }
+    if (dY) setDepth(depth * 10 - dY * 0.5, true);
+    else setTempo(bpm + dX * 2, true);
+    return;
+  }
+  if (k === 'Enter' && onStage) {
+    e.preventDefault();
+    if (!e.repeat && !kbdDown) { kbdDown = true; stageFocusVisible = true; kbdEvent('down'); }
+    return;
+  }
+  switch (k.toLowerCase()) {
+    case ' ': e.preventDefault(); togglePause(); break;
+    case 'm': toggleSound(); break;
+    case 'b': setBeach(!beachOn, true); break;
+    case 'c': calm(); break;
+    case 'g': setGrid(!gridAlways); break;
+    case 'w': setRain(!rainMode); break;
+    case 'p': cyclePreset(); break;
+    case 's': if (!reduced) setStrobe(!strobeOn); break;
+    case '[': setStrobeF(strobeF - 0.05); break;
+    case ']': setStrobeF(strobeF + 0.05); break;
+    case 'r': toggleLoopRec(); break;
+    case 'pageup': case 'pagedown': {
+      e.preventDefault();
+      const o = selected && selected.kind === 'osc' ? selected.obj : oscs[0];
+      if (o) setOscFreq(o, o.f + (k === 'PageUp' ? 1 : -1) * (e.shiftKey ? 0.5 : 0.05));
+      break;
+    }
+    default: break;
+  }
+}
+function onKeyUp(e) {
+  if (e.key === 'Shift') snapHeld = false;
+  if (e.key === 'Enter' && kbdDown) { kbdDown = false; kbdEvent('up'); }
+}
+window.addEventListener('keydown', onKeyDown);
+window.addEventListener('keyup', onKeyUp);
+window.addEventListener('blur', () => { snapHeld = false; if (kbdDown) { kbdDown = false; kbdEvent('up'); } });
+
+/* ================================================================
+   오디오 (기본 무음 — #sound-toggle 클릭·M 키 핸들러 안에서만 시작)
+   ================================================================ */
+let actx = null, audioState = 'off';
+let master = null, dryBus = null, reverbIn = null, wetGain = null, noiseBuf = null;
+let anchorSim = 0, anchorAudio = 0, anchorRate = 1, needReanchor = true;
+let volume = 0.7;
+const voices = [];                        // 타격·물방울 보이스 (합쳐 28)
+const sustainVoices = new Map();          // 울림돌 id → 지속음 (12)
+const humVoices = new Map();              // 진동자 id → 허밍 (2)
+const strikeTimes = [];                   // 예약 시각 기준 최근 1 s 타격(초당 40 상한)
+const dropTimes = [];
+// [편차 3.3] 판독 확정 지연 여유(시뮬 초). readStone은 발음 시각(선두 마루 tOn)을 확정 시점보다 과거로 되짚는다.
+// 확정 지연 = 확정 simTime − tOn. 경로별 상한(판독 절의 READ_* 상수):
+//   로브 분석(대부분) ≈ 후보 뒤 로브 하나(실측 p50 0.054~0.068 s, p90 약 0.086 s)
+//   후보 확정 타임아웃 ≤ READ_CAND_HOLD_S(0.09 s) + dt
+//   버스트 타임아웃 ≤ READ_BURST_MAX_S + READ_REVIVE_S(0.15 + 0.06 s, 되살린 로브가 tOn일 때)
+// READ_LAG는 깨끗한 장면의 로브 분석 경로를 덮는 값이다. 이보다 늦게 확정된 타격은 사상이 과거를 가리켜
+// currentTime + 5 ms로 잘리고(늦게 울림) lateStrikes로 센다. 이 여유는 단일 시계라 모든 소리(탭 '똑' 포함)에
+// 더해진다(탭 소리 예약 지연 약 +60 ms). 확정을 앞당기거나 이 값을 올리는 정책 결정은 BACKLOG.md 참조.
+const READ_LAG = 0.06;
+// 여유는 시뮬 시간이므로 오디오 시간으로는 1/rate배다(감쇠 모드 rate 0.4 → 0.15 s). rate가 아주 낮을 때
+// 모든 소리가 과하게 늦어지지 않게 이 rate 아래에서는 더 늘리지 않는다(그때는 일부 타격이 잘릴 수 있다).
+const READ_LAG_MIN_RATE = 0.25;
+let lateStrikes = 0;                      // 사상 시각이 하한(currentTime + 5 ms)에 잘린 타격 수(diag)
+
+function buildAudio() {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) throw new Error('이 브라우저에는 Web Audio가 없습니다');
+  actx = new AC();
+  const t = actx.currentTime;
+  const comp = actx.createDynamicsCompressor();
+  comp.threshold.value = -18; comp.knee.value = 6; comp.ratio.value = 4; comp.attack.value = 0.005; comp.release.value = 0.15;
+  master = actx.createGain(); master.gain.setValueAtTime(0, t);
+  dryBus = actx.createGain();
+  const wetBus = actx.createGain();
+  // [편차 6] 최종 안전 단(명세 체인 뒤에 추가): 압축기의 5 ms 어택을 새어 나온 과도 피크를 0.98 아래로 부드럽게 접는다.
+  // |x| ≤ 0.7은 그대로 통과하므로 평소 음색은 바뀌지 않는다. 입력 ±2를 곡선 ±1로 받기 위해 앞에 0.5배를 둔다.
+  const pre = actx.createGain(), clip = actx.createWaveShaper(), curve = new Float32Array(4097);
+  pre.gain.value = 0.5;
+  for (let i = 0; i < curve.length; i++) {
+    const x = (i / (curve.length - 1)) * 4 - 2, ax = Math.abs(x);
+    curve[i] = Math.sign(x) * (ax <= 0.7 ? ax : 0.7 + 0.28 * Math.tanh((ax - 0.7) / 0.28));
+  }
+  clip.curve = curve; clip.oversample = '2x';
+  dryBus.connect(comp); wetBus.connect(comp); comp.connect(master); master.connect(pre); pre.connect(clip); clip.connect(actx.destination);
+  // 잔향 IR: 스테레오 2.4 s, 독립 백색잡음 × e^(−t/0.45)
+  const sr = actx.sampleRate, len = Math.round(2.4 * sr);
+  const ir = actx.createBuffer(2, len, sr);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = ir.getChannelData(ch);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-(i / sr) / 0.45);
+  }
+  const conv = actx.createConvolver();
+  conv.buffer = ir;
+  reverbIn = actx.createGain();
+  wetGain = actx.createGain(); wetGain.gain.setValueAtTime(beachOn ? WET_GAIN.beach : WET_GAIN.open, t);
+  reverbIn.connect(conv); conv.connect(wetGain); wetGain.connect(wetBus);
+  noiseBuf = actx.createBuffer(1, sr, sr);
+  const nd = noiseBuf.getChannelData(0);
+  for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+}
+// resume 실패(탭 복귀·iOS 오디오 세션 중단 등)는 생성 실패가 아니다: 꺼진 상태로 되돌리고 다시 켤 수 있게 둔다
+function audioResumeFail(err) {
+  console.warn('파문 투영기: 오디오를 다시 시작하지 못했습니다 —', err);
+  if (audioState !== 'on') return;
+  setSoundOn(false);
+  toast('소리가 멈췄습니다 · 소리 켜기를 다시 눌러 주세요');
+}
+function audioFail(err) {
+  audioState = 'failed';
+  soundBtn.textContent = '소리를 켤 수 없음';
+  soundBtn.disabled = true;
+  soundBtn.setAttribute('aria-pressed', 'false');
+  drawStatic();                                   // 버튼 폭이 바뀌었으므로 레인 라벨 비켜 놓기를 다시 계산
+  announce('소리를 켤 수 없음');
+  console.warn('파문 투영기: 오디오를 시작하지 못했습니다 —', err);
+}
+function toggleSound() {
+  if (audioState === 'failed') return;
+  if (!actx) {
+    try { buildAudio(); } catch (err) { audioFail(err); return; }
+  }
+  setSoundOn(audioState !== 'on');
+}
+function setSoundOn(on) {
+  const t = actx.currentTime;
+  master.gain.cancelScheduledValues(t);
+  master.gain.setValueAtTime(master.gain.value, t);
+  if (on) {
+    audioState = 'on';
+    actx.resume().catch(audioResumeFail);
+    master.gain.linearRampToValueAtTime(volume, t + 0.05);
+    needReanchor = true;
+  } else {
+    audioState = 'off';
+    master.gain.linearRampToValueAtTime(0, t + 0.1);
+    setTimeout(() => {
+      if (audioState !== 'off' || !actx) return;
+      stopContinuous();
+      actx.suspend().catch((err) => console.warn('파문 투영기: 오디오 일시 중지 실패 —', err));
+    }, 130);
+  }
+  soundBtn.textContent = on ? '소리 끄기' : '소리 켜기';
+  soundBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  announce(on ? '소리를 켰습니다' : '소리를 껐습니다');
+}
+function setVolume(v) {
+  volume = clamp(v, 0, 1);
+  if (actx && audioState === 'on') master.gain.setTargetAtTime(volume, actx.currentTime, 0.02);
+}
+const panOf = (u) => clamp((u / TANK_W) * 1.6 - 0.8, -1, 1);
+function voiceOut(u, send, dest) {
+  const out = actx.createGain();
+  const pan = actx.createStereoPanner();
+  pan.pan.value = panOf(u);
+  out.connect(pan); pan.connect(dest || dryBus);
+  if (send > 0) { const s = actx.createGain(); s.gain.value = send; pan.connect(s); s.connect(reverbIn); }
+  return out;
+}
+// 합쳐 28 보이스. 넘치면 가장 오래된 보이스를 10 ms 릴리스로 훔친다
+function claimVoice() {
+  const now = actx.currentTime;
+  for (let i = voices.length - 1; i >= 0; i--) if (voices[i].end < now) voices.splice(i, 1);
+  if (voices.length >= 28) {
+    const v = voices.shift();
+    v.out.gain.cancelScheduledValues(now);
+    v.out.gain.setValueAtTime(v.out.gain.value, now);
+    v.out.gain.linearRampToValueAtTime(0, now + 0.01);
+    for (const s of v.srcs) s.stop(now + 0.02);
+  }
+}
+// 자유단 막대 모달 합성: 1 : 2.756 : 5.404
+// [편차 6] 초당 40 상한: 명세는 토큰 버킷이지만 용량 40이면 1 s 창에 최대 80개가 새므로, 예약 시각 기준 1 s 슬라이딩 창으로 센다
+function playStrike(ev, when) {
+  while (strikeTimes.length && strikeTimes[0] <= when - 1) strikeTimes.shift();
+  if (strikeTimes.length >= 40) return;
+  strikeTimes.push(when);
+  claimVoice();
+  const st = ev.stone, f0 = noteHz(st.lane), vel = ev.vel, k = 0.6 + 0.4 * vel;
+  const peak = 0.25 * Math.pow(vel, 1.2);
+  const out = voiceOut(st.u, 0.6);
+  const ratios = [1, 2.756, 5.404], gains = [1, 0.28, 0.09], taus = [0.9, 0.3, 0.1];
+  const end = when + Math.min(4.5, 5 * taus[0] * k);
+  const srcs = [];
+  for (let i = 0; i < 3; i++) {
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.frequency.value = f0 * ratios[i];
+    g.gain.setValueAtTime(0, when);
+    g.gain.linearRampToValueAtTime(peak * gains[i], when + 0.003);
+    g.gain.setTargetAtTime(0, when + 0.003, taus[i] * k);
+    o.connect(g); g.connect(out);
+    o.start(when); o.stop(end);
+    srcs.push(o);
+  }
+  const n = actx.createBufferSource(), bp = actx.createBiquadFilter(), cg = actx.createGain();
+  n.buffer = noiseBuf;
+  bp.type = 'bandpass'; bp.frequency.value = Math.min(4 * f0, 8000); bp.Q.value = 8;
+  cg.gain.setValueAtTime(0.12 * vel, when);
+  cg.gain.linearRampToValueAtTime(0, when + 0.015);
+  n.connect(bp); bp.connect(cg); cg.connect(out);
+  n.start(when, Math.random() * 0.9); n.stop(when + 0.02);
+  srcs.push(n);
+  voices.push({ end, out, srcs });
+}
+// 민나르트 공명 chirp. 초당 12회 상한
+function playDrop(ev, when) {
+  const now = actx.currentTime;
+  while (dropTimes.length && now - dropTimes[0] > 1) dropTimes.shift();
+  if (dropTimes.length >= 12) return;
+  dropTimes.push(now);
+  claimVoice();
+  const R = 0.9 + Math.random() * 0.7, f0 = 3260 / R;
+  const out = voiceOut(ev.u, 0.3);
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.frequency.setValueAtTime(f0, when);
+  o.frequency.exponentialRampToValueAtTime(1.4 * f0, when + 0.03);
+  g.gain.setValueAtTime(0, when);
+  g.gain.linearRampToValueAtTime(ev.gain, when + 0.002);
+  g.gain.setTargetAtTime(0, when + 0.002, 0.012);
+  o.connect(g); g.connect(out);
+  const end = when + 0.12;
+  o.start(when); o.stop(end);
+  voices.push({ end, out, srcs: [o] });
+}
+function audioTick() {
+  if (audioState !== 'on' || !actx) return;
+  const t = actx.currentTime + 0.01;
+  const n = actx.createBufferSource(), hpf = actx.createBiquadFilter(), g = actx.createGain();
+  n.buffer = noiseBuf; hpf.type = 'highpass'; hpf.frequency.value = 2000;
+  g.gain.setValueAtTime(0.03, t); g.gain.linearRampToValueAtTime(0, t + 0.003);
+  n.connect(hpf); hpf.connect(g); g.connect(dryBus);
+  n.start(t, Math.random() * 0.9); n.stop(t + 0.005);
+}
+// 단일 시계 사상: when = audioAnchor + (ev.t − simAnchor)/rate. 50 ms 넘게 어긋나거나 rate가 2% 넘게 변하면 재고정
+function scheduleAudio(t1, rate, frameEma) {
+  if (audioState !== 'on' || !actx || actx.state !== 'running') { frameEvents.length = 0; return; }
+  const look = clamp(1.3 * frameEma, 0.03, 0.08) + READ_LAG / Math.max(rate, READ_LAG_MIN_RATE);
+  const ideal = actx.currentTime + look;
+  const mapped = anchorAudio + (t1 - anchorSim) / anchorRate;
+  if (needReanchor || Math.abs(mapped - ideal) > 0.05 || Math.abs(rate / anchorRate - 1) > 0.02) {
+    anchorSim = t1; anchorAudio = ideal; anchorRate = rate; needReanchor = false;
+  }
+  const floor = actx.currentTime + 0.005;
+  for (const ev of frameEvents) {
+    const raw = anchorAudio + (ev.t - anchorSim) / anchorRate, when = Math.max(raw, floor);
+    if (ev.type === 'strike') { if (raw < floor) lateStrikes++; playStrike(ev, when); }
+    else playDrop(ev, when);
+  }
+  frameEvents.length = 0;
+}
+// 지속음·허밍 보이스를 짧게 줄이고 정지 예약
+function releaseVoice(v, t) { v.g.gain.setTargetAtTime(0, t, 0.03); for (const s of v.srcs) s.stop(t + 0.2); }
+function stopContinuous() {
+  const t = actx ? actx.currentTime : 0;
+  for (const m of [sustainVoices, humVoices]) {
+    for (const v of m.values()) releaseVoice(v, t);
+    m.clear();
+  }
+}
+// (P1) 지속음·허밍: 진동자가 있을 때만
+function updateContinuous(wallDt) {
+  if (audioState !== 'on' || !actx || actx.state !== 'running') return;
+  const t = actx.currentTime;
+  if (!oscs.length) { if (sustainVoices.size || humVoices.size) stopContinuous(); return; }
+  const liveS = new Set();
+  for (const st of stones) {
+    liveS.add(st.id);
+    const g = sustainGain(st) * 0.6;
+    let v = sustainVoices.get(st.id);
+    if (!v) {
+      if (g < 0.003 || sustainVoices.size >= 12) continue;
+      const out = voiceOut(st.u, 0.2), lp = actx.createBiquadFilter(), gg = actx.createGain();
+      lp.type = 'lowpass'; lp.frequency.value = 1800;
+      gg.gain.setValueAtTime(0, t);
+      const srcs = [1, 1.004].map((r) => { const o = actx.createOscillator(), h2 = actx.createGain(); h2.gain.value = 0.5; o.frequency.value = noteHz(st.lane) * r; o.connect(h2); h2.connect(lp); o.start(t); return o; });
+      lp.connect(gg); gg.connect(out);
+      v = { g: gg, srcs, quiet: 0, lane: st.lane };
+      sustainVoices.set(st.id, v);
+    }
+    v.g.gain.setTargetAtTime(g, t, 0.05);
+    if (v.lane !== st.lane || v.scale !== scaleName) {
+      v.lane = st.lane; v.scale = scaleName;
+      v.srcs[0].frequency.setTargetAtTime(noteHz(st.lane), t, 0.03);
+      v.srcs[1].frequency.setTargetAtTime(noteHz(st.lane) * 1.004, t, 0.03);
+    }
+    if (g < 0.003) { v.quiet += wallDt; if (v.quiet > 2) { releaseVoice(v, t); sustainVoices.delete(st.id); } }
+    else v.quiet = 0;
+  }
+  for (const [id, v] of sustainVoices) if (!liveS.has(id)) { releaseVoice(v, t); sustainVoices.delete(id); }
+  const liveO = new Set();
+  for (const o of oscs) {
+    liveO.add(o.id);
+    let v = humVoices.get(o.id);
+    if (!v) {
+      const out = voiceOut(o.u, 0.2), lp = actx.createBiquadFilter(), gg = actx.createGain();
+      lp.type = 'lowpass'; lp.frequency.value = 900;
+      gg.gain.setValueAtTime(0, t);
+      const tri = actx.createOscillator(), sine = actx.createOscillator(), gt = actx.createGain(), gs = actx.createGain();
+      tri.type = 'triangle'; gt.gain.value = 0.6; gs.gain.value = 0.4;
+      tri.frequency.value = sine.frequency.value = humHz(o);
+      tri.connect(gt); sine.connect(gs); gt.connect(lp); gs.connect(lp); lp.connect(gg); gg.connect(out);
+      tri.start(t); sine.start(t);
+      v = { g: gg, srcs: [tri, sine] };
+      humVoices.set(o.id, v);
+    }
+    v.g.gain.setTargetAtTime(0.06 * gAuto * o.amp, t, 0.05);   // 켜지는 동안의 진폭 램프(o.amp)를 화면과 같이 따른다
+    for (const s of v.srcs) s.frequency.setTargetAtTime(humHz(o), t, 0.03);
+  }
+  for (const [id, v] of humVoices) if (!liveO.has(id)) { releaseVoice(v, t); humVoices.delete(id); }
+}
+
+/* ================================================================
+   (P2) 손짓 루프: 다음 마디 첫 박부터 8박 기록, 이후 8박마다 재생(최대 3층)
+   ================================================================ */
+let loopRec = null;
+const loopLayers = [];
+function toggleLoopRec() {
+  if (loopRec) { loopRec = null; loopBtn.setAttribute('aria-pressed', 'false'); announce('루프 녹음을 취소했습니다'); return; }
+  const start = Math.floor(beatPos / 4) * 4 + 4;
+  const drags = new Map();
+  loopRec = {
+    start, end: start + 8, taps: [], paths: [],
+    active: () => beatPos >= start && beatPos < start + 8,
+    tap(u, v) { if (this.active()) this.taps.push({ b: Math.round((beatPos - start) * 4) / 4 % 8, u, v }); },
+    dragStart(p) { const path = { pts: [] }; drags.set(p.id, path); this.paths.push(path); },
+    dragEnd(p) { drags.delete(p.id); },
+    sample() {
+      if (!this.active()) return;
+      for (const p of pointers.values()) {
+        const path = drags.get(p.id);
+        if (!path || !p.wake) continue;
+        const last = path.pts[path.pts.length - 1], b = beatPos - start;
+        if (!last || (b - last.b) * 60 / bpm >= 0.02) path.pts.push({ b, u: p.u, v: p.v });
+      }
+    },
+  };
+  loopBtn.setAttribute('aria-pressed', 'true');
+  announce('다음 마디 첫 박부터 8박을 기록합니다');
+}
+function finishLoopIfDone() {
+  if (!loopRec || beatPos < loopRec.end) return;
+  const layer = { start: loopRec.start, end: loopRec.end, taps: loopRec.taps, paths: loopRec.paths.filter((p) => p.pts.length > 1) };
+  loopRec = null;
+  loopBtn.setAttribute('aria-pressed', 'false');
+  if (!layer.taps.length && !layer.paths.length) { announce('기록된 손짓이 없습니다'); return; }
+  loopLayers.push(layer);
+  if (loopLayers.length > 3) loopLayers.shift();
+  announce(`손짓 루프 ${loopLayers.length}층 재생 중`);
+}
+function pathAt(pts, b) {
+  if (b < pts[0].b || b > pts[pts.length - 1].b) return null;
+  let i = 1;
+  while (i < pts.length - 1 && pts[i].b < b) i++;
+  const a = pts[i - 1], c = pts[i], f = c.b > a.b ? (b - a.b) / (c.b - a.b) : 0;
+  return [a.u + (c.u - a.u) * f, a.v + (c.v - a.v) * f];
+}
+loopHook = (t0, bp, dB) => {
+  for (const L of loopLayers) {
+    if (bp < L.end) continue;
+    const lb = (bp - L.start) % 8, lb2 = lb + dB;
+    for (const tp of L.taps) {
+      if ((tp.b >= lb && tp.b < lb2) || (lb2 > 8 && tp.b < lb2 - 8)) {
+        if (isWetAt(tp.u, tp.v)) { injectDrop(tp.u, tp.v, A_TAP, SIG_TAP); if (!precomputing) frameEvents.push({ type: 'drop', t: t0, u: tp.u, gain: 0.05 }); }
+      }
+    }
+    for (const path of L.paths) {
+      const p0 = pathAt(path.pts, lb), p1 = pathAt(path.pts, Math.min(lb2, 8));
+      if (!p0 || !p1) continue;
+      const vSim = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]) / dt;
+      if (vSim > 0) gaussAdd(p1[0], p1[1], -P_W * dt * Math.min(1, vSim / ceff), 1.6, 5);
+    }
+  }
+};
+let loopGhostDraw = (c) => {
+  if (!loopLayers.length) return;
+  c.save();
+  c.strokeStyle = 'rgba(184,132,60,0.25)'; c.fillStyle = 'rgba(184,132,60,0.25)'; c.lineWidth = 2;
+  for (const L of loopLayers) {
+    for (const path of L.paths) {
+      c.beginPath();
+      path.pts.forEach((q, i) => { const [x, y] = toCss(q.u, q.v); if (i) c.lineTo(x, y); else c.moveTo(x, y); });
+      c.stroke();
+    }
+    for (const tp of L.taps) { const [x, y] = toCss(tp.u, tp.v); c.beginPath(); c.arc(x, y, 4, 0, Math.PI * 2); c.fill(); }
+  }
+  c.restore();
+};
+
+/* ================================================================
+   UI 배선 · 프리셋 · 저장 · a11y · 레이아웃 · 프레임 루프 · 부팅
+   ================================================================ */
+const ro = { main: $('ro-main'), short: $('ro-short'), extra: $('ro-extra'), mach: $('ro-mach') };
+const hintEl = $('hint'), topEl = $('top'), dockEl = $('dock'), sideEl = $('side'), panelEl = $('panel');
+const panelToggle = $('panel-toggle'), soundBtn = $('sound-toggle'), moreBtn = $('tools-more');
+const undoBtn = $('undo'), pauseBtn = $('pause'), loopBtn = $('loop-rec'), presetSel = $('preset');
+const inp = {
+  volume: $('volume'), scale: $('scale'), depth: $('depth'), damping: $('damping'), beach: $('beach-toggle'),
+  tempo: $('tempo'), grid: $('grid-toggle'), snap: $('snap-toggle'), brush: $('brush-size'), osc: $('osc-freq'),
+  pitch: $('pitch-snap'), rain: $('rain-toggle'), strobe: $('strobe-toggle'), strobeF: $('strobe-freq'),
+  strobeMatch: $('strobe-match'), motion: $('motion-toggle'),
+};
+const outEl = { volume: $('volume-out'), depth: $('depth-out'), depthRo: $('depth-readout'), damping: $('damping-out'),
+  tempo: $('tempo-out'), brush: $('brush-out'), osc: $('osc-out'), strobe: $('strobe-out') };
+const resMeter = $('resonance'), resBar = resMeter.querySelector('i');
+const FIRST_HINT = '톡 = 물방울 · 파라핀으로 벽을 그려 보세요 · 소리를 켜면 울림돌이 노래합니다';
+const TOOL_HINT = {
+  drop: '톡 = 물방울 · 끌기 = 물결 (빠르게 끌면 마하 원뿔)',
+  wall: '끌어서 벽을 그려요 · 원을 닫으면 메아리 박자가 붙어요',
+  stone: '톡 = 울림돌 · 높이가 음정, 점적기와의 거리가 박자',
+  glass: '칠한 곳은 얕아져 물결이 느려져요 (굴절·지연)',
+  dropper: '톡 = 놓기 · 다시 톡 = 박 나누기 · 길게 = 치우기',
+  osc: '톡 = 놓기 · 주파수는 계기판에서',
+  erase: '끌어서 벽·유리·장치를 지워요',
+};
+let firstHintOn = true, toolHintText = '', toolHintUntil = 0, toastText = '', toastUntil = 0;
+let paused = false, timeScale = 1, rainMode = false, pitchSnap = false, linkedOsc = null;
+let liveFlip = false;
+
+function announce(text) {
+  liveFlip = !liveFlip;
+  live.textContent = text + (liveFlip ? '\u200B' : '');   // 같은 문구도 다시 읽히게 폭 없는 공백을 번갈아 붙인다
+}
+function toast(text) {
+  toastText = text; toastUntil = performance.now() + 4000;
+  announce(text);
+  refreshHint();
+}
+function refreshHint() {
+  const now = performance.now();
+  let text = '', isToast = false;
+  if (now < toastUntil) { text = toastText; isToast = true; }
+  else if (now < toolHintUntil) text = toolHintText;
+  else if (firstHintOn) text = FIRST_HINT;
+  if (hintEl.textContent !== text) hintEl.textContent = text;
+  hintEl.classList.toggle('toast', isToast);
+}
+// 도구 radiogroup: 선택된 radio만 Tab 정지점(roving tabindex), 그룹 안에서는 화살표로 옮기며 고른다(APG 라디오 패턴)
+const toolRadios = () => [...document.querySelectorAll('.tool[role=radio]')].filter((b) => !b.hidden);
+function syncToolTabs() {
+  const vis = toolRadios();
+  for (const b of document.querySelectorAll('.tool[role=radio]')) {
+    b.tabIndex = b.dataset.tool === tool ? 0 : -1;
+    const i = vis.indexOf(b);
+    if (i >= 0) { b.setAttribute('aria-posinset', i + 1); b.setAttribute('aria-setsize', vis.length); }
+  }
+}
+$('tools').addEventListener('keydown', (e) => {
+  if (e.target.getAttribute('role') !== 'radio' || e.altKey || e.ctrlKey || e.metaKey) return;
+  const d = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
+  if (!d) return;
+  e.preventDefault();
+  const vis = toolRadios(), i = vis.indexOf(e.target), nb = vis[(i + d + vis.length) % vis.length];
+  setTool(nb.dataset.tool);
+  nb.focus();
+});
+function setTool(t) {
+  tool = t;
+  for (const b of document.querySelectorAll('.tool[role=radio]')) b.setAttribute('aria-checked', b.dataset.tool === t ? 'true' : 'false');
+  if (EXTRA_TOOLS.includes(t)) setMore(true);
+  syncToolTabs();
+  let hint = TOOL_HINT[t];
+  if (t === 'stone' && view.mode === 'port') hint = '톡 = 울림돌 · 오른쪽일수록 높은 음, 점적기와의 거리가 박자';
+  toolHintText = hint; toolHintUntil = performance.now() + 5000;
+  refreshHint();
+  announce(`도구: ${TOOL_NAMES[t]}`);
+}
+function setMore(open) {
+  moreBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  for (const t of EXTRA_TOOLS) $('tool-' + t).hidden = !open;
+  // 선택된 장치 도구를 접으면 그 도구가 숨으므로 Tab 정지점이 사라지지 않게 첫 도구에 둔다
+  if (!open && EXTRA_TOOLS.includes(tool)) for (const b of toolRadios()) b.tabIndex = b.dataset.tool === 'drop' ? 0 : -1;
+  else syncToolTabs();
+}
+function fillRange(el) {
+  const f = (el.value - el.min) / (el.max - el.min) * 100;
+  el.style.setProperty('--fill', `${f}%`);
+}
+function updateDepthOutputs() {
+  inp.depth.value = (depth * 10).toFixed(1); fillRange(inp.depth);
+  outEl.depth.textContent = `${(depth * 10).toFixed(1)} mm`;
+  outEl.depthRo.textContent = `c ${ceff.toFixed(1)} cm/s · 1박 ${beatCm().toFixed(1)} cm`;
+}
+function setDepth(mm, user) {
+  mm = clamp(Math.round(mm * 2) / 2, 3, 12);
+  if (Math.abs(mm / 10 - depth) < 1e-9) return;
+  depth = mm / 10;
+  updateTiming();
+  updateAllCells();
+  for (const o of oscs) o.f = Math.min(o.f, fMax());
+  inp.osc.max = fMax().toFixed(2);
+  updateDepthOutputs(); updatePlaque();
+  if (user) { announce(`수심 ${mm.toFixed(1)} mm`); markSave(); }
+}
+function setTempo(b, user) {
+  bpm = clamp(Math.round(b), 60, 160);
+  inp.tempo.value = bpm; fillRange(inp.tempo);
+  outEl.tempo.textContent = `♩=${bpm}`;
+  updateDepthOutputs(); updatePlaque();
+  if (user) { announce(`템포 ${bpm}`); markSave(); }
+}
+function setDamping(b) {
+  beta = clamp(b, 0.04, 0.5);
+  inp.damping.value = beta; fillRange(inp.damping);
+  outEl.damping.textContent = `감쇠 ${beta.toFixed(2)}/s`;
+  updateAllCells(); updateThetaFloor();
+}
+function setBeach(on, user) {
+  beachOn = on;
+  inp.beach.checked = on;
+  updateAllCells();
+  if (actx && wetGain) wetGain.gain.setTargetAtTime(on ? WET_GAIN.beach : WET_GAIN.open, actx.currentTime, 0.3);
+  if (user) { announce(on ? '소파 장치 켬' : '소파 장치 끔 · 테두리가 반사합니다'); markSave(); }
+}
+function setGrid(on) { gridAlways = on; inp.grid.checked = on; ringDroppers = on ? droppers.slice() : []; }
+function setRain(on) { rainMode = on; inp.rain.checked = on; announce(on ? '비 모드' : '비 모드 끔'); }
+function setBrush(r) { brushR = clamp(Math.round(r * 10) / 10, 0.6, 1.6); inp.brush.value = brushR; fillRange(inp.brush); outEl.brush.textContent = `${brushR.toFixed(1)} cm`; }
+function setOscFreq(o, f) {
+  f = clamp(f, 3, fMax());
+  if (pitchSnap) f = snapOscPitch(f);
+  o.f = Math.round(f * 100) / 100;
+  if (linkedOsc === o) { inp.osc.value = o.f; fillRange(inp.osc); outEl.osc.textContent = `${o.f.toFixed(2)} Hz`; }
+  updatePlaque();
+  markSave();
+}
+function linkOscSlider(o) {
+  linkedOsc = o;
+  inp.osc.disabled = !o;
+  inp.osc.max = fMax().toFixed(2);
+  if (o) { inp.osc.value = o.f; outEl.osc.textContent = `${o.f.toFixed(2)} Hz`; }
+  fillRange(inp.osc);
+}
+function objectsChanged() {
+  if (!oscs.includes(linkedOsc)) linkOscSlider(oscs[0] || null);
+  if (gridAlways) ringDroppers = droppers.slice();
+  updatePlaque();
+}
+function setPanel(open) {
+  panelToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  if (open) {
+    panelEl.hidden = false;
+    panelEl.classList.add('opening');
+    requestAnimationFrame(() => panelEl.classList.remove('opening'));
+  } else panelEl.hidden = true;
+}
+function togglePause() {
+  paused = !paused;
+  pauseBtn.setAttribute('aria-pressed', paused ? 'true' : 'false');
+  pauseBtn.textContent = paused ? '재개' : '멈춤';
+  if (!paused) { acc = 0; needReanchor = true; }
+  announce(paused ? '일시정지' : '재개');
+  updatePlaque();
+}
+function calm() { calmField(); announce('수면을 잠재웠습니다'); }
+function setReduced(on) {
+  reduced = on;
+  inp.motion.checked = on;
+  root.classList.toggle('reduced', on);
+  timeScale = on ? 0.4 : 1;
+  needReanchor = true;
+  if (on && strobeOn) setStrobe(false);
+  inp.strobe.disabled = on; inp.strobeF.disabled = on; inp.strobeMatch.disabled = on;
+  $('strobe-note').textContent = on ? '움직임 줄이기 중에는 스트로보를 쓸 수 없습니다.' : '빛에 민감하면 스트로보를 켜지 마세요.';
+  stripBeatDrawn = -1;
+}
+let strobeWarned = false;
+function setStrobe(on) {
+  if (on && reduced) return;
+  strobeOn = on;
+  inp.strobe.checked = on;
+  if (on) {
+    strobeNextT = simTime; strobeFirst = true;
+    if (!strobeWarned) { strobeWarned = true; toast('스트로보는 물결 무늬를 끊어 보여 줍니다. 빛에 민감하면 끄세요.'); }
+  } else { holdMix = 1; strobeLimit = 1; }
+}
+function setStrobeF(f) {
+  strobeF = clamp(Math.round(f * 100) / 100, 1, 15);
+  inp.strobeF.value = strobeF; fillRange(inp.strobeF);
+  outEl.strobe.textContent = `${strobeF.toFixed(2)} Hz`;
+}
+let plaqueCache = '';
+function updatePlaque() {
+  const dmm = (depth * 10).toFixed(1), c = ceff.toFixed(1);
+  const main = `수심 ${dmm} mm · c ${c} cm/s · ♩=${bpm} · 1박=${beatCm().toFixed(1)} cm`;
+  const short = `${dmm} mm · ${c} cm/s · ♩${bpm}`;
+  const ex = [];
+  if (dilationEma < 0.97) ex.push(`시간 ×${dilationEma.toFixed(2)}`);
+  if (oscs.some((o) => Math.abs(humHz(o) - HWANGJONG) <= 1)) ex.push('황종');
+  if (paused) ex.push('일시정지');
+  if (renderMode !== 'gl') ex.push('간이 투영 모드');
+  if (gridLow) ex.push('저사양 격자');
+  const extra = ex.map((e) => ` · ${e}`).join('');
+  const key = main + extra;
+  if (key === plaqueCache) return;
+  plaqueCache = key;
+  ro.main.textContent = main; ro.short.textContent = short; ro.extra.textContent = extra;
+}
+
+/* ---------- 프리셋 ---------- */
+function resample(pts, sp) {
+  const outp = [pts[0], pts[1]];
+  let lu = pts[0], lv = pts[1], carry = 0;
+  for (let i = 2; i < pts.length; i += 2) {
+    const u1 = pts[i], v1 = pts[i + 1];
+    let seg = Math.hypot(u1 - lu, v1 - lv), su = lu, sv = lv;
+    while (carry + seg >= sp) {
+      const f = (sp - carry) / seg;
+      su += (u1 - su) * f; sv += (v1 - sv) * f;
+      outp.push(su, sv);
+      seg = Math.hypot(u1 - su, v1 - sv); carry = 0;
+    }
+    carry += seg; lu = u1; lv = v1;
+  }
+  const n = outp.length;
+  if (Math.hypot(outp[n - 2] - lu, outp[n - 1] - lv) > 0.05) outp.push(lu, lv);
+  return outp;
+}
+const mkWall = (pts, echo) => ({ id: nextId++, pts: resample(pts, 0.3), echo: echo || null });
+function poly(fn, t0, t1, n) { const p = []; for (let i = 0; i <= n; i++) { const [u, v] = fn(t0 + (t1 - t0) * i / n); p.push(u, v); } return p; }
+const PRESET_LABEL = { first: '첫 장면', slit: '이중 슬릿', echo: '메아리 북', ellipse: '속삭이는 타원', cavity: '공명실', mine: '내 수조' };
+function loadPreset(name, boot) {
+  if (!boot) pushUndo(snapshot());
+  walls = []; glass = []; droppers = []; oscs = []; stones = []; selected = null;
+  let msg = '';
+  if (name === 'first') {
+    if (reduced) droppers.push(makeDropper(40, 11, 0));
+    else {
+      droppers.push(makeDropper(18, 23, 1), makeDropper(40, 11, 4));
+      oscs.push(makeOsc(7.5, 7.0, 7));
+    }
+    walls.push(mkWall(poly((v) => [58 - (v - 19.8) * (v - 19.8) / 24, v], 7.8, 31.8, 480)));
+    for (let u = 26.5; u <= 31.5 + 1e-6; u += 0.5) {
+      for (let v = 11; v <= 24.2 + 1e-6; v += 0.5) {
+        if (Math.hypot(u - 22.5, v - 17.6) <= 9 && Math.hypot(u - 35.5, v - 17.6) <= 9) glass.push({ u, v, r: 0.45, sign: 1 });
+      }
+    }
+    stones.push(makeStone(24, 7), makeStone(45, 6), makeStone(13, 3), makeStone(31, 1), makeStone(52, 5));
+  } else if (name === 'slit') {
+    for (const [a, b] of [[0, 15.5], [16.9, 22.7], [24.1, 36]]) walls.push(mkWall([22, a, 22, b]));
+    oscs.push(makeOsc(10, 19.8, 8));
+    droppers.push(makeDropper(6, 19.8, 0));
+    for (let L = 2; L <= 8; L++) stones.push(makeStone(48, L));
+  } else if (name === 'echo') {
+    const R = ceff * (60 / bpm) / 2 + wallHalf() - echoLag();   // 왕복 지연만큼 줄여 재집속이 정확히 1박(echoBeats와 같은 식)
+    walls.push(mkWall(poly((a) => [32 + R * Math.cos(a), 19.8 + R * Math.sin(a)], 0, Math.PI * 2, 72), { cu: 32, cv: 19.8, R }));
+    stones.push(makeStone(32, 5));
+    msg = '원 가운데를 톡 — 반지름이 1박의 절반이라 메아리가 박자에 맞춰 돌아옵니다';
+  } else if (name === 'ellipse') {
+    walls.push(mkWall(poly((a) => [32 + 22 * Math.cos(a), 19.8 + 12 * Math.sin(a)], 0, Math.PI * 2, 360)));
+    droppers.push(makeDropper(13.56, 19.8, 0));
+    stones.push(makeStone(50.44, 5), makeStone(32, 7), makeStone(32, 3));
+  } else if (name === 'cavity') {
+    walls.push(mkWall([24, 12.6, 40, 12.6, 40, 27.0, 24, 27.0, 24, 12.6]));
+    oscs.push(makeOsc(27.5, 16.2, 3.6));
+    stones.push(makeStone(36, 6), makeStone(30, 5));
+    const lx = 16 - 2 * wallHalf(), ly = 14.4 - 2 * wallHalf();
+    const f43 = (ceff / 2) * Math.hypot(4 / lx, 3 / ly);
+    msg = `진동자 주파수를 천천히 올려 공명 게이지를 보세요 (모드 4·3 ≈ ${f43.toFixed(1)} Hz)`;
+  } else if (name === 'mine') {
+    const data = readSavedTank();
+    if (data) applySaved(data);
+  }
+  if (boot) for (const o of oscs) o.amp = 1;
+  rebuildGeometry();
+  calmField();
+  if (name === 'echo') pendingDrops.push({ u: 32, v: 19.8, A: A_TAP, sig: SIG_TAP, gain: 0.05 });
+  objectsChanged();
+  presetSel.value = name;
+  if (!boot) {
+    announce(`프리셋: ${PRESET_LABEL[name]}`);
+    if (msg) toast(msg);
+    markSave();
+  }
+}
+function cyclePreset() {
+  const opts = [...presetSel.options].map((o) => o.value);
+  const i = (opts.indexOf(presetSel.value) + 1) % opts.length;
+  loadPreset(opts[i], false);
+}
+
+/* ---------- '내 수조' 저장 (localStorage는 편의 기능, 실패해도 동작) ---------- */
+const SAVE_KEY = 'pamun-tank-v1', PREF_KEY = 'pamun-prefs-v1';
+let saveTimer = 0, bootDone = false;
+function markSave() {
+  if (!bootDone) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveTank, 1000);
+}
+function saveTank() {
+  const data = { ...snapshot(), bpm, depth, scale: scaleName, beach: beachOn };
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    ensureMineOption();
+  } catch (err) { console.warn('파문 투영기: 수조를 저장하지 못했습니다 —', err); }
+}
+function readSavedTank() {
+  let raw = null;
+  try { raw = localStorage.getItem(SAVE_KEY); } catch (err) { console.warn('파문 투영기: 저장본을 읽지 못했습니다 —', err); return null; }
+  if (!raw) return null;
+  let d;
+  try { d = JSON.parse(raw); } catch (err) { console.warn('파문 투영기: 저장본 형식이 잘못되었습니다 —', err); return null; }
+  const arr = (x) => Array.isArray(x);
+  const num = (x) => typeof x === 'number' && Number.isFinite(x);
+  if (!d || !arr(d.walls) || !arr(d.glass) || !arr(d.droppers) || !arr(d.oscs) || !arr(d.stones)) return null;
+  const ok = d.walls.every((w) => arr(w.pts) && w.pts.length >= 2 && w.pts.every(num)) &&
+    d.glass.every((g) => num(g.u) && num(g.v) && num(g.r)) &&
+    d.droppers.every((x) => num(x.u) && num(x.v) && Number.isInteger(x.div) && x.div >= 0 && x.div < DIVS.length) &&
+    d.oscs.every((x) => num(x.u) && num(x.v) && num(x.f)) &&
+    d.stones.every((x) => num(x.u) && Number.isInteger(x.lane) && x.lane >= 0 && x.lane < LANES);
+  return ok ? d : null;
+}
+function applySaved(d) {
+  walls = d.walls.slice(0, 500).map((w) => ({ id: nextId++, pts: w.pts.map((x) => +x), echo: w.echo && num3(w.echo) ? { cu: w.echo.cu, cv: w.echo.cv, R: w.echo.R } : null }));
+  glass = d.glass.slice(0, LIMITS.glass).map((g) => ({ u: g.u, v: g.v, r: clamp(g.r, 0.3, 2), sign: g.sign < 0 ? -1 : 1 }));
+  droppers = d.droppers.slice(0, LIMITS.droppers).map((x) => makeDropper(clampObjU(x.u), clampObjV(x.v), x.div));
+  oscs = d.oscs.slice(0, LIMITS.oscs).map((x) => makeOsc(clampObjU(x.u), clampObjV(x.v), clamp(x.f, 3, 14)));
+  stones = d.stones.slice(0, LIMITS.stones).map((x) => makeStone(clampObjU(x.u), x.lane));
+  if (typeof d.bpm === 'number') setTempo(d.bpm, false);
+  if (typeof d.depth === 'number') setDepth(d.depth * 10, false);
+  if (isScale(d.scale)) setScale(d.scale, false);
+  if (typeof d.beach === 'boolean') setBeach(d.beach, false);
+}
+const num3 = (e) => [e.cu, e.cv, e.R].every((x) => typeof x === 'number' && Number.isFinite(x));
+function ensureMineOption() {
+  if ([...presetSel.options].some((o) => o.value === 'mine')) return;
+  const o = document.createElement('option');
+  o.value = 'mine'; o.textContent = '내 수조';
+  presetSel.appendChild(o);
+}
+let prefMotion = null;          // 'on' | 'off' | null(= OS 설정을 따름). #motion-toggle을 직접 바꿨을 때만 기록
+function savePrefs() {
+  const p = { volume, scale: scaleName };
+  if (prefMotion) p.motion = prefMotion;
+  try { localStorage.setItem(PREF_KEY, JSON.stringify(p)); }
+  catch (err) { console.warn('파문 투영기: 설정을 저장하지 못했습니다 —', err); }
+}
+function loadPrefs() {
+  let p = null;
+  try { const raw = localStorage.getItem(PREF_KEY); p = raw ? JSON.parse(raw) : null; }
+  catch (err) { console.warn('파문 투영기: 설정을 읽지 못했습니다 —', err); }
+  return p && typeof p === 'object' ? p : null;
+}
+function setScale(name, user) {
+  scaleName = name;
+  inp.scale.value = name;
+  drawStatic();
+  for (const o of oscs) if (pitchSnap) o.f = snapOscPitch(o.f);
+  if (user) { announce(`음계: ${SCALES[name].name}`); savePrefs(); markSave(); }
+}
+
+/* ---------- 컨트롤 배선 ---------- */
+for (const b of document.querySelectorAll('.tool[role=radio]')) b.addEventListener('click', () => setTool(b.dataset.tool));
+moreBtn.addEventListener('click', () => setMore(moreBtn.getAttribute('aria-expanded') !== 'true'));
+soundBtn.addEventListener('click', toggleSound);
+panelToggle.addEventListener('click', () => setPanel(panelEl.hidden));
+inp.volume.addEventListener('input', () => { setVolume(inp.volume.value / 100); outEl.volume.textContent = inp.volume.value; fillRange(inp.volume); savePrefs(); });
+inp.scale.addEventListener('change', () => setScale(inp.scale.value, true));
+inp.depth.addEventListener('input', () => setDepth(+inp.depth.value, true));
+inp.damping.addEventListener('input', () => { setDamping(+inp.damping.value); });
+inp.beach.addEventListener('change', () => setBeach(inp.beach.checked, true));
+inp.tempo.addEventListener('input', () => setTempo(+inp.tempo.value, true));
+inp.grid.addEventListener('change', () => setGrid(inp.grid.checked));
+inp.snap.addEventListener('change', () => { snapToggle = inp.snap.checked; });
+inp.brush.addEventListener('input', () => setBrush(+inp.brush.value));
+inp.osc.addEventListener('input', () => { if (linkedOsc) setOscFreq(linkedOsc, +inp.osc.value); });
+inp.pitch.addEventListener('change', () => { pitchSnap = inp.pitch.checked; if (pitchSnap) for (const o of oscs) setOscFreq(o, o.f); });
+inp.rain.addEventListener('change', () => setRain(inp.rain.checked));
+inp.strobe.addEventListener('change', () => setStrobe(inp.strobe.checked));
+inp.strobeF.addEventListener('input', () => setStrobeF(+inp.strobeF.value));
+inp.strobeMatch.addEventListener('click', () => {
+  const o = selected && selected.kind === 'osc' ? selected.obj : oscs[0];
+  if (o) { setStrobeF(o.f); announce(`스트로보 ${strobeF.toFixed(2)} Hz`); } else toast('맞출 진동자가 없어요');
+});
+inp.motion.addEventListener('change', () => { setReduced(inp.motion.checked); prefMotion = inp.motion.checked ? 'on' : 'off'; savePrefs(); });
+presetSel.addEventListener('change', () => loadPreset(presetSel.value, false));
+undoBtn.addEventListener('click', undo);
+$('calm').addEventListener('click', calm);
+pauseBtn.addEventListener('click', togglePause);
+loopBtn.addEventListener('click', toggleLoopRec);
+$('loop-clear').addEventListener('click', () => { loopLayers.length = 0; loopRec = null; loopBtn.setAttribute('aria-pressed', 'false'); announce('루프를 지웠습니다'); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readChrome);
+new MutationObserver(readChrome).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+// OS 설정이 바뀌면 그것이 새 의사 표시이므로 따르고, 이전의 명시 선택은 지운다(다음 방문에도 OS를 따름)
+matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', (e) => {
+  setReduced(e.matches);
+  if (prefMotion) { prefMotion = null; savePrefs(); }
+});
+
+/* ---------- 레이아웃 (가로·세로 판정, 예약 영역, 뷰 행렬) ---------- */
+function sizeGL() {
+  const gs = Math.min(devicePixelRatio || 1, 1.5) * renderScale;
+  const w = Math.max(1, Math.round(view.W * gs)), hh = Math.max(1, Math.round(view.H * gs));
+  if (glCanvas.width !== w || glCanvas.height !== hh) { glCanvas.width = w; glCanvas.height = hh; }
+}
+function sizeCanvases() {
+  const d2 = view.dpr;
+  stage.width = Math.round(view.W * d2); stage.height = Math.round(view.H * d2);
+  sizeGL();
+  const fs = Math.min(devicePixelRatio || 1, 1.5);
+  fbCanvas.width = Math.round(view.W * fs); fbCanvas.height = Math.round(view.H * fs);
+  stripCv.width = Math.max(1, Math.round(stripCv.clientWidth * d2));
+  stripCv.height = Math.max(1, Math.round(stripCv.clientHeight * d2));
+  stripBeatDrawn = -1;
+}
+function layout() {
+  const W = stage.clientWidth || innerWidth, H = stage.clientHeight || innerHeight;
+  view.W = W; view.H = H; view.dpr = Math.min(devicePixelRatio || 1, 2);
+  const ar = W / H;
+  let port = view.layout === 'port';
+  if (ar < 0.95) port = true; else if (ar > 1.05) port = false;
+  const lay = port ? 'port' : H < 500 ? 'land' : 'desk';
+  view.layout = lay;
+  root.classList.toggle('lay-port', lay === 'port');
+  root.classList.toggle('lay-land', lay === 'land');
+  let ax = 0, ay = 0, aw = W, ah = H;
+  if (lay === 'port') {
+    root.style.setProperty('--side-h', `${sideEl.offsetHeight}px`);
+    const topB = topEl.getBoundingClientRect().bottom + 6;
+    // '장치'를 펼치면 2행이 위로 44 + 4 px 자란다. 펼침 여부와 상관없이 그 높이를 예약해 수조를 가리지 않게 한다.
+    const rowTop = $('tool-drop').getBoundingClientRect().top - 6 - 48;
+    ay = topB; ah = Math.max(60, rowTop - topB);
+  } else if (lay === 'land') {
+    const railR = dockEl.getBoundingClientRect().right + 6;
+    ax = railR; aw = Math.max(60, W - railR);
+  }
+  view.availY = ay;
+  const aar = aw / ah;
+  if (aar > 1.05) view.mode = 'land'; else if (aar < 0.95) view.mode = 'port';
+  if (view.mode === 'land') { view.s = Math.min(aw / TANK_W, ah / TANK_H); view.ox = ax; view.oy = ay; }
+  else { view.s = Math.min(aw / TANK_H, ah / TANK_W); view.ox = ax + (aw - TANK_H * view.s) / 2; view.oy = ay; }
+  sizeCanvases();
+  drawStatic();
+}
+let resizeTimer = 0;
+const resizeObs = new ResizeObserver(() => { clearTimeout(resizeTimer); resizeTimer = setTimeout(layout, 150); });
+resizeObs.observe(stage);
+resizeObs.observe(topEl);        // 명판 줄바꿈(시간 ×… 등)으로 #top 높이가 바뀌면 세로 화면 수조 위치를 다시 잡는다
+// CSS 크기 변화 없이 DPR만 바뀌면(다른 모니터로 이동·OS 배율) ResizeObserver가 부르지 않으므로 따로 본다
+function watchDpr() {
+  const mq = matchMedia(`(resolution: ${devicePixelRatio || 1}dppx)`);
+  mq.addEventListener('change', () => { layout(); watchDpr(); }, { once: true });
+}
+watchDpr();
+
+/* ---------- 프레임 루프 ---------- */
+// [편차 3.3] dilation: 명세의 EMA_1s(n·dt/(wallDt·timeScale))는 프레임마다 n이 정수라 표본이 1 위아래로 흔들리는데,
+// 위쪽을 자르면 평균이 1 아래로 치우친다(90/120/144 Hz·감쇠 모드에서 '시간 ×0.9'와 오디오 재고정).
+// 같은 양을 '예산 때문에 버린 시뮬 시간'의 시간가중 지수창(τ 1 s) 합으로 구한다:
+// 1 − Σ버린 시간/Σ(wallDt·timeScale). 버리지 않으면 정확히 1이고, 히컵 한 번의 과도 응답은 명세식 수준이다.
+// 갱신은 파일 끝 「프레임 루프」의 frame()에서 한다.
+let dilationEma = 1, lostWin = 0, wallSimWin = 0;
+// 오디오·항적 rate: 잡음 수준(±1%) 변동으로 사상이 끌리지 않게 0.99 이상이면 1로 둔다
+const simRate = () => timeScale * (dilationEma >= 0.99 ? 1 : dilationEma);
+let rafId = 0, lastNow = 0, acc = 0, frameNo = 0;
+let stepCostEma = 0.3, workMsEma = 4, frameIntEma = 1 / 60, stepsPerSecEma = 0;
+let qSlow = 0, qFast = 0, qLast = -1e9, lowDil = 0, uiTick = 0, firstPaintT = 0;
+function poisson(lam) {
+  const L = Math.exp(-lam);
+  let k = 0, p = 1;
+  do { k++; p *= Math.random(); } while (p > L && k < 50);
+  return k - 1;
+}
+function buildRain(n, now) {
+  rainQueue.length = 0;
+  if (n <= 0) return;
+  const idle = !reduced && now - lastInputWall > 12000;
+  const lam = rainMode ? 4 : idle ? 0.45 : 0;
+  if (!lam) return;
+  const cnt = poisson(lam * n * dt), inset = BEACH_CM + 1;
+  for (let q = 0; q < cnt; q++) {
+    for (let tries = 0; tries < 6; tries++) {
+      const u = inset + Math.random() * (TANK_W - 2 * inset), v = inset + Math.random() * (TANK_H - 2 * inset);
+      if (isWetAt(u, v)) { rainQueue.push({ k: Math.floor(Math.random() * n), u, v }); break; }
+    }
+  }
+}
+// 단계 변경은 GL 캔버스 크기를 바꿔 드로잉 버퍼를 비우므로, 다음 프레임 시작(렌더 전)에 적용한다(qPending).
+function setQuality(q) {
+  quality = q; renderScale = [1, 0.75, 0.6][q]; dispOn = q < 2;
+  sizeGL();
+}
+// 프레임 시간 = 프레임 간격 EMA(α 0.1). GPU 비용은 JS 작업 시간에 드러나지 않으므로 간격으로 판정한다.
+//  · [편차 4.7] 내림: EMA > max(20 ms, 추정 vsync(30 Hz 상한)의 1.25배)가 2 s. vsync에 묶인 30 fps(저전력 모드·2-vsync 폰)는
+//    느린 것이 아니므로 내리지 않는다(내렸다 곧 올리는 왕복 방지). JS 작업이 간격의 70% 이상이면 CPU 병목이므로
+//    내리지 않는다(시간 팽창이 흡수).
+//  · [편차 4.7] 올림: 명세의 '< 12 ms'는 60 Hz 화면에서 영원히 참이 될 수 없으므로, 추정 vsync 간격의 1.1배 이내도 인정한다.
+//    올린 직후(15 s 안) 다시 내려가면 다음 올림 대기를 두 배로 늘려(최대 5분) 오르내림 반복을 막는다.
+const VSYNC_MAX_MS = 33.4;      // vsync로 인정하는 가장 긴 간격(30 Hz)
+let qPending = -1, vsyncMs = 16.7, lastUpT = -1e9, lastDownT = -1e9, upHold = 0;
+function adaptQuality(wallDt, now) {
+  if (wallDt <= 0) return;
+  const ms = wallDt * 1000;
+  const frameMs = frameIntEma * 1000;              // 프레임 간격 EMA(frame()이 갱신)
+  vsyncMs = ms < vsyncMs ? Math.max(4, ms) : vsyncMs + (ms - vsyncMs) * 0.002;
+  const cpuBound = workMsEma > 0.7 * frameMs;
+  qSlow = frameMs > Math.max(20, 1.25 * Math.min(vsyncMs, VSYNC_MAX_MS)) && !cpuBound ? qSlow + wallDt : 0;
+  qFast = frameMs < Math.max(12, 1.1 * vsyncMs) ? qFast + wallDt : 0;
+  if (now - qLast > 5000 && qPending < 0) {
+    if (qSlow > 2 && quality < 2) {
+      if (now - lastUpT < 15000) upHold = Math.min(300000, Math.max(20000, upHold * 2));
+      qPending = quality + 1; qLast = lastDownT = now; qSlow = 0;
+    } else if (qFast > 5 && quality > 0 && now - lastDownT > upHold) {
+      qPending = quality - 1; qLast = lastUpT = now; qFast = 0;
+    }
+  }
+  if (quality === 2 && !gridLow && !paused && dilationEma < 0.85) { lowDil += wallDt; if (lowDil > 3) downgradeGrid(); }
+  else lowDil = 0;
+}
+// (P1) 비상 격자 강등: 256×144로 bilinear 리샘플, 벡터에서 재래스터화, c_eff 재보정. 한 세션에서 되돌리지 않는다
+function downgradeGrid() {
+  gridLow = true;
+  const oh = h, ohp = hp, onx = NX, ony = NY, odx = DX, oldDt = dt;
+  allocGrid(256, 144, 0.25);
+  const samp = (arr, u, v) => {
+    const x = clamp(u / odx - 0.5, 0, onx - 1.001), y = clamp(v / odx - 0.5, 0, ony - 1.001);
+    const i = Math.floor(x), j = Math.floor(y), fx = x - i, fy = y - j, k = i + j * onx;
+    return (arr[k] * (1 - fx) + arr[k + 1] * fx) * (1 - fy) + (arr[k + onx] * (1 - fx) + arr[k + onx + 1] * fx) * fy;
+  };
+  for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) {
+    const u = (i + 0.5) * DX, v = (j + 0.5) * DX, k = i + j * NX;
+    h[k] = samp(oh, u, v); hp[k] = samp(ohp, u, v);
+  }
+  dt = 0;
+  updateTiming();
+  const r = dt / oldDt;
+  for (let k = 0; k < N; k++) hp[k] = h[k] - (h[k] - hp[k]) * r;
+  calibrate();
+  rebuildGeometry();
+  for (const st of stones) resetReadout(st);
+  if (gl && !gl.isContextLost() && glT) makeFieldTextures();
+  inp.osc.max = fMax().toFixed(2);
+  updateDepthOutputs();
+  updatePlaque();
+  announce('저사양 격자로 전환했습니다');
+}
+function frame(now) {
+  rafId = requestAnimationFrame(frame);
+  const tStart = performance.now();
+  if (qPending >= 0) { setQuality(qPending); qPending = -1; }
+  // 컨텍스트 소실 이벤트는 비동기로 오므로, 이 프레임에서 먼저 알아채면 곧바로 폴백으로 그린다(수용 기준 14)
+  if (renderMode === 'gl' && gl && gl.isContextLost()) setRenderMode('fallback');
+  const wallDt = clamp((now - lastNow) / 1000, 0, 0.1);
+  lastNow = now;
+  if (wallDt > 0) frameIntEma += (wallDt - frameIntEma) * 0.1;
+  if (!paused) {
+    acc += wallDt * timeScale;
+    const need = Math.floor(acc / dt);
+    const maxSteps = Math.max(1, Math.floor(SIM_BUDGET_MS / stepCostEma));
+    const n = Math.min(need, maxSteps);
+    if (need > n) acc -= (need - n) * dt;           // 못 따라간 몫은 버린다 → 전역 시간 팽창
+    buildWakeJobs(wallDt, simRate());
+    buildRain(n, now);
+    if (loopRec) loopRec.sample();
+    const t0 = performance.now();
+    for (let k = 0; k < n; k++) step(k, n);
+    const cost = performance.now() - t0;
+    if (n > 0) stepCostEma += (cost / n - stepCostEma) * 0.1;
+    acc -= n * dt;
+    wakeJobs.length = 0; rainQueue.length = 0;
+    if (wallDt > 0) {
+      // 시간가중 지수창(τ 1 s) 합: 프레임당 값의 EMA는 긴 프레임을 wallDt²로 과대 반영해 히컵 한 번에 크게 떨어진다
+      const k = Math.exp(-wallDt / 1);
+      lostWin = lostWin * k + (need - n) * dt;
+      wallSimWin = wallSimWin * k + wallDt * timeScale;
+      dilationEma = wallSimWin > 1e-6 ? clamp(1 - lostWin / wallSimWin, 0, 1) : 1;
+      stepsPerSecEma += (n / wallDt - stepsPerSecEma) * (1 - k);
+    }
+    frameNo++;
+    if (frameNo % 4 === 0) computeEnergy();
+    if (energy > E_SOFT) gAuto = Math.max(0.15, gAuto * 0.97); else gAuto += (1 - gAuto) * 0.01;
+    if (frameNo % 60 === 0) removeDC();
+    if (frameNo % 30 === 0 && !fieldIsFinite()) { calmField(); nanResets++; toast('수면이 넘쳐 잠재웠습니다'); }
+    finishLoopIfDone();
+  } else {
+    wakeJobs.length = 0;
+  }
+  scheduleAudio(simTime, simRate(), frameIntEma);
+  updateContinuous(wallDt);
+  const strobing = strobeOn && !reduced;
+  if (strobing) {
+    if (simTime >= strobeNextT) {
+      strobeHold(now);
+      strobeNextT += 1 / strobeF;
+      if (strobeNextT < simTime) strobeNextT = simTime + 1 / strobeF;
+    }
+    holdMix = clamp((now - holdStartWall) / 70, 0, 1);
+  } else { computeBraw(); holdMix = 1; }
+  updateContrast(wallDt);
+  if (renderMode === 'gl') { if (!strobing) uploadField(); renderGL(now); }
+  else renderFallback();
+  drawOverlay(now);
+  drawStrip();
+  if (now - uiTick > 200) {
+    uiTick = now;
+    if (firstHintOn && now - firstPaintT > 20000) firstHintOn = false;
+    refreshHint();
+    updatePlaque();
+    if (machActive || !ro.mach.classList.contains('fade')) ro.mach.textContent = ` · M ${machEma.toFixed(2)}`;
+    const lv = clamp(Math.log10(Math.max(energy, 1e-9)), -5, 0);
+    resBar.style.width = `${((lv + 5) / 5 * 100).toFixed(1)}%`;
+    resMeter.setAttribute('aria-valuenow', lv.toFixed(2));
+    resMeter.setAttribute('aria-valuetext', `log E ${lv.toFixed(1)}`);
+  }
+  workMsEma += (performance.now() - tStart - workMsEma) * 0.1;
+  adaptQuality(wallDt, now);
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    cancelAnimationFrame(rafId); rafId = 0;
+    if (actx && audioState === 'on') actx.suspend().catch((err) => console.warn('파문 투영기: 오디오 일시 중지 실패 —', err));
+  } else {
+    lastNow = performance.now(); acc = 0;
+    if (actx && audioState === 'on') { actx.resume().catch(audioResumeFail); needReanchor = true; }
+    if (!rafId) rafId = requestAnimationFrame(frame);
+  }
+});
+
+/* ---------- 부팅: 첫 장면 → c_eff 보정 → 선행 계산 → 첫 프레임 동기 렌더 ---------- */
+function boot() {
+  const prefs = loadPrefs();
+  allocGrid(320, 180, 0.2);
+  updateTiming();
+  if (prefs) {
+    if (typeof prefs.volume === 'number') { volume = clamp(prefs.volume, 0, 1); inp.volume.value = Math.round(volume * 100); outEl.volume.textContent = inp.volume.value; }
+    if (isScale(prefs.scale)) scaleName = prefs.scale;
+    if (prefs.motion === 'on' || prefs.motion === 'off') prefMotion = prefs.motion;
+  }
+  // 움직임 설정: 사용자가 #motion-toggle로 직접 고른 값이 있을 때만 그것을, 아니면 OS 설정을 따른다.
+  // (이전 형식의 'reduced'는 음량·음계를 바꿀 때마다 함께 저장되어 명시 선택과 구분할 수 없으므로 무시한다)
+  const rm = prefMotion ? prefMotion === 'on' : matchMedia('(prefers-reduced-motion: reduce)').matches;
+  setReduced(rm);
+  inp.scale.value = scaleName;
+  syncToolTabs();
+  // 명판 판독 줄을 먼저 채운 뒤 레이아웃한다(세로 화면은 #top 높이로 수조 위치를 정한다)
+  setTempo(bpm, false); updatePlaque();
+  layout();
+  const topH = topEl.offsetHeight;
+  readChrome();
+  if (initGL()) setRenderMode('gl');
+  else { permFallback = true; console.warn('파문 투영기: WebGL2 투영을 쓸 수 없어 간이 투영으로 전환 —', glFailReason); setRenderMode('fallback'); }
+  loadPreset('first', true);
+  calibrate();
+  updateTiming();
+  // 선행 계산: 점적기·진동자 동작, 발음은 스트립·번쩍임에만 기록, 비 없음
+  precomputing = true;
+  const tp = performance.now();
+  while (simTime < 2.5) {
+    for (let q = 0; q < 8 && simTime < 2.5; q++) step(0, 1);
+    const el = performance.now() - tp;
+    if (el > PRE_HARD_MS || (el > PRE_BUDGET_MS && simTime >= PRE_MIN_S)) break;
+  }
+  precomputing = false;
+  frameEvents.length = 0;
+  computeEnergy();
+  for (const el of [inp.volume, inp.damping, inp.brush, inp.strobeF]) fillRange(el);
+  setTempo(bpm, false); updateDepthOutputs(); linkOscSlider(oscs[0] || null); setStrobeF(strobeF);
+  undoBtn.disabled = true;
+  computeBraw();
+  contrastSm = brawMeanAbs > 1e-6 ? Math.min(1, 0.14 / brawMeanAbs) : 1;
+  updateContrast(0);
+  if (renderMode === 'gl') uploadField();
+  updatePlaque();
+  if (topEl.offsetHeight !== topH) layout();          // 간이 투영 모드 표시 등으로 명판 높이가 바뀌었으면 다시 배치
+  if (renderMode === 'gl') renderGL(performance.now()); else renderFallback();
+  drawOverlay(performance.now());
+  drawStrip();
+  firstPaintT = performance.now();
+  lastInputWall = firstPaintT;
+  refreshHint();
+  if (readSavedTank()) { ensureMineOption(); setTimeout(() => toast('지난 수조: 프리셋 › 내 수조'), 1500); }
+  bootDone = true;
+  lastNow = performance.now();
+  rafId = requestAnimationFrame(frame);
+  if (document.fonts && document.fonts.load) {
+    Promise.race([document.fonts.load('600 13px Hahmlet'), new Promise((r) => setTimeout(r, 1200))])
+      .then(() => drawStatic(), (err) => console.warn('파문 투영기: 폰트 대기 실패 —', err));
+    document.fonts.ready.then(() => drawStatic());
+  }
+}
+
+// 진단 훅 — 스모크 테스트 전용. UI 없음, 읽기 전용이며 상태를 바꾸지 않는다.
+// 필드는 배포 요구 목록 그대로이고, 그 밖에 calRaw·rLead(c_eff 보정 원값·선두 마루 절편), lateStrikes(오디오 사상이
+// 하한에 잘려 늦게 울린 타격 수), perf(추가 성능 진단)를 더한다.
+window.__pamun = Object.freeze({
+  diag() {
+    return {
+      mode: renderMode === 'gl' ? 'gl' : 'fallback',
+      grid: `${NX}x${NY}`,
+      simTime: +simTime.toFixed(3),
+      dilation: +dilationEma.toFixed(3),
+      fpsEma: +(1 / frameIntEma).toFixed(1),
+      stepsPerSec: Math.round(stepsPerSecEma),
+      E: +energy.toPrecision(4),
+      gAuto: +gAuto.toFixed(3),
+      ceff: +ceff.toFixed(3),
+      rho: +rho.toFixed(4),
+      calRaw: Number.isFinite(calRaw) ? +calRaw.toFixed(4) : String(calRaw),
+      rLead: +rLead.toFixed(3),
+      thetaFloor: +thetaFloor.toFixed(4),
+      quality,
+      audio: audioState,
+      nanResets,
+      lateStrikes,
+      tone: toneStats(),
+      stones: stones.map((s) => ({ lane: s.lane, u: +s.u.toFixed(2), strikes: s.strikes })),
+      droppers: droppers.length,
+      oscs: oscs.length,
+      walls: walls.length,
+      reducedMotion: reduced,
+      portrait: view.mode === 'port',
+      perf: { stepMs: +stepCostEma.toFixed(3), frameMs: +(frameIntEma * 1000).toFixed(1), workMs: +workMsEma.toFixed(1), maxSteps: Math.max(1, Math.floor(SIM_BUDGET_MS / stepCostEma)) },
+    };
+  },
+});
+
+try { boot(); } finally { root.classList.remove('booting'); }
+})();
+</script>
+</body>
+</html>
