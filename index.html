@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>파문 투영기</title>
-<meta name="description" content="불 끈 물리실험실의 물결통에 파라핀으로 벽을 그리고 울림돌을 놓으면, 물결이 닿는 거리가 박자가 되고 놓인 높이가 음정이 되는 파동 악기.">
+<title>파문 — 물결로 연주하는 악기</title>
+<meta name="description" content="물방울을 떨어뜨리면 물결이 퍼지고, 울림돌에 닿을 때마다 소리가 나요. 거리가 박자, 높이가 음정인 브라우저 악기. An instrument you play with ripples.">
 <meta name="theme-color" content="#12272A">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2312272A'/%3E%3Cpath d='M16 5c4 6 8 10.5 8 14.5a8 8 0 0 1-16 0C8 15.5 12 11 16 5z' fill='%23B8843C'/%3E%3C/svg%3E">
-<meta property="og:title" content="파문 투영기">
-<meta property="og:description" content="물결이 닿는 거리가 박자가 되고 놓인 높이가 음정이 되는 파동 악기. 파라핀으로 벽을 그리고 울림돌을 놓아 보세요.">
+<meta property="og:title" content="파문 Pamun — 물결로 연주하는 악기">
+<meta property="og:description" content="물결이 울림돌에 닿을 때마다 소리가 나요. 설치 없이 폰에서 바로. Drop water — every stone the ripple touches sings.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://jeiel85.github.io/pamun-ripple-tank/">
 <meta property="og:image" content="https://jeiel85.github.io/pamun-ripple-tank/docs/og.jpg">
@@ -109,14 +109,18 @@ button,select,input{font:inherit;color:inherit}
 
 /* 소리·계기판 */
 #side{position:fixed;right:calc(16px + var(--sar));bottom:calc(16px + var(--sab));z-index:4;display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:none}
-#side > button,#panel{pointer-events:auto}
+#side > button,#actions,#panel{pointer-events:auto}
 #sound-toggle{order:3;height:36px;padding:0 18px;border-radius:999px;border:1px solid var(--accent);background:var(--panel);color:var(--text);font-weight:500;cursor:pointer}
 #sound-toggle[aria-pressed="true"]{background:var(--accent);color:#12272A}
 #sound-toggle:disabled{opacity:.6;cursor:not-allowed}
 #mute-note{order:4;display:none;margin:0;font-size:11px;color:var(--text-dim);background:var(--panel);padding:2px 6px;border-radius:2px}
 .touch #mute-note{display:block}
-#panel-toggle{order:2;height:32px;padding:0 14px;border:1px solid var(--line-2);border-radius:6px 6px 2px 2px;background:var(--panel);color:var(--text);cursor:pointer}
+#actions{order:2;display:flex;gap:4px}
+.act{height:32px;padding:0 12px;border:1px solid var(--line-2);border-radius:6px 6px 2px 2px;background:var(--panel);color:var(--text);cursor:pointer;white-space:nowrap}
+.act[hidden]{display:none}
 #panel-toggle[aria-expanded="true"]{border-color:var(--accent)}
+#rec-btn[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:#12272A;font-variant-numeric:tabular-nums}
+#rec-btn[aria-pressed="true"]::before{content:"";display:inline-block;width:7px;height:7px;margin-right:6px;border-radius:50%;background:#7A1F12;vertical-align:1px}
 #panel{order:1;width:300px;max-height:calc(100vh - 140px);overflow-y:auto;overscroll-behavior:contain;border-radius:10px;background:var(--panel);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 8px 24px rgba(0,0,0,0.35);color:var(--text);padding:4px 14px 10px;transform-origin:bottom right;transition:opacity var(--dur) var(--ease),transform var(--dur) var(--ease)}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#panel{background:var(--panel-solid)}}
 #panel[hidden]{display:none}
@@ -158,6 +162,36 @@ select{margin-left:auto;min-width:0;max-width:170px;height:28px;padding:0 6px;bo
 .touch .btn,.touch select{height:44px}
 #src-link{display:inline-block;margin-top:8px;font-size:11px;color:var(--text-dim);text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
 
+/* 첫 화면 카드: 어두운 투영면 위에 뜨므로 테마와 상관없이 같은 암실 색을 쓴다 */
+.intro-on #top,.intro-on #dock,.intro-on #side{visibility:hidden}
+#intro{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:calc(24px + var(--sat)) calc(16px + var(--sar)) calc(24px + var(--sab)) calc(16px + var(--sal));background:radial-gradient(ellipse at center,rgba(12,29,31,0.18),rgba(12,29,31,0.58));animation:intro-in 420ms var(--ease) both}
+#intro[hidden]{display:none}
+@keyframes intro-in{from{opacity:0}to{opacity:1}}
+.reduced #intro{animation:none}
+#intro .card{position:relative;width:100%;max-width:400px;padding:22px 24px 16px;text-align:center;color:#D9D3BF;background:rgba(14,32,35,0.84);border-top:1px solid #B8843C;border-bottom:1px solid #B8843C;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#intro .kicker{margin:0;font:400 11px var(--mono);letter-spacing:.32em;color:#B8843C}
+#intro h2{margin:4px 0 0;font:700 46px/1.1 var(--serif);letter-spacing:-0.01em}
+#intro .tag{margin:6px 0 0;font:600 17px/1.35 var(--serif)}
+#intro .warn{margin:10px 0 0;font-size:12px;line-height:1.5;color:#E8B87A}
+#intro .warn[hidden]{display:none}
+#intro .body{margin:12px 0 18px;font-size:14px;line-height:1.6;color:rgba(217,211,191,0.78);word-break:keep-all}
+#intro .primary{display:block;width:100%;height:48px;border:0;border-radius:999px;background:#B8843C;color:#12272A;font-size:15px;font-weight:500;cursor:pointer}
+#intro .ghost{display:block;width:100%;height:40px;margin-top:6px;border:0;background:none;color:rgba(217,211,191,0.72);font-size:13px;text-decoration:underline;text-decoration-color:rgba(184,132,60,0.7);text-underline-offset:3px;cursor:pointer}
+#intro .lang{position:absolute;right:8px;top:6px;height:32px;padding:0 8px;border:0;background:none;color:rgba(217,211,191,0.72);font-size:12px;cursor:pointer}
+#intro button:focus-visible{outline:1.5px solid rgba(217,211,191,0.75);outline-offset:3px}
+
+/* 공유·클립 시트 */
+.sheet{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9;width:min(380px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow-y:auto;padding:12px 14px;border-top:2px solid var(--accent);border-radius:4px 4px 10px 10px;background:var(--panel-solid);color:var(--text);box-shadow:0 10px 32px rgba(0,0,0,0.45)}
+.sheet[hidden]{display:none}
+.sheet h2{margin:0 0 8px;font:600 15px var(--serif)}
+.sheet .note{margin:6px 0 2px}
+.sheet video{display:block;width:100%;max-height:48vh;background:#0C1D1F;border-radius:2px}
+.sheet input{width:100%;height:34px;padding:0 8px;border:1px solid var(--line-2);border-radius:2px;background:transparent;color:var(--text);font:12px var(--mono)}
+.sheet .btns{justify-content:flex-end}
+.sheet a.btn{display:inline-flex;align-items:center;text-decoration:none}
+.sheet .btn.main{background:var(--accent);border-color:var(--accent);color:#12272A}
+.rec-canvas{position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none;z-index:-1}
+
 /* 폰 세로: 위쪽 명판 + 하단 시트 */
 .lay-port #top{left:calc(16px + var(--sal));right:calc(16px + var(--sar));top:calc(8px + var(--sat));gap:6px;align-items:stretch}
 .lay-port #plaque{padding:3px 8px 4px}
@@ -173,15 +207,20 @@ select{margin-left:auto;min-width:0;max-width:170px;height:28px;padding:0 6px;bo
 .lay-port .tool[aria-checked="true"]{background:var(--panel)}
 .lay-port #side{left:0;right:0;bottom:0;display:grid;grid-template-columns:1fr 1fr;gap:4px 6px;align-items:stretch;padding:2px calc(8px + var(--sar)) calc(6px + var(--sab)) calc(8px + var(--sal));background:var(--panel-solid)}
 .lay-port #dock,.lay-port #side{pointer-events:auto}
+.lay-port #side{grid-template-columns:minmax(0,1fr) minmax(0,1.5fr)}
 .lay-port #sound-toggle{grid-column:1;grid-row:1;height:44px;text-align:left;padding-left:14px}
-.lay-port #panel-toggle{grid-column:2;grid-row:1;height:44px;border-radius:2px;text-align:left;padding-left:14px}
+.lay-port #actions{grid-column:2;grid-row:1}
+.lay-port .act{flex:1 1 0;min-width:0;height:44px;padding:0 6px;border-radius:2px}
 .lay-port #mute-note{grid-column:1 / 3;grid-row:2;background:none;padding:0 2px}
 .lay-port #panel{position:fixed;left:0;right:0;bottom:var(--side-h);width:auto;height:45vh;max-height:45vh;border-radius:10px 10px 0 0;padding:4px calc(16px + var(--sar)) 12px calc(16px + var(--sal));transform-origin:bottom center}
 /* 폰 가로: 왼쪽 아이콘 레일 */
-.lay-land #top{left:calc(62px + var(--sal));top:calc(6px + var(--sat));gap:4px}
-.lay-land #plaque{display:flex;align-items:baseline;gap:10px;padding:2px 8px}
+/* 명판은 오른쪽 위 버튼 줄(--side-w, layout()이 잰다) 왼쪽에서 끝난다. 그 사이 56 px는 버튼을 비켜 선 레인 라벨 자리 */
+.lay-land #top{left:calc(62px + var(--sal));top:calc(6px + var(--sat));gap:4px;max-width:calc(100vw - 62px - var(--sal) - var(--side-w, 0px) - var(--sar) - 56px)}
+.lay-land #plaque{display:flex;align-items:baseline;gap:10px;padding:2px 8px;max-width:100%;min-width:0}
 .lay-land #plaque h1{font-size:14px}
-.lay-land #readout{margin:0;font-size:11px}
+.lay-land #readout{margin:0;font-size:11px;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.lay-land #ro-main{display:none}
+.lay-land #ro-short{display:inline}
 .lay-land #strip{width:180px;height:24px}
 .lay-land #dock{left:calc(6px + var(--sal));top:calc(6px + var(--sat));bottom:calc(6px + var(--sab));justify-content:flex-end}
 .lay-land #tools{overflow-y:auto;max-height:100%}
@@ -192,87 +231,127 @@ select{margin-left:auto;min-width:0;max-width:170px;height:28px;padding:0 6px;bo
 .lay-land #hint{position:fixed;left:calc(62px + var(--sal));bottom:calc(8px + var(--sab))}
 .lay-land #side{top:calc(6px + var(--sat));bottom:auto;flex-direction:row;align-items:flex-start}
 .lay-land #sound-toggle{order:2;height:44px}
-.lay-land #panel-toggle{order:1;height:44px;border-radius:2px}
+.lay-land #actions{order:1}
+.lay-land .act{height:44px;border-radius:2px}
 .lay-land #mute-note{display:none}
-/* 사이드 시트는 오른쪽 위 두 버튼(6 + 44 px) 아래에서 시작해 계기판을 연 채로도 닫기·소리 버튼을 누를 수 있다 */
+/* 사이드 시트는 오른쪽 위 버튼 줄(6 + 44 px) 아래에서 시작해 계기판을 연 채로도 닫기·소리 버튼을 누를 수 있다 */
 .lay-land #panel{position:fixed;right:0;top:calc(56px + var(--sat));bottom:0;width:320px;max-height:none;border-radius:10px 0 0 10px;padding:4px calc(14px + var(--sar)) calc(10px + var(--sab)) 14px}
 </style>
 </head>
 <body>
 <canvas id="gl" aria-hidden="true"></canvas>
 <canvas id="fallback" aria-hidden="true" hidden></canvas>
-<canvas id="stage" tabindex="0" role="application" aria-label="물결통 투영면. 화살표로 조준경을 옮기고 Enter로 현재 도구를 씁니다. 1~7로 도구를 고릅니다."></canvas>
+<canvas id="stage" tabindex="0" role="application" data-i18n-aria="stage" aria-label="수조. 화살표로 조준경을 옮기고 Enter로 현재 도구를 씁니다. 1~7로 도구를 고릅니다."></canvas>
 
 <div id="top">
   <header id="plaque">
-    <h1>파문 투영기</h1>
+    <h1 data-i18n="name">파문</h1>
     <p id="readout" class="mono"><span id="ro-main"></span><span id="ro-short"></span><span id="ro-extra"></span><span id="ro-mach" class="fade"></span></p>
   </header>
-  <canvas id="strip" role="img" aria-label="최근 두 마디 발음 기록"></canvas>
+  <canvas id="strip" role="img" data-i18n-aria="strip" aria-label="최근 두 마디 악보"></canvas>
 </div>
 
 <div id="dock">
   <p id="hint"></p>
-  <div id="tools" role="radiogroup" aria-label="도구">
-    <button type="button" class="tool" id="tool-drop" role="radio" aria-checked="true" data-tool="drop" aria-label="물방울"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.2C8 2.2 3.8 7 3.8 9.9a4.2 4.2 0 0 0 8.4 0C12.2 7 8 2.2 8 2.2Z"/></svg><span>물방울</span></button>
-    <button type="button" class="tool" id="tool-wall" role="radio" aria-checked="false" data-tool="wall" aria-label="파라핀"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="5.5" width="11" height="7.5" rx="1"/><path d="M6 5.5v2.2M9.5 5.5v1.4"/></svg><span>파라핀</span></button>
-    <button type="button" class="tool" id="tool-stone" role="radio" aria-checked="false" data-tool="stone" aria-label="울림돌"><svg viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="9.2" rx="5.6" ry="4"/><path d="M5.2 8.4a3.2 2.2 0 0 1 3-1.7"/></svg><span>울림돌</span></button>
-    <button type="button" class="tool" id="tools-more" aria-expanded="false" aria-controls="tool-glass tool-dropper tool-osc tool-erase"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="4" cy="8" r="1.2"/><circle cx="8" cy="8" r="1.2"/><circle cx="12" cy="8" r="1.2"/></svg><span>장치</span><b class="chev" aria-hidden="true">▸</b></button>
-    <button type="button" class="tool" id="tool-glass" role="radio" aria-checked="false" data-tool="glass" aria-label="유리판" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5h8v11H4z"/><path d="M6 6.5l3.5-2M6 9.5l4-2.4"/></svg><span>유리판</span></button>
-    <button type="button" class="tool" id="tool-dropper" role="radio" aria-checked="false" data-tool="dropper" aria-label="점적기" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.6 2.2l3.2 3.2-1.6 1.6-3.2-3.2z"/><path d="M9.8 5.6 3.6 11.8V13.4h1.6l6.2-6.2"/></svg><span>점적기</span></button>
-    <button type="button" class="tool" id="tool-osc" role="radio" aria-checked="false" data-tool="osc" aria-label="진동자" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 8c1.6-5 3.2-5 4.8 0s3.2 5 4.8 0 2.2-4 3.4-2"/></svg><span>진동자</span></button>
-    <button type="button" class="tool" id="tool-erase" role="radio" aria-checked="false" data-tool="erase" aria-label="지우개" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.6 2.4l4 4-6.6 6.6H3.4L2.4 12z"/><path d="M5.8 6.2l4 4M7.2 13h6.4"/></svg><span>지우개</span></button>
+  <div id="tools" role="radiogroup" data-i18n-aria="toolsGroup" aria-label="도구">
+    <button type="button" class="tool" id="tool-drop" role="radio" aria-checked="true" data-tool="drop" data-i18n-aria="tool.drop" aria-label="물방울"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.2C8 2.2 3.8 7 3.8 9.9a4.2 4.2 0 0 0 8.4 0C12.2 7 8 2.2 8 2.2Z"/></svg><span data-i18n="tool.drop">물방울</span></button>
+    <button type="button" class="tool" id="tool-wall" role="radio" aria-checked="false" data-tool="wall" data-i18n-aria="tool.wall" aria-label="벽"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="5.5" width="11" height="7.5" rx="1"/><path d="M6 5.5v2.2M9.5 5.5v1.4"/></svg><span data-i18n="tool.wall">벽</span></button>
+    <button type="button" class="tool" id="tool-stone" role="radio" aria-checked="false" data-tool="stone" data-i18n-aria="tool.stone" aria-label="울림돌"><svg viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="9.2" rx="5.6" ry="4"/><path d="M5.2 8.4a3.2 2.2 0 0 1 3-1.7"/></svg><span data-i18n="tool.stone">울림돌</span></button>
+    <button type="button" class="tool" id="tools-more" aria-expanded="false" aria-controls="tool-glass tool-dropper tool-osc tool-erase"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="4" cy="8" r="1.2"/><circle cx="8" cy="8" r="1.2"/><circle cx="12" cy="8" r="1.2"/></svg><span data-i18n="more">장치</span><b class="chev" aria-hidden="true">▸</b></button>
+    <button type="button" class="tool" id="tool-glass" role="radio" aria-checked="false" data-tool="glass" data-i18n-aria="tool.glass" aria-label="유리판" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5h8v11H4z"/><path d="M6 6.5l3.5-2M6 9.5l4-2.4"/></svg><span data-i18n="tool.glass">유리판</span></button>
+    <button type="button" class="tool" id="tool-dropper" role="radio" aria-checked="false" data-tool="dropper" data-i18n-aria="tool.dropper" aria-label="방울 시계" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.6 2.2l3.2 3.2-1.6 1.6-3.2-3.2z"/><path d="M9.8 5.6 3.6 11.8V13.4h1.6l6.2-6.2"/></svg><span data-i18n="tool.dropper">방울 시계</span></button>
+    <button type="button" class="tool" id="tool-osc" role="radio" aria-checked="false" data-tool="osc" data-i18n-aria="tool.osc" aria-label="진동자" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 8c1.6-5 3.2-5 4.8 0s3.2 5 4.8 0 2.2-4 3.4-2"/></svg><span data-i18n="tool.osc">진동자</span></button>
+    <button type="button" class="tool" id="tool-erase" role="radio" aria-checked="false" data-tool="erase" data-i18n-aria="tool.erase" aria-label="지우개" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.6 2.4l4 4-6.6 6.6H3.4L2.4 12z"/><path d="M5.8 6.2l4 4M7.2 13h6.4"/></svg><span data-i18n="tool.erase">지우개</span></button>
   </div>
 </div>
 
 <div id="side">
   <button type="button" id="sound-toggle" aria-pressed="false">소리 켜기</button>
-  <p id="mute-note">소리가 안 들리면 기기의 무음 스위치를 확인하세요</p>
-  <button type="button" id="panel-toggle" aria-expanded="false" aria-controls="panel">계기판</button>
-  <div id="panel" role="region" aria-label="계기판" hidden>
-    <section aria-labelledby="h-sound"><h2 id="h-sound">소리</h2>
-      <div class="row"><label for="volume">음량</label><input type="range" id="volume" min="0" max="100" step="1" value="70"><output id="volume-out" for="volume" class="num">70</output></div>
-      <div class="row"><label for="scale">음계</label><select id="scale"><option value="pyeong">평조</option><option value="gyemyeon">계면조</option><option value="harmonic">배음렬</option></select></div>
-      <p class="note">황종 311.1 Hz 기준, 평균율 근사</p>
+  <p id="mute-note" data-i18n="muteNote">소리가 안 들리면 기기의 무음 스위치를 확인하세요</p>
+  <div id="actions">
+    <button type="button" class="act" id="rec-btn" aria-pressed="false" hidden>녹화</button>
+    <button type="button" class="act" id="share-btn" data-i18n="share">공유</button>
+    <button type="button" class="act" id="panel-toggle" aria-expanded="false" aria-controls="panel" data-i18n="panel">계기판</button>
+  </div>
+  <div id="panel" role="region" data-i18n-aria="panel" aria-label="계기판" hidden>
+    <section aria-labelledby="h-sound"><h2 id="h-sound" data-i18n="p.sound">소리</h2>
+      <div class="row"><label for="volume" data-i18n="p.volume">음량</label><input type="range" id="volume" min="0" max="100" step="1" value="70"><output id="volume-out" for="volume" class="num">70</output></div>
+      <div class="row"><label for="scale" data-i18n="p.scale">음계</label><select id="scale"><option value="pyeong">평조</option><option value="gyemyeon">계면조</option><option value="harmonic">배음렬</option></select></div>
+      <p class="note" data-i18n="p.scaleNote">황종 311.1 Hz 기준, 평균율 근사</p>
     </section>
-    <section aria-labelledby="h-water"><h2 id="h-water">물</h2>
-      <div class="row"><label for="depth">수심</label><input type="range" id="depth" min="3" max="12" step="0.5" value="6"><output id="depth-out" for="depth" class="num">6.0 mm</output></div>
-      <div class="row sub"><output id="depth-readout" for="depth" class="num">c 24.1 cm/s · 1박 17.2 cm</output></div>
-      <div class="row"><label for="damping">점성</label><input type="range" id="damping" min="0.04" max="0.5" step="0.01" value="0.12"><output id="damping-out" for="damping" class="num">감쇠 0.12/s</output></div>
-      <div class="row"><label for="beach-toggle">소파 장치</label><input type="checkbox" role="switch" id="beach-toggle" checked></div>
+    <section aria-labelledby="h-water"><h2 id="h-water" data-i18n="p.water">물</h2>
+      <div class="row"><label for="depth" data-i18n="p.depth">수심</label><input type="range" id="depth" min="3" max="12" step="0.5" value="6"><output id="depth-out" for="depth" class="num">6.0 mm</output></div>
+      <div class="row sub"><output id="depth-readout" for="depth" class="num"></output></div>
+      <div class="row"><label for="damping" data-i18n="p.damping">점성</label><input type="range" id="damping" min="0.04" max="0.5" step="0.01" value="0.12"><output id="damping-out" for="damping" class="num"></output></div>
+      <div class="row"><label for="beach-toggle" data-i18n="p.beach">가장자리 흡수</label><input type="checkbox" role="switch" id="beach-toggle" checked></div>
     </section>
-    <section aria-labelledby="h-beat"><h2 id="h-beat">박자</h2>
-      <div class="row"><label for="tempo">템포</label><input type="range" id="tempo" min="60" max="160" step="1" value="84"><output id="tempo-out" for="tempo" class="num">♩=84</output></div>
-      <div class="row"><label for="grid-toggle">박자 눈금 늘 보기</label><input type="checkbox" role="switch" id="grid-toggle"></div>
-      <div class="row"><label for="snap-toggle">박자 스냅</label><input type="checkbox" role="switch" id="snap-toggle"></div>
+    <section aria-labelledby="h-beat"><h2 id="h-beat" data-i18n="p.beat">박자</h2>
+      <div class="row"><label for="tempo" data-i18n="p.tempo">템포</label><input type="range" id="tempo" min="60" max="160" step="1" value="84"><output id="tempo-out" for="tempo" class="num">♩=84</output></div>
+      <div class="row"><label for="grid-toggle" data-i18n="p.grid">박자 눈금 늘 보기</label><input type="checkbox" role="switch" id="grid-toggle"></div>
+      <div class="row"><label for="snap-toggle" data-i18n="p.snap">박자 스냅</label><input type="checkbox" role="switch" id="snap-toggle"></div>
     </section>
-    <section aria-labelledby="h-dev"><h2 id="h-dev">장치</h2>
-      <div class="row"><label for="brush-size">유리판 붓</label><input type="range" id="brush-size" min="0.6" max="1.6" step="0.1" value="1"><output id="brush-out" for="brush-size" class="num">1.0 cm</output></div>
-      <div class="row"><label for="osc-freq">진동자 주파수</label><input type="range" id="osc-freq" min="3" max="14" step="0.01" value="7" disabled><output id="osc-out" for="osc-freq" class="num">7.00 Hz</output></div>
-      <div class="row"><label for="pitch-snap">음정 스냅</label><input type="checkbox" role="switch" id="pitch-snap"></div>
+    <section aria-labelledby="h-dev"><h2 id="h-dev" data-i18n="p.devices">장치</h2>
+      <div class="row"><label for="brush-size" data-i18n="p.brush">유리판 붓</label><input type="range" id="brush-size" min="0.6" max="1.6" step="0.1" value="1"><output id="brush-out" for="brush-size" class="num">1.0 cm</output></div>
+      <div class="row"><label for="osc-freq" data-i18n="p.oscFreq">진동자 주파수</label><input type="range" id="osc-freq" min="3" max="14" step="0.01" value="7" disabled><output id="osc-out" for="osc-freq" class="num">7.00 Hz</output></div>
+      <div class="row"><label for="pitch-snap" data-i18n="p.pitchSnap">음정 스냅</label><input type="checkbox" role="switch" id="pitch-snap"></div>
     </section>
-    <section aria-labelledby="h-obs"><h2 id="h-obs">관찰</h2>
-      <div class="row"><label for="rain-toggle">비</label><input type="checkbox" role="switch" id="rain-toggle"></div>
-      <div class="row"><span id="res-label">공명</span><div class="meter" id="resonance" role="meter" aria-labelledby="res-label" aria-valuemin="-5" aria-valuemax="0" aria-valuenow="-5"><i></i></div></div>
-      <div class="row"><label for="strobe-toggle">스트로보</label><input type="checkbox" role="switch" id="strobe-toggle" aria-describedby="strobe-note"></div>
-      <div class="row"><label for="strobe-freq">스트로보 주파수</label><input type="range" id="strobe-freq" min="1" max="15" step="0.05" value="7" aria-describedby="strobe-note"><output id="strobe-out" for="strobe-freq" class="num">7.00 Hz</output></div>
-      <div class="btns"><button type="button" class="btn" id="strobe-match" aria-describedby="strobe-note">진동자에 맞춤</button></div>
-      <p class="note" id="strobe-note">빛에 민감하면 스트로보를 켜지 마세요.</p>
+    <section aria-labelledby="h-obs"><h2 id="h-obs" data-i18n="p.observe">관찰</h2>
+      <div class="row"><label for="rain-toggle" data-i18n="p.rain">비</label><input type="checkbox" role="switch" id="rain-toggle"></div>
+      <div class="row"><span id="res-label" data-i18n="p.resonance">공명</span><div class="meter" id="resonance" role="meter" aria-labelledby="res-label" aria-valuemin="-5" aria-valuemax="0" aria-valuenow="-5"><i></i></div></div>
+      <div class="row"><label for="strobe-toggle" data-i18n="p.strobe">스트로보</label><input type="checkbox" role="switch" id="strobe-toggle" aria-describedby="strobe-note"></div>
+      <div class="row"><label for="strobe-freq" data-i18n="p.strobeFreq">스트로보 주파수</label><input type="range" id="strobe-freq" min="1" max="15" step="0.05" value="7" aria-describedby="strobe-note"><output id="strobe-out" for="strobe-freq" class="num">7.00 Hz</output></div>
+      <div class="btns"><button type="button" class="btn" id="strobe-match" aria-describedby="strobe-note" data-i18n="p.strobeMatch">진동자에 맞춤</button></div>
+      <p class="note" id="strobe-note"></p>
     </section>
-    <section aria-labelledby="h-op"><h2 id="h-op">조작</h2>
-      <div class="row"><label for="preset">프리셋</label><select id="preset"><option value="first">첫 장면</option><option value="slit">이중 슬릿</option><option value="echo">메아리 북</option><option value="ellipse">속삭이는 타원</option><option value="cavity">공명실</option></select></div>
+    <section aria-labelledby="h-op"><h2 id="h-op" data-i18n="p.tank">조작</h2>
+      <div class="row"><label for="preset" data-i18n="p.preset">프리셋</label><select id="preset"><option value="musicbox">오르골</option><option value="first">물리 실험실</option><option value="slit">이중 슬릿</option><option value="echo">메아리 북</option><option value="ellipse">속삭이는 타원</option><option value="cavity">공명실</option></select></div>
       <div class="btns">
-        <button type="button" class="btn" id="undo">되돌리기</button>
-        <button type="button" class="btn" id="calm">수면 잠재우기</button>
+        <button type="button" class="btn" id="undo" data-i18n="p.undo">되돌리기</button>
+        <button type="button" class="btn" id="calm" data-i18n="p.calm">수면 잠재우기</button>
         <button type="button" class="btn" id="pause" aria-pressed="false">멈춤</button>
       </div>
-      <div class="row"><label for="motion-toggle">움직임 줄이기</label><input type="checkbox" role="switch" id="motion-toggle"></div>
+      <div class="row"><label for="motion-toggle" data-i18n="p.motion">움직임 줄이기</label><input type="checkbox" role="switch" id="motion-toggle"></div>
       <div class="btns">
-        <button type="button" class="btn" id="loop-rec" aria-pressed="false">손짓 루프 녹음</button>
-        <button type="button" class="btn" id="loop-clear">루프 지우기</button>
+        <button type="button" class="btn" id="loop-rec" aria-pressed="false" data-i18n="p.loopRec">손짓 루프 녹음</button>
+        <button type="button" class="btn" id="loop-clear" data-i18n="p.loopClear">루프 지우기</button>
       </div>
-      <a id="src-link" href="https://github.com/jeiel85/pamun-ripple-tank" target="_blank" rel="noopener">소스 코드 · GitHub</a>
+      <div class="row"><label for="lang" lang="en">언어 · Language</label><select id="lang"><option value="ko" lang="ko">한국어</option><option value="en" lang="en">English</option></select></div>
+      <a id="src-link" href="https://github.com/jeiel85/pamun-ripple-tank" target="_blank" rel="noopener" data-i18n="p.source">소스 코드 · GitHub</a>
     </section>
+  </div>
+</div>
+
+<div id="intro" role="dialog" aria-modal="true" aria-labelledby="intro-title" aria-describedby="intro-body" hidden>
+  <div class="card">
+    <button type="button" class="lang" id="intro-lang">English</button>
+    <p class="kicker" id="intro-kicker" aria-hidden="true">PAMUN</p>
+    <h2 id="intro-title" data-i18n="name">파문</h2>
+    <p class="tag" id="intro-tag"></p>
+    <p class="warn" id="intro-warn" role="alert" hidden></p>
+    <p class="body" id="intro-body"></p>
+    <button type="button" class="primary" id="intro-start"></button>
+    <button type="button" class="ghost" id="intro-quiet" data-i18n="intro.quiet">소리 없이 보기</button>
+  </div>
+</div>
+
+<div id="share-sheet" class="sheet" role="dialog" aria-labelledby="share-title" hidden>
+  <h2 id="share-title" data-i18n="shareSheet.title">이 수조 공유하기</h2>
+  <input id="share-url" type="text" readonly data-i18n-aria="shareSheet.title" aria-label="이 수조 공유하기">
+  <p class="note" data-i18n="shareSheet.note">링크 안에 수조 배치가 통째로 들어 있어요. 서버에는 아무것도 저장하지 않습니다.</p>
+  <div class="btns">
+    <button type="button" class="btn main" id="share-copy" data-i18n="shareSheet.copy">복사</button>
+    <button type="button" class="btn" id="share-close" data-i18n="close">닫기</button>
+  </div>
+</div>
+
+<div id="clip-sheet" class="sheet" role="dialog" aria-labelledby="clip-title" hidden>
+  <h2 id="clip-title" data-i18n="clip.title">녹화한 클립</h2>
+  <video id="clip-video" muted playsinline loop controls></video>
+  <p class="note" id="clip-note"></p>
+  <div class="btns">
+    <a class="btn main" id="clip-save" data-i18n="clip.save">저장</a>
+    <button type="button" class="btn" id="clip-share" data-i18n="clip.share" hidden>공유…</button>
+    <button type="button" class="btn" id="clip-close" data-i18n="close">닫기</button>
   </div>
 </div>
 <div id="live" class="sr-only" aria-live="polite"></div>
@@ -282,6 +361,8 @@ select{margin-left:auto;min-width:0;max-width:170px;height:28px;padding:0 6px;bo
 'use strict';
 // 모든 함수는 맨 끝 boot() 이후(또는 그 뒤의 이벤트)에만 호출된다. 함수가 뒤쪽에서 선언한 let/const
 // (soundBtn·undoBtn·acc·holdMix 등)를 참조하므로, 모듈 초기화 중에 함수를 부르면 TDZ 오류가 난다 — 부르지 말 것.
+// 주소에 공유 링크(#t=)가 있으면 맨 끝 start()가 그것을 비동기로 푼 뒤 boot()를 부른다. 그 사이에도 올 수 있는
+// 이벤트(키·포인터·탭 전환·해시 변경) 핸들러는 bootDone을 먼저 확인한다.
 // 편차 표기: 명세와 다르게 구현한 곳은 '[편차 절]' 또는 '(튜닝)'으로 적고, 목록은 docs/DEVIATIONS.md에 있다.
 // (P2) 색인: 스트로보는 GL 절의 하위 블록, 손짓 루프는 오디오 절 뒤 독립 절, 배음렬은 설정 절의 SCALES.
 
@@ -308,7 +389,6 @@ const BEACH_CM = 2.8, OBJ_INSET = 3.3;
 const WET_GAIN = { beach: 0.18, open: 0.38 };                     // 잔향 wet: 해변이 켜지면 반사가 줄어 작게
 const LIMITS = { droppers: 6, oscs: 2, stones: 12, wallPts: 6000, glass: 4000 };
 const DIVS = [1, 1 / 2, 1 / 3, 1 / 4, 3 / 4, 2 / 3];
-const DIV_LABEL = ['1박', '½박', '⅓박', '¼박', '¾박', '⅔박'];
 const HWANGJONG = 311.1;
 const laneV = (L) => LANE_V0 + LANE_H * L;
 // 저장값 검증: SCALES[name]의 참/거짓만 보면 'constructor' 같은 프로토타입 키가 통과해 부팅이 멈춘다
@@ -320,14 +400,233 @@ const SIM_BUDGET_MS = IS_PHONE ? 9 : 6;
 // [편차 3.12] 선행 계산: 명세 예산(120/250 ms)은 스텝 0.25 ms 가정이지만 실측은 0.55~0.9 ms라 명세가 보장한다는 최소 1.2 s를
 // 채우지 못했다. 1.2 s까지는 예산을 넘겨도 계속하고 PRE_HARD_MS에서만 끊는다(수용 기준 1의 1.5 s 안).
 const PRE_BUDGET_MS = IS_PHONE ? 250 : 120, PRE_HARD_MS = IS_PHONE ? 900 : 600, PRE_MIN_S = 1.2;
+// 음 이름·음계 이름은 언어 사전(STR.*.notes·scaleName)에 있다. 한국어는 율명, 영어는 서양 음이름(황종 ≈ E♭4).
 const SCALES = {
-  pyeong: { name: '평조', names: ['배임', '배남', '황', '태', '중', '임', '남', '청황', '청태', '청중'],
-    hz: [233.1, 261.6, 311.1, 349.2, 415.3, 466.2, 523.3, 622.3, 698.5, 830.6] },
-  gyemyeon: { name: '계면조', names: ['배임', '배무', '황', '협', '중', '임', '무', '청황', '청협', '청중'],
-    hz: [233.1, 277.2, 311.1, 370.0, 415.3, 466.2, 554.4, 622.3, 739.9, 830.6] },
-  harmonic: { name: '배음렬', names: ['3배', '4배', '5배', '6배', '7배', '8배', '9배', '10배', '11배', '12배'],
-    hz: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => (HWANGJONG / 4) * n) },
+  pyeong: { hz: [233.1, 261.6, 311.1, 349.2, 415.3, 466.2, 523.3, 622.3, 698.5, 830.6] },
+  gyemyeon: { hz: [233.1, 277.2, 311.1, 370.0, 415.3, 466.2, 554.4, 622.3, 739.9, 830.6] },
+  harmonic: { hz: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => (HWANGJONG / 4) * n) },
 };
+
+/* ================================================================
+   언어 (한국어 · English)
+   화면에 보이거나 읽히는 문구는 모두 여기에 둔다. 정적 마크업은 data-i18n(본문)·data-i18n-aria(aria-label)
+   키로 가리키고 applyStaticText()가 채운다. 키 이름은 점으로 중첩을 따라간다(예: 'tool.drop').
+   ================================================================ */
+const SITE_URL = 'jeiel85.github.io/pamun-ripple-tank';
+const STR = {
+  ko: {
+    title: '파문 — 물결로 연주하는 악기',
+    name: '파문', kicker: 'PAMUN', tagline: '물결로 연주하는 악기',
+    stage: '수조. 화살표로 조준경을 옮기고 Enter로 현재 도구를 씁니다. 1~7로 도구를 고릅니다.',
+    strip: '최근 두 마디 악보',
+    toolsGroup: '도구', more: '장치',
+    tool: { drop: '물방울', wall: '벽', stone: '울림돌', glass: '유리판', dropper: '방울 시계', osc: '진동자', erase: '지우개' },
+    toolAnn: (n) => `도구: ${n}`,
+    removed: { stone: '울림돌을 치웠습니다', dropper: '방울 시계를 치웠습니다', osc: '진동자를 치웠습니다' },
+    firstHint: '아무 데나 톡 — 물결이 울림돌에 닿으면 소리가 나요 · 울림돌을 끌어 옮겨 보세요',
+    toolHint: {
+      drop: '톡 = 물방울 · 끌기 = 물결 (빠르게 끌면 마하 원뿔)',
+      wall: '끌어서 벽을 그려요 · 원을 닫으면 메아리 박자가 붙어요',
+      stone: '톡 = 울림돌 · 높을수록 높은 음, 방울 시계에서 멀수록 늦게 울려요',
+      stonePort: '톡 = 울림돌 · 오른쪽일수록 높은 음, 방울 시계에서 멀수록 늦게 울려요',
+      glass: '칠한 곳은 얕아져 물결이 느려져요 (굴절·지연)',
+      dropper: '톡 = 놓기 · 다시 톡 = 박 나누기 · 길게 = 치우기',
+      osc: '톡 = 놓기 · 주파수는 계기판에서',
+      erase: '끌어서 벽·유리·장치를 지워요',
+    },
+    div: ['1박', '½박', '⅓박', '¼박', '¾박', '⅔박'],
+    stoneLabel: (name, sb) => `${name} · 직선 ${sb}박`,
+    measured: (amb, mb, pct) => ` · 실측 ${amb}${mb}박 (${pct})`,
+    measuredNone: ' · 실측 —',
+    ringTag: '직선 기준 · 1박',
+    echo: (b) => `메아리 ${b}박`,
+    dropperTag: (d) => `방울 시계 · ${d}`,
+    dropperAnn: (d) => `방울 시계 ${d}`,
+    oscTag: (f, hum) => `진동자 · ${f} Hz · 허밍 ${hum} Hz`,
+    oscAnn: (f) => `진동자 ${f} Hz`,
+    undone: '되돌렸습니다', nothingToUndo: '되돌릴 것이 없습니다',
+    limitWall: (n) => `벽은 점 ${n}개까지`, limitWallAnn: (n) => `상한 도달: 벽 점 ${n}개`,
+    limitGlass: (n) => `유리판은 칠 ${n}번까지`, limitGlassAnn: (n) => `상한 도달: 유리 ${n}`,
+    limitStones: (n) => `울림돌은 ${n}개까지`, limitStonesAnn: (n) => `상한 도달: 울림돌 ${n}개`,
+    limitDroppers: (n) => `방울 시계는 ${n}개까지`, limitDroppersAnn: (n) => `상한 도달: 방울 시계 ${n}개`,
+    limitOscs: (n) => `진동자는 ${n}개까지`, limitOscsAnn: (n) => `상한 도달: 진동자 ${n}개`,
+    notOnWall: '벽 위에는 놓을 수 없어요',
+    machUp: (m) => `마하 1 돌파 · M ${m}`, machDown: '마하 1 아래',
+    glLost: '투영을 다시 켜는 중…', glBack: '투영이 돌아왔습니다',
+    soundOn: '소리 켜기', soundOff: '소리 끄기', soundFail: '소리를 켤 수 없음',
+    soundOnAnn: '소리를 켰습니다', soundOffAnn: '소리를 껐습니다', soundStopped: '소리가 멈췄습니다 · 소리 켜기를 다시 눌러 주세요',
+    muteNote: '소리가 안 들리면 기기의 무음 스위치를 확인하세요',
+    panel: '계기판', share: '공유', close: '닫기',
+    loopCancel: '루프 녹음을 취소했습니다', loopArm: '다음 마디 첫 박부터 8박을 기록합니다',
+    loopEmpty: '기록된 손짓이 없습니다', loopPlaying: (n) => `손짓 루프 ${n}층 재생 중`, loopCleared: '루프를 지웠습니다',
+    depthRo: (c, b) => `c ${c} cm/s · 1박 ${b} cm`, depthAnn: (mm) => `수심 ${mm} mm`,
+    tempoAnn: (b) => `템포 ${b}`, damping: (b) => `감쇠 ${b}/s`,
+    beachOn: '가장자리 흡수 켬', beachOff: '가장자리 흡수 끔 · 테두리가 반사합니다',
+    rainOn: '비 모드', rainOff: '비 모드 끔',
+    pause: '멈춤', resume: '재개', paused: '일시정지', calmed: '수면을 잠재웠습니다', overflow: '수면이 넘쳐 잠재웠습니다',
+    strobeNote: '빛에 민감하면 스트로보를 켜지 마세요.', strobeNoteReduced: '움직임 줄이기 중에는 스트로보를 쓸 수 없습니다.',
+    strobeWarn: '스트로보는 물결 무늬를 끊어 보여 줍니다. 빛에 민감하면 끄세요.',
+    strobeAnn: (f) => `스트로보 ${f} Hz`, noOscToMatch: '맞출 진동자가 없어요',
+    plaqueMain: (d, c, b, bc) => `수심 ${d} mm · c ${c} cm/s · ♩=${b} · 1박=${bc} cm`,
+    timeDil: (x) => `시간 ×${x}`, hwangjong: '황종', fallbackMode: '간이 투영 모드', lowGrid: '저사양 격자', lowGridAnn: '저사양 격자로 전환했습니다',
+    preset: { musicbox: '오르골', first: '물리 실험실', slit: '이중 슬릿', echo: '메아리 북', ellipse: '속삭이는 타원', cavity: '공명실', mine: '내 수조', shared: '받은 수조' },
+    presetAnn: (n) => `프리셋: ${n}`,
+    presetMsg: {
+      musicbox: '방울 시계가 1박마다 떨어지고, 울림돌은 ¼박 거리씩 떨어져 있어요 · 하나를 끌어 옮겨 보세요',
+      echo: '원 가운데를 톡 — 반지름이 1박의 절반이라 메아리가 박자에 맞춰 돌아옵니다',
+      cavity: (f) => `진동자 주파수를 천천히 올려 공명 게이지를 보세요 (모드 4·3 ≈ ${f} Hz)`,
+    },
+    lastTank: '지난 수조: 계기판 › 프리셋 › 내 수조',
+    scaleName: { pyeong: '평조', gyemyeon: '계면조', harmonic: '배음렬' },
+    scaleAnn: (n) => `음계: ${n}`,
+    notes: {
+      pyeong: ['배임', '배남', '황', '태', '중', '임', '남', '청황', '청태', '청중'],
+      gyemyeon: ['배임', '배무', '황', '협', '중', '임', '무', '청황', '청협', '청중'],
+      harmonic: ['3배', '4배', '5배', '6배', '7배', '8배', '9배', '10배', '11배', '12배'],
+    },
+    p: {
+      sound: '소리', volume: '음량', scale: '음계', scaleNote: '국악 율명 · 황종 311.1 Hz(≈ E♭4) 기준, 평균율 근사',
+      water: '물', depth: '수심', damping: '점성', beach: '가장자리 흡수',
+      beat: '박자', tempo: '템포', grid: '박자 눈금 늘 보기', snap: '박자 스냅',
+      devices: '장치', brush: '유리판 붓', oscFreq: '진동자 주파수', pitchSnap: '음정 스냅',
+      observe: '관찰', rain: '비', resonance: '공명', strobe: '스트로보', strobeFreq: '스트로보 주파수', strobeMatch: '진동자에 맞춤',
+      tank: '수조', preset: '프리셋', undo: '되돌리기', calm: '수면 잠재우기', motion: '움직임 줄이기',
+      loopRec: '손짓 루프 녹음', loopClear: '루프 지우기', source: '소스 코드 · GitHub',
+    },
+    intro: {
+      tag: '물결로 연주하는 악기',
+      body: '물방울이 떨어지면 물결이 퍼지고, 울림돌에 닿을 때마다 소리가 나요. 멀리 있는 돌일수록 늦게 울려요.',
+      start: '소리 켜고 시작', quiet: '소리 없이 보기',
+      sharedTag: '누군가 물결로 만든 곡을 보냈어요',
+      sharedBody: '물결이 울림돌에 닿는 순간마다 음이 납니다. 들어 보고, 고쳐 보고, 다시 보내 보세요.',
+      sharedStart: '▶ 소리 켜고 듣기',
+      otherLang: 'English',
+    },
+    shareText: '물결로 만든 곡이에요. 소리를 켜고 들어 보세요.',
+    shareCopied: '링크를 복사했어요 — 붙여 넣어 보내세요',
+    shareLong: '수조가 커서 링크가 길어요 · 일부 메신저에서는 잘릴 수 있어요',
+    shareLoadFail: '받은 링크를 읽지 못해 기본 수조로 시작합니다',
+    shareLoaded: '받은 수조를 열었습니다',
+    shareFail: '링크를 만들지 못했어요',
+    shareBad: '링크를 읽지 못했어요',
+    shareSheet: { title: '이 수조 공유하기', note: '링크 안에 수조 배치가 통째로 들어 있어요. 서버에는 아무것도 저장하지 않습니다.', copy: '복사' },
+    rec: '녹화', recLeft: (s) => `${s}초`, recStopAria: '녹화 멈추기',
+    recStart: (s) => `${s}초 녹화를 시작합니다 · 소리도 함께 담겨요`, recSilent: '소리를 켤 수 없어 소리 없이 녹화합니다',
+    recUnsupported: '이 브라우저에서는 녹화할 수 없어요', recFail: '녹화에 실패했습니다',
+    recTooShort: '너무 짧아 영상이 만들어지지 않았어요 · 3초 이상 녹화해 보세요',
+    recStopped: '녹화를 마쳤습니다',
+    clip: { title: '녹화한 클립', save: '저장', share: '공유…', note: (s, ext) => `${s}초 · ${ext} · 릴스·쇼츠에 바로 올릴 수 있어요` },
+    watermark: '파문 — 물결로 연주하는 악기',
+  },
+  en: {
+    title: 'Pamun — an instrument you play with ripples',
+    name: 'Pamun', kicker: '파문', tagline: 'An instrument you play with ripples',
+    stage: 'Ripple tank. Arrow keys move the crosshair, Enter uses the current tool, 1–7 pick a tool.',
+    strip: 'Score of the last two bars',
+    toolsGroup: 'Tools', more: 'More',
+    tool: { drop: 'Drop', wall: 'Wall', stone: 'Stone', glass: 'Glass', dropper: 'Drip clock', osc: 'Wave maker', erase: 'Eraser' },
+    toolAnn: (n) => `Tool: ${n}`,
+    removed: { stone: 'Stone removed', dropper: 'Drip clock removed', osc: 'Wave maker removed' },
+    firstHint: 'Tap anywhere — a stone sings when a ripple reaches it · try dragging a stone',
+    toolHint: {
+      drop: 'Tap = drop · drag = wake (drag fast to break Mach 1)',
+      wall: 'Drag to draw a wall · close a circle to get an echo in beats',
+      stone: 'Tap = stone · higher = higher note, farther from the drip clock = later',
+      stonePort: 'Tap = stone · further right = higher note, farther from the drip clock = later',
+      glass: 'Painted water is shallower, so ripples slow down (refraction, delay)',
+      dropper: 'Tap = place · tap again = change division · hold = remove',
+      osc: 'Tap = place · set the frequency in Controls',
+      erase: 'Drag to erase walls, glass and devices',
+    },
+    div: ['1 beat', '½ beat', '⅓ beat', '¼ beat', '¾ beat', '⅔ beat'],
+    stoneLabel: (name, sb) => `${name} · direct ${sb} beats`,
+    measured: (amb, mb, pct) => ` · measured ${amb}${mb} (${pct})`,
+    measuredNone: ' · measured —',
+    ringTag: 'direct path · 1 beat',
+    echo: (b) => `echo ${b} beats`,
+    dropperTag: (d) => `Drip clock · ${d}`,
+    dropperAnn: (d) => `Drip clock ${d}`,
+    oscTag: (f, hum) => `Wave maker · ${f} Hz · hum ${hum} Hz`,
+    oscAnn: (f) => `Wave maker ${f} Hz`,
+    undone: 'Undone', nothingToUndo: 'Nothing to undo',
+    limitWall: (n) => `Walls are limited to ${n} points`, limitWallAnn: (n) => `Limit reached: ${n} wall points`,
+    limitGlass: (n) => `Glass is limited to ${n} strokes`, limitGlassAnn: (n) => `Limit reached: ${n} glass strokes`,
+    limitStones: (n) => `Up to ${n} stones`, limitStonesAnn: (n) => `Limit reached: ${n} stones`,
+    limitDroppers: (n) => `Up to ${n} drip clocks`, limitDroppersAnn: (n) => `Limit reached: ${n} drip clocks`,
+    limitOscs: (n) => `Up to ${n} wave makers`, limitOscsAnn: (n) => `Limit reached: ${n} wave makers`,
+    notOnWall: 'Can’t place that on a wall',
+    machUp: (m) => `Past Mach 1 · M ${m}`, machDown: 'Below Mach 1',
+    glLost: 'Restarting the projection…', glBack: 'Projection is back',
+    soundOn: 'Sound on', soundOff: 'Sound off', soundFail: 'Sound unavailable',
+    soundOnAnn: 'Sound on', soundOffAnn: 'Sound off', soundStopped: 'Sound stopped · press Sound on again',
+    muteNote: 'No sound? Check your device’s silent switch',
+    panel: 'Controls', share: 'Share', close: 'Close',
+    loopCancel: 'Loop recording cancelled', loopArm: 'Recording 8 beats from the next bar',
+    loopEmpty: 'No gestures recorded', loopPlaying: (n) => `Playing ${n} gesture loop layer${n > 1 ? 's' : ''}`, loopCleared: 'Loops cleared',
+    depthRo: (c, b) => `c ${c} cm/s · 1 beat ${b} cm`, depthAnn: (mm) => `Depth ${mm} mm`,
+    tempoAnn: (b) => `Tempo ${b}`, damping: (b) => `damping ${b}/s`,
+    beachOn: 'Absorbing edges on', beachOff: 'Absorbing edges off · the rim reflects',
+    rainOn: 'Rain on', rainOff: 'Rain off',
+    pause: 'Pause', resume: 'Resume', paused: 'Paused', calmed: 'Water calmed', overflow: 'The water overflowed and was calmed',
+    strobeNote: 'If you are sensitive to flashing light, leave the strobe off.', strobeNoteReduced: 'The strobe is unavailable while motion is reduced.',
+    strobeWarn: 'The strobe freezes the ripple pattern. Turn it off if you are sensitive to flashing light.',
+    strobeAnn: (f) => `Strobe ${f} Hz`, noOscToMatch: 'No wave maker to match',
+    plaqueMain: (d, c, b, bc) => `depth ${d} mm · c ${c} cm/s · ♩=${b} · 1 beat=${bc} cm`,
+    timeDil: (x) => `time ×${x}`, hwangjong: 'Hwangjong', fallbackMode: 'simple projection', lowGrid: 'low-res grid', lowGridAnn: 'Switched to the low-res grid',
+    preset: { musicbox: 'Music box', first: 'Physics lab', slit: 'Double slit', echo: 'Echo drum', ellipse: 'Whispering ellipse', cavity: 'Resonance chamber', mine: 'My tank', shared: 'Shared tank' },
+    presetAnn: (n) => `Preset: ${n}`,
+    presetMsg: {
+      musicbox: 'The drip clock falls every beat and each stone sits a ¼ beat farther away · try dragging one',
+      echo: 'Tap the centre — the radius is half a beat, so echoes come back on the beat',
+      cavity: (f) => `Slowly raise the wave maker frequency and watch the resonance meter (mode 4·3 ≈ ${f} Hz)`,
+    },
+    lastTank: 'Your last tank: Controls › Preset › My tank',
+    scaleName: { pyeong: 'Pyeongjo', gyemyeon: 'Gyemyeonjo', harmonic: 'Harmonic series' },
+    scaleAnn: (n) => `Scale: ${n}`,
+    notes: {
+      pyeong: ['B♭3', 'C4', 'E♭4', 'F4', 'A♭4', 'B♭4', 'C5', 'E♭5', 'F5', 'A♭5'],
+      gyemyeon: ['B♭3', 'D♭4', 'E♭4', 'G♭4', 'A♭4', 'B♭4', 'D♭5', 'E♭5', 'G♭5', 'A♭5'],
+      harmonic: ['×3', '×4', '×5', '×6', '×7', '×8', '×9', '×10', '×11', '×12'],
+    },
+    p: {
+      sound: 'Sound', volume: 'Volume', scale: 'Scale', scaleNote: 'Korean pentatonic modes (Pyeongjo ≈ major, Gyemyeonjo ≈ minor) on Hwangjong 311.1 Hz (≈ E♭4), equal-tempered',
+      water: 'Water', depth: 'Depth', damping: 'Viscosity', beach: 'Absorbing edges',
+      beat: 'Beat', tempo: 'Tempo', grid: 'Always show beat rings', snap: 'Snap to beat',
+      devices: 'Devices', brush: 'Glass brush', oscFreq: 'Wave maker freq.', pitchSnap: 'Snap to pitch',
+      observe: 'Observe', rain: 'Rain', resonance: 'Resonance', strobe: 'Strobe', strobeFreq: 'Strobe freq.', strobeMatch: 'Match wave maker',
+      tank: 'Tank', preset: 'Preset', undo: 'Undo', calm: 'Calm water', motion: 'Reduce motion',
+      loopRec: 'Record gesture loop', loopClear: 'Clear loops', source: 'Source code · GitHub',
+    },
+    intro: {
+      tag: 'An instrument you play with ripples',
+      body: 'Drops fall, ripples spread, and every stone they touch sings. The farther the stone, the later it rings.',
+      start: 'Start with sound', quiet: 'Watch without sound',
+      sharedTag: 'Someone sent you a song made of ripples',
+      sharedBody: 'Each note plays the moment a ripple reaches a stone. Listen, change it, send it back.',
+      sharedStart: '▶ Listen with sound',
+      otherLang: '한국어',
+    },
+    shareText: 'I made this with ripples. Turn the sound on.',
+    shareCopied: 'Link copied — paste it anywhere',
+    shareLong: 'Big tank, long link · some apps may cut it off',
+    shareLoadFail: 'Couldn’t read the shared link — starting with the default tank',
+    shareLoaded: 'Opened the shared tank',
+    shareFail: 'Couldn’t make a link',
+    shareBad: 'Couldn’t read that link',
+    shareSheet: { title: 'Share this tank', note: 'The link itself carries the whole tank. Nothing is stored on a server.', copy: 'Copy' },
+    rec: 'Record', recLeft: (s) => `${s}s`, recStopAria: 'Stop recording',
+    recStart: (s) => `Recording ${s} seconds · sound included`, recSilent: 'Sound is unavailable, so the clip will be silent',
+    recUnsupported: 'This browser can’t record clips', recFail: 'Recording failed',
+    recTooShort: 'Too short to make a clip · try at least 3 seconds',
+    recStopped: 'Recording finished',
+    clip: { title: 'Your clip', save: 'Save', share: 'Share…', note: (s, ext) => `${s}s · ${ext} · ready for Reels and Shorts` },
+    watermark: 'Pamun — an instrument you play with ripples',
+  },
+};
+let lang = 'ko', L = STR.ko;
+const isLang = (c) => c === 'ko' || c === 'en';   // STR[c]만 보면 '__proto__'·'constructor'가 통과한다
+const getKey = (path) => path.split('.').reduce((o, k) => (o == null ? o : o[k]), L);
+const numLocale = () => (lang === 'ko' ? 'ko-KR' : 'en-US');
 const root = document.documentElement;
 const stage = $('stage'), glCanvas = $('gl'), fbCanvas = $('fallback'), stripCv = $('strip');
 const live = $('live');
@@ -641,7 +940,7 @@ function calibrate() {
   // 이론상 0.9~1.0. 측정이 비정상이면(수치 오류) 안전 범위로 제한하고, 경고를 남기며 diag.calRaw에 원값을 둔다.
   calRaw = r;
   rho = Number.isFinite(r) ? clamp(r, 0.85, 1.05) : 1;
-  if (rho !== r) console.warn(`파문 투영기: c_eff 보정 이상 — 측정 비율 ${r}을 ${rho}로 제한했습니다(박자 표시·스냅이 어긋날 수 있음)`);
+  if (rho !== r) console.warn(`파문: c_eff 보정 이상 — 측정 비율 ${r}을 ${rho}로 제한했습니다(박자 표시·스냅이 어긋날 수 있음)`);
   calN = p2 > 0 && p1 > 0 ? clamp(Math.log(p1 / p2) / Math.log(70 / 25), 0.2, 1.2) : 0.5;
   calP2 = p2 > 0 ? p2 : 0.05;
   ceff = rho * cDeep;
@@ -649,7 +948,7 @@ function calibrate() {
   // [편차 3.10] r_lead(cm) = r1 − c_셀·t1. 박자 링·스냅·지연 예측에 더해 '마루가 박에 닿는' 위치를 그린다.
   const lead = (25 - COURANT * r * t1) * DX;
   rLead = Number.isFinite(lead) ? clamp(lead, 0, 1.5) : 0;
-  if (rLead !== lead) console.warn(`파문 투영기: 선두 마루 절편 이상 — ${lead} cm를 ${rLead} cm로 제한했습니다`);
+  if (rLead !== lead) console.warn(`파문: 선두 마루 절편 이상 — ${lead} cm를 ${rLead} cm로 제한했습니다`);
   updateThetaFloor();
 }
 let calRaw = 1, rLead = 0;
@@ -862,7 +1161,7 @@ function onStrike(st, t, vel) {
   if (!precomputing) frameEvents.push({ type: 'strike', t, stone: st, vel });
 }
 const sustainGain = (st) => clamp((Math.sqrt(st.rms2) - 0.02) * 3, 0, 0.5);
-const noteName = (lane) => SCALES[scaleName].names[lane];
+const noteName = (lane) => L.notes[scaleName][lane];
 const noteHz = (lane) => SCALES[scaleName].hz[lane];
 const beatCm = () => ceff * 60 / bpm;
 // 박자 링: 선두 마루가 n/4박에 지나는 반지름(간격은 c_eff·박/4 그대로, 전체가 r_lead만큼 바깥)
@@ -937,13 +1236,13 @@ function stoneLabel(st) {
   const d = nearestDropper(st.u, laneV(st.lane));
   if (!d) return name;
   const sb = straightBeats(st, d);
-  let s = `${name} · 직선 ${sb.toFixed(2)}박`;
+  const s = L.stoneLabel(name, sb.toFixed(2));
   const m = caliperMean(st.cal.filter((c) => c.ref === d.id), sb * 60 / bpm);
-  if (m === null) return s + ' · 실측 —';
+  if (m === null) return s + L.measuredNone;
   const mb = m * bpm / 60;
   const pct = Math.round((mb / sb - 1) * 100);
   const amb = Math.abs(mb - sb) > DIVS[d.div] / 2 ? '≈' : '';
-  return `${s} · 실측 ${amb}${mb.toFixed(2)}박 (${pct >= 0 ? '+' : '−'}${Math.abs(pct)}%)`;
+  return s + L.measured(amb, mb.toFixed(2), `${pct >= 0 ? '+' : '−'}${Math.abs(pct)}%`);
 }
 // 메아리 라벨: 파라핀 획이 원이면 닫고 반사 왕복 박수를 붙인다
 function detectCircle(w) {
@@ -1229,11 +1528,11 @@ function initGL() {
   try {
     gl = glCanvas.getContext('webgl2', { antialias: false, alpha: false, depth: false, stencil: false, premultipliedAlpha: false, powerPreference: 'high-performance' });
   } catch (e) { gl = null; glFailReason = String(e && e.message || e); }
-  if (!gl) { if (!glFailReason) glFailReason = 'WebGL2 없음'; return false; }
+  if (!gl) { if (!glFailReason) glFailReason = 'no WebGL2'; return false; }
   glCanvas.addEventListener('webglcontextlost', (e) => {
     e.preventDefault();
     setRenderMode('fallback');
-    toast('투영기를 다시 켜는 중…');
+    toast(L.glLost);
     clearTimeout(lostTimer);
     lostTimer = setTimeout(() => { permFallback = true; updatePlaque(); }, 3000);
   });
@@ -1242,9 +1541,9 @@ function initGL() {
     clearTimeout(lostTimer);
     if (setupGL()) {
       setRenderMode('gl');
-      if (toastText === '투영기를 다시 켜는 중…') { toastUntil = 0; refreshHint(); }
-      announce('투영기가 돌아왔습니다');
-    } else { permFallback = true; console.warn('파문 투영기: GL 복구 실패, 간이 투영 유지 —', glFailReason); updatePlaque(); }
+      if (toastText === L.glLost) { toastUntil = 0; refreshHint(); }
+      announce(L.glBack);
+    } else { permFallback = true; console.warn('파문: GL 복구 실패, 간이 투영 유지 —', glFailReason); updatePlaque(); }
   });
   return setupGL();
 }
@@ -1399,9 +1698,9 @@ function drawStatic() {
   c.fillStyle = 'rgba(217,211,191,0.66)';
   c.shadowColor = 'rgba(12,29,31,0.9)';
   c.shadowBlur = 3;
-  const names = SCALES[scaleName].names;
-  // 수조 위에 떠 있는 버튼(소리·계기판·무음 안내)에 가려지는 라벨은 그 버튼 왼쪽으로 비켜 놓는다
-  const obst = [soundBtn, panelToggle, $('mute-note')].map((el) => el.getBoundingClientRect()).filter((b) => b.width > 0 && b.height > 0);
+  const names = L.notes[scaleName];
+  // 수조 위에 떠 있는 버튼(소리 · 녹화·공유·계기판 줄 · 무음 안내)에 가려지는 라벨은 그 버튼 왼쪽으로 비켜 놓는다
+  const obst = [soundBtn, $('actions'), $('mute-note')].map((el) => el.getBoundingClientRect()).filter((b) => b.width > 0 && b.height > 0);
   for (let L = 0; L < LANES; L++) {
     const w = c.measureText(names[L]).width;
     if (view.mode === 'land') {
@@ -1414,7 +1713,7 @@ function drawStatic() {
       c.fillText(names[L], x, y);
     } else {
       const margin = r.y - (view.availY || 0);
-      const x = toCss(0, L * LANE_H)[0] + 3;
+      const x = toCss(0, laneV(L))[0] - w / 2;
       const y = margin >= 22 ? r.y - 6 : r.y + 6 + fs;
       c.fillText(names[L], x, y);
     }
@@ -1461,13 +1760,13 @@ function drawOverlay(nowWall) {
       c.stroke();
     }
     const rr = ringR(4) * s;
-    drawTag(c, '직선 기준 · 1박', cx + rr * 0.72, cy - rr * 0.72);
+    drawTag(c, L.ringTag, cx + rr * 0.72, cy - rr * 0.72);
   }
   // 메아리 라벨
   for (const w of walls) {
     if (!w.echo) continue;
     const [cx, cy] = toCss(w.echo.cu, w.echo.cv);
-    const txt = `메아리 ${echoBeats(w.echo).toFixed(2)}박`;
+    const txt = L.echo(echoBeats(w.echo).toFixed(2));
     c.font = `11px ${MONO}`;
     drawTag(c, txt, cx - c.measureText(txt).width / 2 - 5, cy - w.echo.R * s - 6);
   }
@@ -1491,7 +1790,7 @@ function drawOverlay(nowWall) {
     c.font = `10px ${MONO}`;
     c.fillStyle = '#D9D3BF';
     c.shadowColor = 'rgba(12,29,31,0.9)'; c.shadowBlur = 2;
-    c.fillText(DIV_LABEL[d.div], x + 12, y + 4);
+    c.fillText(L.div[d.div], x + 12, y + 4);
     c.shadowBlur = 0;
   }
   // 진동자: 청동녹 링 + 황동 핀 (깜박임 없음)
@@ -1535,8 +1834,8 @@ function drawOverlay(nowWall) {
     c.beginPath(); c.arc(x, y, (selected.kind === 'stone' ? R : 10) + 5, 0, Math.PI * 2);
     c.setLineDash([3, 3]); c.strokeStyle = '#B8843C'; c.lineWidth = 1.2; c.stroke(); c.setLineDash([]);
     if (!dragLabel) {
-      const txt = selected.kind === 'stone' ? stoneLabel(o) : selected.kind === 'dropper' ? `점적기 · ${DIV_LABEL[o.div]}`
-        : `진동자 · ${o.f.toFixed(2)} Hz · 허밍 ${humHz(o).toFixed(1)} Hz`;
+      const txt = selected.kind === 'stone' ? stoneLabel(o) : selected.kind === 'dropper' ? L.dropperTag(L.div[o.div])
+        : L.oscTag(o.f.toFixed(2), humHz(o).toFixed(1));
       drawTag(c, txt, x + 14, y - 12);
     }
   }
@@ -1550,8 +1849,8 @@ function drawOverlay(nowWall) {
     c.strokeStyle = '#B8843C'; c.lineWidth = 2.5; c.stroke();
   }
   if (loopGhostDraw) loopGhostDraw(c);
-  // 키보드 포커스: 테두리 안쪽 2 px 황동 링 + 조준경(가운데 틈 4 px)
-  if (stageFocusVisible) {
+  // 키보드 포커스: 테두리 안쪽 2 px 황동 링 + 조준경(가운데 틈 4 px). 클립 녹화 중에는 영상에 남지 않게 그리지 않는다
+  if (stageFocusVisible && !rec) {
     c.strokeStyle = '#B8843C'; c.lineWidth = 2;
     c.strokeRect(tr.x + 1, tr.y + 1, tr.w - 2, tr.h - 2);
     const [x, y] = toCss(cross.u, cross.v), X = Math.round(x) + 0.5, Y = Math.round(y) + 0.5;
@@ -1613,8 +1912,6 @@ let inputCount = 0, lastInputWall = 0;
 let machEma = 0, machActive = false, machAbove = false, lastMachAnnounce = -1e9;
 const undoStack = [];
 const MOVE_PX = 6, LONG_MS = 550, LP_ARC_START = 150;   // 길게 누르기 진행 호는 LP_ARC_START부터 LONG_MS까지 찬다
-const REMOVED_OBJ = { stone: '울림돌을', dropper: '점적기를', osc: '진동자를' };   // 길게 눌러 치우기 알림(조사 포함)
-const TOOL_NAMES = { drop: '물방울', wall: '파라핀', stone: '울림돌', glass: '유리판', dropper: '점적기', osc: '진동자', erase: '지우개' };
 const EXTRA_TOOLS = ['glass', 'dropper', 'osc', 'erase'];
 
 function snapshot() {
@@ -1658,9 +1955,9 @@ function pushUndo(pre) {
 function undo() {
   const sn = undoStack.pop();
   undoBtn.disabled = undoStack.length === 0;
-  if (!sn) { announce('되돌릴 것이 없습니다'); return; }
+  if (!sn) { announce(L.nothingToUndo); return; }
   restoreSnapshot(sn);
-  announce('되돌렸습니다');
+  announce(L.undone);
   markSave();
 }
 const inTank = (u, v) => u >= 0 && u <= TANK_W && v >= 0 && v <= TANK_H;
@@ -1693,10 +1990,11 @@ function dropAt(u, v, recordLoop) {
 function select(kind, obj) {
   selected = obj ? { kind, obj } : null;
   if (selected && kind === 'osc') linkOscSlider(obj);
-  if (selected) announce(kind === 'stone' ? stoneLabel(obj) : kind === 'dropper' ? `점적기 ${DIV_LABEL[obj.div]}` : `진동자 ${obj.f.toFixed(2)} Hz`);
+  if (selected) announce(kind === 'stone' ? stoneLabel(obj) : kind === 'dropper' ? L.dropperAnn(L.div[obj.div]) : L.oscAnn(obj.f.toFixed(2)));
 }
 
 function pointerDown(e) {
+  if (!bootDone) return;
   const kbd = e.pointerType === 'kbd';
   if (!kbd && e.pointerType === 'mouse' && e.button !== 0 && e.button !== 2) return;
   if (!kbd) stage.setPointerCapture(e.pointerId);
@@ -1759,10 +2057,10 @@ function pointerUp(e) {
   dragLabel = null;
 }
 
-/* ---------- 파라핀 ---------- */
+/* ---------- 벽(파라핀) ---------- */
 function startWall(p) {
   if (!inTank(p.u, p.v)) { p.mode = 'none'; return; }
-  if (wallPtCount >= LIMITS.wallPts) { toast(`파라핀 벽은 점 ${LIMITS.wallPts.toLocaleString('ko-KR')}개까지`); p.mode = 'none'; return; }
+  if (wallPtCount >= LIMITS.wallPts) { toast(L.limitWall(LIMITS.wallPts.toLocaleString(numLocale()))); p.mode = 'none'; return; }
   p.pre = snapshot();
   const w = { id: nextId++, pts: [p.u, p.v], echo: null };
   walls.push(w); p.stroke = w; wallPtCount++;
@@ -1774,7 +2072,7 @@ function extendWall(p, u, v) {
   const pts = p.stroke.pts;
   let lu = pts[pts.length - 2], lv = pts[pts.length - 1], d = Math.hypot(u - lu, v - lv);
   while (d >= 0.3) {
-    if (wallPtCount >= LIMITS.wallPts) { if (!p.limitToast) { toast(`파라핀 벽은 점 ${LIMITS.wallPts.toLocaleString('ko-KR')}개까지`); announce(`상한 도달: 벽 점 ${LIMITS.wallPts.toLocaleString('ko-KR')}개`); p.limitToast = true; } break; }
+    if (wallPtCount >= LIMITS.wallPts) { if (!p.limitToast) { const n = LIMITS.wallPts.toLocaleString(numLocale()); toast(L.limitWall(n)); announce(L.limitWallAnn(n)); p.limitToast = true; } break; }
     const nu = lu + (u - lu) * 0.3 / d, nv = lv + (v - lv) * 0.3 / d;
     pts.push(nu, nv); wallPtCount++;
     const bb = rasterSeg(lu, lv, nu, nv);
@@ -1800,14 +2098,14 @@ function endWall(p) {
       updateRegion(bb[0], bb[1], bb[2], bb[3]);
       maskWall(w); maskDirty.wall = true;
       w.echo = circ;
-      announce(`메아리 ${echoBeats(circ).toFixed(2)}박`);
+      announce(L.echo(echoBeats(circ).toFixed(2)));
     }
   }
   pushUndo(p.pre);
 }
 /* ---------- 유리판 ---------- */
 function addDab(u, v, r, sign) {
-  if (glass.length >= LIMITS.glass) { toast(`유리판은 칠 ${LIMITS.glass.toLocaleString('ko-KR')}번까지`); announce(`상한 도달: 유리 ${LIMITS.glass.toLocaleString('ko-KR')}`); return false; }
+  if (glass.length >= LIMITS.glass) { const n = LIMITS.glass.toLocaleString(numLocale()); toast(L.limitGlass(n)); announce(L.limitGlassAnn(n)); return false; }
   const d = { u, v, r, sign };
   glass.push(d);
   const bb = rasterDab(d);
@@ -1879,7 +2177,7 @@ function longPress(p) {
   else if (p.mode === 'dropper') droppers = droppers.filter((d) => d !== t);
   else oscs = oscs.filter((o) => o !== t);
   selected = null; p.target = null; p.lpTarget = null;
-  announce(`${REMOVED_OBJ[p.mode]} 치웠습니다`);
+  announce(L.removed[p.mode]);
   pushUndo(p.pre);
   objectsChanged();
 }
@@ -1896,7 +2194,7 @@ function objMove(p, u, v) {
     dragLabel = { text: stoneLabel(t), u: t.u, v: laneV(t.lane) };
   } else {
     t.u = clampObjU(u); t.v = clampObjV(v);
-    if (p.mode === 'dropper') { ringDroppers = [t]; dragLabel = { text: `점적기 · ${DIV_LABEL[t.div]}`, u: t.u, v: t.v }; }
+    if (p.mode === 'dropper') { ringDroppers = [t]; dragLabel = { text: L.dropperTag(L.div[t.div]), u: t.u, v: t.v }; }
   }
 }
 function objUp(p) {
@@ -1906,7 +2204,7 @@ function objUp(p) {
     if (p.moved) {
       if (kind === 'dropper') anchorDropper(p.target);
       if (kind === 'stone' && isWetAt(p.target.u, laneV(p.target.lane)) === false) {
-        restoreSnapshot(p.pre); toast('벽 위에는 놓을 수 없어요'); return;
+        restoreSnapshot(p.pre); toast(L.notOnWall); return;
       }
       pushUndo(p.pre);
       objectsChanged();
@@ -1915,7 +2213,7 @@ function objUp(p) {
     if (kind === 'dropper') {
       p.target.div = (p.target.div + 1) % DIVS.length;
       anchorDropper(p.target);
-      announce(`점적기 ${DIV_LABEL[p.target.div]}`);
+      announce(L.dropperAnn(L.div[p.target.div]));
       pushUndo(p.pre);
       objectsChanged();
     }
@@ -1924,21 +2222,21 @@ function objUp(p) {
   if (p.moved || performance.now() - p.downT >= LONG_MS) return;
   if (!inTank(p.u, p.v)) return;
   if (kind === 'stone') {
-    if (stones.length >= LIMITS.stones) { toast(`울림돌은 ${LIMITS.stones}개까지`); announce(`상한 도달: 울림돌 ${LIMITS.stones}개`); return; }
+    if (stones.length >= LIMITS.stones) { toast(L.limitStones(LIMITS.stones)); announce(L.limitStonesAnn(LIMITS.stones)); return; }
     const lane = vToLane(p.v), u = clampObjU(p.u);
-    if (!isWetAt(u, laneV(lane))) { toast('벽 위에는 놓을 수 없어요'); return; }
+    if (!isWetAt(u, laneV(lane))) { toast(L.notOnWall); return; }
     const st = makeStone(u, lane);
     stones.push(st); select('stone', st);
   } else if (kind === 'dropper') {
-    if (droppers.length >= LIMITS.droppers) { toast(`점적기는 ${LIMITS.droppers}개까지`); announce(`상한 도달: 점적기 ${LIMITS.droppers}개`); return; }
+    if (droppers.length >= LIMITS.droppers) { toast(L.limitDroppers(LIMITS.droppers)); announce(L.limitDroppersAnn(LIMITS.droppers)); return; }
     const u = clampObjU(p.u), v = clampObjV(p.v);
-    if (!isWetAt(u, v)) { toast('벽 위에는 놓을 수 없어요'); return; }
+    if (!isWetAt(u, v)) { toast(L.notOnWall); return; }
     const d = makeDropper(u, v, 0);
     droppers.push(d); select('dropper', d);
   } else {
-    if (oscs.length >= LIMITS.oscs) { toast(`진동자는 ${LIMITS.oscs}개까지`); announce(`상한 도달: 진동자 ${LIMITS.oscs}개`); return; }
+    if (oscs.length >= LIMITS.oscs) { toast(L.limitOscs(LIMITS.oscs)); announce(L.limitOscsAnn(LIMITS.oscs)); return; }
     const u = clampObjU(p.u), v = clampObjV(p.v);
-    if (!isWetAt(u, v)) { toast('벽 위에는 놓을 수 없어요'); return; }
+    if (!isWetAt(u, v)) { toast(L.notOnWall); return; }
     const o = makeOsc(u, v, 7);
     oscs.push(o); select('osc', o);
   }
@@ -1988,7 +2286,7 @@ function buildWakeJobs(wallDt, rate) {
     if (above !== machAbove) {
       machAbove = above;
       const now = performance.now();
-      if (now - lastMachAnnounce > 2000) { lastMachAnnounce = now; announce(above ? `마하 1 돌파 · M ${machEma.toFixed(2)}` : '마하 1 아래'); }
+      if (now - lastMachAnnounce > 2000) { lastMachAnnounce = now; announce(above ? L.machUp(machEma.toFixed(2)) : L.machDown); }
     }
   }
 }
@@ -2009,8 +2307,12 @@ function moveCross(dX, dY, big) {
 }
 const TOOL_KEYS = { 1: 'drop', 2: 'wall', 3: 'glass', 4: 'dropper', 5: 'osc', 6: 'stone', 7: 'erase' };
 function onKeyDown(e) {
+  if (!bootDone) return;               // 공유 링크를 푸는 동안(boot 전)에는 격자·수조가 아직 없다
   const t = e.target;
   const inCtl = t && (/^(INPUT|SELECT|BUTTON|TEXTAREA)$/.test(t.tagName) || t.isContentEditable);
+  // 첫 화면 카드가 떠 있는 동안 단축키는 쓰지 않는다(Tab·Enter는 카드 버튼이 받는다)
+  if (introOpen) { if (e.key === 'Escape') closeIntro(false); else if (e.key === 'Tab') introTab(e); return; }
+  if (e.key === 'Escape' && closeSheets()) return;
   if (e.key === 'Escape') {
     selected = null;
     if (!panelEl.hidden) { setPanel(false); panelToggle.focus(); }
@@ -2072,6 +2374,7 @@ window.addEventListener('blur', () => { snapHeld = false; if (kbdDown) { kbdDown
    ================================================================ */
 let actx = null, audioState = 'off';
 let master = null, dryBus = null, reverbIn = null, wetGain = null, noiseBuf = null;
+let audioOut = null;                      // 마스터 체인의 마지막 단(소프트 클립). 클립 녹화가 여기서 소리를 받는다
 let anchorSim = 0, anchorAudio = 0, anchorRate = 1, needReanchor = true;
 let volume = 0.7;
 const voices = [];                        // 타격·물방울 보이스 (합쳐 28)
@@ -2113,6 +2416,7 @@ function buildAudio() {
   }
   clip.curve = curve; clip.oversample = '2x';
   dryBus.connect(comp); wetBus.connect(comp); comp.connect(master); master.connect(pre); pre.connect(clip); clip.connect(actx.destination);
+  audioOut = clip;
   // 잔향 IR: 스테레오 2.4 s, 독립 백색잡음 × e^(−t/0.45)
   const sr = actx.sampleRate, len = Math.round(2.4 * sr);
   const ir = actx.createBuffer(2, len, sr);
@@ -2131,19 +2435,19 @@ function buildAudio() {
 }
 // resume 실패(탭 복귀·iOS 오디오 세션 중단 등)는 생성 실패가 아니다: 꺼진 상태로 되돌리고 다시 켤 수 있게 둔다
 function audioResumeFail(err) {
-  console.warn('파문 투영기: 오디오를 다시 시작하지 못했습니다 —', err);
+  console.warn('파문: 오디오를 다시 시작하지 못했습니다 —', err);
   if (audioState !== 'on') return;
   setSoundOn(false);
-  toast('소리가 멈췄습니다 · 소리 켜기를 다시 눌러 주세요');
+  toast(L.soundStopped);
 }
 function audioFail(err) {
   audioState = 'failed';
-  soundBtn.textContent = '소리를 켤 수 없음';
+  soundBtn.textContent = L.soundFail;
   soundBtn.disabled = true;
   soundBtn.setAttribute('aria-pressed', 'false');
   drawStatic();                                   // 버튼 폭이 바뀌었으므로 레인 라벨 비켜 놓기를 다시 계산
-  announce('소리를 켤 수 없음');
-  console.warn('파문 투영기: 오디오를 시작하지 못했습니다 —', err);
+  announce(L.soundFail);
+  console.warn('파문: 오디오를 시작하지 못했습니다 —', err);
 }
 function toggleSound() {
   if (audioState === 'failed') return;
@@ -2167,12 +2471,13 @@ function setSoundOn(on) {
     setTimeout(() => {
       if (audioState !== 'off' || !actx) return;
       stopContinuous();
-      actx.suspend().catch((err) => console.warn('파문 투영기: 오디오 일시 중지 실패 —', err));
+      if (rec) return;                            // 녹화가 끝나면 finishRecording이 멈춘다
+      actx.suspend().catch((err) => console.warn('파문: 오디오 일시 중지 실패 —', err));
     }, 130);
   }
-  soundBtn.textContent = on ? '소리 끄기' : '소리 켜기';
+  soundBtn.textContent = on ? L.soundOff : L.soundOn;
   soundBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-  announce(on ? '소리를 켰습니다' : '소리를 껐습니다');
+  announce(on ? L.soundOnAnn : L.soundOffAnn);
 }
 function setVolume(v) {
   volume = clamp(v, 0, 1);
@@ -2354,7 +2659,7 @@ function updateContinuous(wallDt) {
 let loopRec = null;
 const loopLayers = [];
 function toggleLoopRec() {
-  if (loopRec) { loopRec = null; loopBtn.setAttribute('aria-pressed', 'false'); announce('루프 녹음을 취소했습니다'); return; }
+  if (loopRec) { loopRec = null; loopBtn.setAttribute('aria-pressed', 'false'); announce(L.loopCancel); return; }
   const start = Math.floor(beatPos / 4) * 4 + 4;
   const drags = new Map();
   loopRec = {
@@ -2374,17 +2679,17 @@ function toggleLoopRec() {
     },
   };
   loopBtn.setAttribute('aria-pressed', 'true');
-  announce('다음 마디 첫 박부터 8박을 기록합니다');
+  announce(L.loopArm);
 }
 function finishLoopIfDone() {
   if (!loopRec || beatPos < loopRec.end) return;
   const layer = { start: loopRec.start, end: loopRec.end, taps: loopRec.taps, paths: loopRec.paths.filter((p) => p.pts.length > 1) };
   loopRec = null;
   loopBtn.setAttribute('aria-pressed', 'false');
-  if (!layer.taps.length && !layer.paths.length) { announce('기록된 손짓이 없습니다'); return; }
+  if (!layer.taps.length && !layer.paths.length) { announce(L.loopEmpty); return; }
   loopLayers.push(layer);
   if (loopLayers.length > 3) loopLayers.shift();
-  announce(`손짓 루프 ${loopLayers.length}층 재생 중`);
+  announce(L.loopPlaying(loopLayers.length));
 }
 function pathAt(pts, b) {
   if (b < pts[0].b || b > pts[pts.length - 1].b) return null;
@@ -2436,22 +2741,12 @@ const inp = {
   volume: $('volume'), scale: $('scale'), depth: $('depth'), damping: $('damping'), beach: $('beach-toggle'),
   tempo: $('tempo'), grid: $('grid-toggle'), snap: $('snap-toggle'), brush: $('brush-size'), osc: $('osc-freq'),
   pitch: $('pitch-snap'), rain: $('rain-toggle'), strobe: $('strobe-toggle'), strobeF: $('strobe-freq'),
-  strobeMatch: $('strobe-match'), motion: $('motion-toggle'),
+  strobeMatch: $('strobe-match'), motion: $('motion-toggle'), lang: $('lang'),
 };
 const outEl = { volume: $('volume-out'), depth: $('depth-out'), depthRo: $('depth-readout'), damping: $('damping-out'),
   tempo: $('tempo-out'), brush: $('brush-out'), osc: $('osc-out'), strobe: $('strobe-out') };
 const resMeter = $('resonance'), resBar = resMeter.querySelector('i');
-const FIRST_HINT = '톡 = 물방울 · 파라핀으로 벽을 그려 보세요 · 소리를 켜면 울림돌이 노래합니다';
-const TOOL_HINT = {
-  drop: '톡 = 물방울 · 끌기 = 물결 (빠르게 끌면 마하 원뿔)',
-  wall: '끌어서 벽을 그려요 · 원을 닫으면 메아리 박자가 붙어요',
-  stone: '톡 = 울림돌 · 높이가 음정, 점적기와의 거리가 박자',
-  glass: '칠한 곳은 얕아져 물결이 느려져요 (굴절·지연)',
-  dropper: '톡 = 놓기 · 다시 톡 = 박 나누기 · 길게 = 치우기',
-  osc: '톡 = 놓기 · 주파수는 계기판에서',
-  erase: '끌어서 벽·유리·장치를 지워요',
-};
-let firstHintOn = true, toolHintText = '', toolHintUntil = 0, toastText = '', toastUntil = 0;
+let firstHintOn = true, toolHintTool = '', toolHintUntil = 0, toastText = '', toastUntil = 0;
 let paused = false, timeScale = 1, rainMode = false, pitchSnap = false, linkedOsc = null;
 let liveFlip = false;
 
@@ -2468,11 +2763,13 @@ function refreshHint() {
   const now = performance.now();
   let text = '', isToast = false;
   if (now < toastUntil) { text = toastText; isToast = true; }
-  else if (now < toolHintUntil) text = toolHintText;
-  else if (firstHintOn) text = FIRST_HINT;
+  else if (now < toolHintUntil) text = toolHint(toolHintTool);
+  else if (firstHintOn && !introOpen) text = L.firstHint;
   if (hintEl.textContent !== text) hintEl.textContent = text;
   hintEl.classList.toggle('toast', isToast);
 }
+// 세로 화면에서는 수조가 90° 돌아 '높이' 대신 '오른쪽'이 높은 음이다
+const toolHint = (t) => (t === 'stone' && view.mode === 'port' ? L.toolHint.stonePort : L.toolHint[t]);
 // 도구 radiogroup: 선택된 radio만 Tab 정지점(roving tabindex), 그룹 안에서는 화살표로 옮기며 고른다(APG 라디오 패턴)
 const toolRadios = () => [...document.querySelectorAll('.tool[role=radio]')].filter((b) => !b.hidden);
 function syncToolTabs() {
@@ -2497,11 +2794,9 @@ function setTool(t) {
   for (const b of document.querySelectorAll('.tool[role=radio]')) b.setAttribute('aria-checked', b.dataset.tool === t ? 'true' : 'false');
   if (EXTRA_TOOLS.includes(t)) setMore(true);
   syncToolTabs();
-  let hint = TOOL_HINT[t];
-  if (t === 'stone' && view.mode === 'port') hint = '톡 = 울림돌 · 오른쪽일수록 높은 음, 점적기와의 거리가 박자';
-  toolHintText = hint; toolHintUntil = performance.now() + 5000;
+  toolHintTool = t; toolHintUntil = performance.now() + 5000;
   refreshHint();
-  announce(`도구: ${TOOL_NAMES[t]}`);
+  announce(L.toolAnn(L.tool[t]));
 }
 function setMore(open) {
   moreBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -2517,7 +2812,7 @@ function fillRange(el) {
 function updateDepthOutputs() {
   inp.depth.value = (depth * 10).toFixed(1); fillRange(inp.depth);
   outEl.depth.textContent = `${(depth * 10).toFixed(1)} mm`;
-  outEl.depthRo.textContent = `c ${ceff.toFixed(1)} cm/s · 1박 ${beatCm().toFixed(1)} cm`;
+  outEl.depthRo.textContent = L.depthRo(ceff.toFixed(1), beatCm().toFixed(1));
 }
 function setDepth(mm, user) {
   mm = clamp(Math.round(mm * 2) / 2, 3, 12);
@@ -2528,19 +2823,19 @@ function setDepth(mm, user) {
   for (const o of oscs) o.f = Math.min(o.f, fMax());
   inp.osc.max = fMax().toFixed(2);
   updateDepthOutputs(); updatePlaque();
-  if (user) { announce(`수심 ${mm.toFixed(1)} mm`); markSave(); }
+  if (user) { announce(L.depthAnn(mm.toFixed(1))); markSave(); }
 }
 function setTempo(b, user) {
   bpm = clamp(Math.round(b), 60, 160);
   inp.tempo.value = bpm; fillRange(inp.tempo);
   outEl.tempo.textContent = `♩=${bpm}`;
   updateDepthOutputs(); updatePlaque();
-  if (user) { announce(`템포 ${bpm}`); markSave(); }
+  if (user) { announce(L.tempoAnn(bpm)); markSave(); }
 }
 function setDamping(b) {
   beta = clamp(b, 0.04, 0.5);
   inp.damping.value = beta; fillRange(inp.damping);
-  outEl.damping.textContent = `감쇠 ${beta.toFixed(2)}/s`;
+  outEl.damping.textContent = L.damping(beta.toFixed(2));
   updateAllCells(); updateThetaFloor();
 }
 function setBeach(on, user) {
@@ -2548,10 +2843,10 @@ function setBeach(on, user) {
   inp.beach.checked = on;
   updateAllCells();
   if (actx && wetGain) wetGain.gain.setTargetAtTime(on ? WET_GAIN.beach : WET_GAIN.open, actx.currentTime, 0.3);
-  if (user) { announce(on ? '소파 장치 켬' : '소파 장치 끔 · 테두리가 반사합니다'); markSave(); }
+  if (user) { announce(on ? L.beachOn : L.beachOff); markSave(); }
 }
 function setGrid(on) { gridAlways = on; inp.grid.checked = on; ringDroppers = on ? droppers.slice() : []; }
-function setRain(on) { rainMode = on; inp.rain.checked = on; announce(on ? '비 모드' : '비 모드 끔'); }
+function setRain(on) { rainMode = on; inp.rain.checked = on; announce(on ? L.rainOn : L.rainOff); }
 function setBrush(r) { brushR = clamp(Math.round(r * 10) / 10, 0.6, 1.6); inp.brush.value = brushR; fillRange(inp.brush); outEl.brush.textContent = `${brushR.toFixed(1)} cm`; }
 function setOscFreq(o, f) {
   f = clamp(f, 3, fMax());
@@ -2584,12 +2879,12 @@ function setPanel(open) {
 function togglePause() {
   paused = !paused;
   pauseBtn.setAttribute('aria-pressed', paused ? 'true' : 'false');
-  pauseBtn.textContent = paused ? '재개' : '멈춤';
+  pauseBtn.textContent = paused ? L.resume : L.pause;
   if (!paused) { acc = 0; needReanchor = true; }
-  announce(paused ? '일시정지' : '재개');
+  announce(paused ? L.paused : L.resume);
   updatePlaque();
 }
-function calm() { calmField(); announce('수면을 잠재웠습니다'); }
+function calm() { calmField(); announce(L.calmed); }
 function setReduced(on) {
   reduced = on;
   inp.motion.checked = on;
@@ -2598,7 +2893,7 @@ function setReduced(on) {
   needReanchor = true;
   if (on && strobeOn) setStrobe(false);
   inp.strobe.disabled = on; inp.strobeF.disabled = on; inp.strobeMatch.disabled = on;
-  $('strobe-note').textContent = on ? '움직임 줄이기 중에는 스트로보를 쓸 수 없습니다.' : '빛에 민감하면 스트로보를 켜지 마세요.';
+  $('strobe-note').textContent = on ? L.strobeNoteReduced : L.strobeNote;
   stripBeatDrawn = -1;
 }
 let strobeWarned = false;
@@ -2608,7 +2903,7 @@ function setStrobe(on) {
   inp.strobe.checked = on;
   if (on) {
     strobeNextT = simTime; strobeFirst = true;
-    if (!strobeWarned) { strobeWarned = true; toast('스트로보는 물결 무늬를 끊어 보여 줍니다. 빛에 민감하면 끄세요.'); }
+    if (!strobeWarned) { strobeWarned = true; toast(L.strobeWarn); }
   } else { holdMix = 1; strobeLimit = 1; }
 }
 function setStrobeF(f) {
@@ -2619,14 +2914,14 @@ function setStrobeF(f) {
 let plaqueCache = '';
 function updatePlaque() {
   const dmm = (depth * 10).toFixed(1), c = ceff.toFixed(1);
-  const main = `수심 ${dmm} mm · c ${c} cm/s · ♩=${bpm} · 1박=${beatCm().toFixed(1)} cm`;
+  const main = L.plaqueMain(dmm, c, bpm, beatCm().toFixed(1));
   const short = `${dmm} mm · ${c} cm/s · ♩${bpm}`;
   const ex = [];
-  if (dilationEma < 0.97) ex.push(`시간 ×${dilationEma.toFixed(2)}`);
-  if (oscs.some((o) => Math.abs(humHz(o) - HWANGJONG) <= 1)) ex.push('황종');
-  if (paused) ex.push('일시정지');
-  if (renderMode !== 'gl') ex.push('간이 투영 모드');
-  if (gridLow) ex.push('저사양 격자');
+  if (dilationEma < 0.97) ex.push(L.timeDil(dilationEma.toFixed(2)));
+  if (oscs.some((o) => Math.abs(humHz(o) - HWANGJONG) <= 1)) ex.push(L.hwangjong);
+  if (paused) ex.push(L.paused);
+  if (renderMode !== 'gl') ex.push(L.fallbackMode);
+  if (gridLow) ex.push(L.lowGrid);
   const extra = ex.map((e) => ` · ${e}`).join('');
   const key = main + extra;
   if (key === plaqueCache) return;
@@ -2655,7 +2950,14 @@ function resample(pts, sp) {
 }
 const mkWall = (pts, echo) => ({ id: nextId++, pts: resample(pts, 0.3), echo: echo || null });
 function poly(fn, t0, t1, n) { const p = []; for (let i = 0; i <= n; i++) { const [u, v] = fn(t0 + (t1 - t0) * i / n); p.push(u, v); } return p; }
-const PRESET_LABEL = { first: '첫 장면', slit: '이중 슬릿', echo: '메아리 북', ellipse: '속삭이는 타원', cavity: '공명실', mine: '내 수조' };
+// 오르골(기본 첫 화면): 가운데 1박 방울 시계 하나와 울림돌 다섯. [n, 레인, 쪽(−1 왼쪽 · +1 오른쪽)] — 울림돌은
+// 선두 마루가 방울 뒤 n/4박에 닿는 반지름(ringR) 위에 놓여, 매 박 황 · 임 · 중+청황 · 남이 16분음표로 되풀이된다.
+// 처음 보는 사람이 '물결이 닿는 순간 = 소리'와 '가까우면 먼저, 멀면 늦게'를 한 장면에서 읽게 하는 것이 목적이다.
+// 양쪽으로 나눠 링이 수조 전체로 퍼지게 하고, 버튼이 떠 있는 네 모서리(데스크톱 아래 두 곳, 폰 가로 위 오른쪽,
+// 명판이 있는 위 왼쪽)는 비워 둔다.
+// ringR은 c_eff·r_lead 실측값을 쓰므로 부팅에서는 calibrate() 뒤에 불러야 박이 맞는다.
+const MUSICBOX = [[2, 4, 1], [3, 6, -1], [4, 2, 1], [5, 5, -1], [6, 7, 1]];
+const MUSICBOX_DROP = [32, 18];
 function loadPreset(name, boot) {
   if (!boot) pushUndo(snapshot());
   walls = []; glass = []; droppers = []; oscs = []; stones = []; selected = null;
@@ -2682,7 +2984,7 @@ function loadPreset(name, boot) {
     const R = ceff * (60 / bpm) / 2 + wallHalf() - echoLag();   // 왕복 지연만큼 줄여 재집속이 정확히 1박(echoBeats와 같은 식)
     walls.push(mkWall(poly((a) => [32 + R * Math.cos(a), 19.8 + R * Math.sin(a)], 0, Math.PI * 2, 72), { cu: 32, cv: 19.8, R }));
     stones.push(makeStone(32, 5));
-    msg = '원 가운데를 톡 — 반지름이 1박의 절반이라 메아리가 박자에 맞춰 돌아옵니다';
+    msg = L.presetMsg.echo;
   } else if (name === 'ellipse') {
     walls.push(mkWall(poly((a) => [32 + 22 * Math.cos(a), 19.8 + 12 * Math.sin(a)], 0, Math.PI * 2, 360)));
     droppers.push(makeDropper(13.56, 19.8, 0));
@@ -2693,9 +2995,20 @@ function loadPreset(name, boot) {
     stones.push(makeStone(36, 6), makeStone(30, 5));
     const lx = 16 - 2 * wallHalf(), ly = 14.4 - 2 * wallHalf();
     const f43 = (ceff / 2) * Math.hypot(4 / lx, 3 / ly);
-    msg = `진동자 주파수를 천천히 올려 공명 게이지를 보세요 (모드 4·3 ≈ ${f43.toFixed(1)} Hz)`;
-  } else if (name === 'mine') {
-    const data = readSavedTank();
+    msg = L.presetMsg.cavity(f43.toFixed(1));
+  } else if (name === 'musicbox') {
+    // 배치가 ♩84 · 6 mm의 ringR에 맞춰져 있다. 다른 템포·수심이면 링이 레인 거리보다 짧거나(돌이 방울 위로 몰림)
+    // 수조 밖으로 나가므로 불러올 때 기본값으로 되돌린다.
+    setTempo(84, false); setDepth(6, false);
+    const d = makeDropper(MUSICBOX_DROP[0], MUSICBOX_DROP[1], 0);
+    droppers.push(d);
+    for (const [n, lane, side] of MUSICBOX) {
+      const r = ringR(n), dv = laneV(lane) - d.v;
+      stones.push(makeStone(clampObjU(d.u + side * Math.sqrt(Math.max(0, r * r - dv * dv))), lane));
+    }
+    msg = L.presetMsg.musicbox;
+  } else if (name === 'mine' || name === 'shared') {
+    const data = name === 'mine' ? readSavedTank() : sharedTank;
     if (data) applySaved(data);
   }
   if (boot) for (const o of oscs) o.amp = 1;
@@ -2705,7 +3018,7 @@ function loadPreset(name, boot) {
   objectsChanged();
   presetSel.value = name;
   if (!boot) {
-    announce(`프리셋: ${PRESET_LABEL[name]}`);
+    announce(L.presetAnn(L.preset[name]));
     if (msg) toast(msg);
     markSave();
   }
@@ -2721,6 +3034,8 @@ const SAVE_KEY = 'pamun-tank-v1', PREF_KEY = 'pamun-prefs-v1';
 let saveTimer = 0, bootDone = false;
 function markSave() {
   if (!bootDone) return;
+  // 받은 링크로 연 수조를 고치기 시작하면 주소창의 #t=는 더 이상 지금 수조가 아니다(복사해 보내면 옛 배치가 간다)
+  if (shareCodeFromHash()) history.replaceState(null, '', location.href.replace(/#.*$/, ''));
   clearTimeout(saveTimer);
   saveTimer = setTimeout(saveTank, 1000);
 }
@@ -2729,53 +3044,222 @@ function saveTank() {
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     ensureMineOption();
-  } catch (err) { console.warn('파문 투영기: 수조를 저장하지 못했습니다 —', err); }
+  } catch (err) { console.warn('파문: 수조를 저장하지 못했습니다 —', err); }
 }
 function readSavedTank() {
   let raw = null;
-  try { raw = localStorage.getItem(SAVE_KEY); } catch (err) { console.warn('파문 투영기: 저장본을 읽지 못했습니다 —', err); return null; }
+  try { raw = localStorage.getItem(SAVE_KEY); } catch (err) { console.warn('파문: 저장본을 읽지 못했습니다 —', err); return null; }
   if (!raw) return null;
   let d;
-  try { d = JSON.parse(raw); } catch (err) { console.warn('파문 투영기: 저장본 형식이 잘못되었습니다 —', err); return null; }
-  const arr = (x) => Array.isArray(x);
-  const num = (x) => typeof x === 'number' && Number.isFinite(x);
-  if (!d || !arr(d.walls) || !arr(d.glass) || !arr(d.droppers) || !arr(d.oscs) || !arr(d.stones)) return null;
-  const ok = d.walls.every((w) => arr(w.pts) && w.pts.length >= 2 && w.pts.every(num)) &&
-    d.glass.every((g) => num(g.u) && num(g.v) && num(g.r)) &&
-    d.droppers.every((x) => num(x.u) && num(x.v) && Number.isInteger(x.div) && x.div >= 0 && x.div < DIVS.length) &&
-    d.oscs.every((x) => num(x.u) && num(x.v) && num(x.f)) &&
-    d.stones.every((x) => num(x.u) && Number.isInteger(x.lane) && x.lane >= 0 && x.lane < LANES);
+  try { d = JSON.parse(raw); } catch (err) { console.warn('파문: 저장본 형식이 잘못되었습니다 —', err); return null; }
+  return validTank(d);
+}
+// 저장본·공유 링크 공통 검사. 링크는 남이 만든 입력이므로 항목마다 null·자료형을 확인한다(값의 범위는 applySaved가 자른다).
+const isNum = (x) => typeof x === 'number' && Number.isFinite(x);
+function validTank(d) {
+  const arr = Array.isArray;
+  if (!d || typeof d !== 'object' || !arr(d.walls) || !arr(d.glass) || !arr(d.droppers) || !arr(d.oscs) || !arr(d.stones)) return null;
+  const ok = d.walls.every((w) => w && arr(w.pts) && w.pts.length >= 2 && w.pts.length % 2 === 0 && w.pts.every(isNum)) &&
+    d.glass.every((g) => g && isNum(g.u) && isNum(g.v) && isNum(g.r)) &&
+    d.droppers.every((x) => x && isNum(x.u) && isNum(x.v) && Number.isInteger(x.div) && x.div >= 0 && x.div < DIVS.length) &&
+    d.oscs.every((x) => x && isNum(x.u) && isNum(x.v) && isNum(x.f)) &&
+    d.stones.every((x) => x && isNum(x.u) && Number.isInteger(x.lane) && x.lane >= 0 && x.lane < LANES);
   return ok ? d : null;
 }
 function applySaved(d) {
-  walls = d.walls.slice(0, 500).map((w) => ({ id: nextId++, pts: w.pts.map((x) => +x), echo: w.echo && num3(w.echo) ? { cu: w.echo.cu, cv: w.echo.cv, R: w.echo.R } : null }));
+  // 벽: 링크·저장본의 점은 그리기 획과 달리 간격이 보장되지 않는다. 좌표를 수조 근처로 자르고 그리기와 같은
+  // 0.3 cm 간격으로 다시 찍은 뒤, 그 점 수의 합계를 그리기 상한(LIMITS.wallPts)으로 자른다. 그래야 긴 선분 하나가
+  // 격자 전체를 래스터화하지 않고(래스터 비용 ∝ 선분 bbox), 지우개(점 단위)로도 지울 수 있다.
+  walls = [];
+  let pts = 0;
+  for (const w of d.walls.slice(0, 500)) {
+    const p = w.pts.map((x, i) => clamp(+x, -1, (i % 2 ? TANK_H : TANK_W) + 1));
+    let len = 0;
+    for (let i = 2; i < p.length; i += 2) len += Math.hypot(p[i] - p[i - 2], p[i + 1] - p[i - 1]);
+    if (pts + len / 0.3 + 2 > LIMITS.wallPts) break;
+    const q = p.length > 2 ? resample(p, 0.3) : p;
+    pts += q.length / 2;
+    const e = w.echo && num3(w.echo) && w.echo.R > 0 ? { cu: w.echo.cu, cv: w.echo.cv, R: w.echo.R } : null;
+    walls.push({ id: nextId++, pts: q, echo: e });
+  }
   glass = d.glass.slice(0, LIMITS.glass).map((g) => ({ u: g.u, v: g.v, r: clamp(g.r, 0.3, 2), sign: g.sign < 0 ? -1 : 1 }));
   droppers = d.droppers.slice(0, LIMITS.droppers).map((x) => makeDropper(clampObjU(x.u), clampObjV(x.v), x.div));
   oscs = d.oscs.slice(0, LIMITS.oscs).map((x) => makeOsc(clampObjU(x.u), clampObjV(x.v), clamp(x.f, 3, 14)));
   stones = d.stones.slice(0, LIMITS.stones).map((x) => makeStone(clampObjU(x.u), x.lane));
-  if (typeof d.bpm === 'number') setTempo(d.bpm, false);
-  if (typeof d.depth === 'number') setDepth(d.depth * 10, false);
+  if (isNum(d.bpm)) setTempo(d.bpm, false);
+  if (isNum(d.depth)) setDepth(d.depth * 10, false);
   if (isScale(d.scale)) setScale(d.scale, false);
   if (typeof d.beach === 'boolean') setBeach(d.beach, false);
+  for (const o of oscs) o.f = Math.min(o.f, fMax());
 }
-const num3 = (e) => [e.cu, e.cv, e.R].every((x) => typeof x === 'number' && Number.isFinite(x));
-function ensureMineOption() {
-  if ([...presetSel.options].some((o) => o.value === 'mine')) return;
+const num3 = (e) => [e.cu, e.cv, e.R].every(isNum);
+// 프리셋 목록 끝에 '내 수조'·'받은 수조'를 필요할 때 붙인다
+function ensurePresetOption(value) {
+  if ([...presetSel.options].some((o) => o.value === value)) return;
   const o = document.createElement('option');
-  o.value = 'mine'; o.textContent = '내 수조';
+  o.value = value; o.textContent = L.preset[value];
   presetSel.appendChild(o);
 }
+const ensureMineOption = () => ensurePresetOption('mine');
+
+/* ---------- 공유 링크: 수조 배치를 URL 조각(#t=)에 통째로 담는다(서버 없음) ----------
+   형식 v1: 압축 JSON. 앞 글자가 'z'면 deflate-raw + base64url, 'j'면 압축 없이 base64url(압축 API가 없는 브라우저).
+   좌표는 0.1 cm 정수이고, 벽 점과 유리 칠은 앞 점과의 차이로 적어 압축이 잘 되게 한다.
+   받는 쪽은 저장본과 같은 validTank()로 검사한 뒤 applySaved()로 적용한다. 링크는 남이 만든 입력이므로
+   문자열 길이·풀린 크기를 먼저 제한한다(압축 폭탄 방지). */
+const SHARE_MAX_CHARS = 200000, SHARE_MAX_BYTES = 2000000, SHARE_LONG = 6000;
+let sharedTank = null;
+const q10 = (x) => Math.round(x * 10);
+function packTank() {
+  const w = walls.map((wl) => {
+    const p = wl.pts, a = [q10(p[0]), q10(p[1])];
+    for (let i = 2; i < p.length; i++) a.push(q10(p[i]) - q10(p[i - 2]));
+    return wl.echo ? [a, [q10(wl.echo.cu), q10(wl.echo.cv), q10(wl.echo.R)]] : [a];
+  });
+  const g = [];
+  let pu = 0, pv = 0;
+  for (const d of glass) { const u = q10(d.u), v = q10(d.v); g.push(u - pu, v - pv, q10(d.r) * d.sign); pu = u; pv = v; }
+  return {
+    v: 1, b: bpm, d: Math.round(depth * 100), s: scaleName, e: beachOn ? 1 : 0, w, g,
+    D: droppers.map((x) => [q10(x.u), q10(x.v), x.div]),
+    O: oscs.map((x) => [q10(x.u), q10(x.v), Math.round(x.f * 100)]),
+    S: stones.map((x) => [q10(x.u), x.lane]),
+  };
+}
+// packTank의 역. 모양이 틀리면 null(값 검사는 validTank)
+function unpackTank(p) {
+  const A = Array.isArray, I = Number.isInteger, ints = (a, n) => A(a) && a.length === n && a.every(I);
+  if (!p || p.v !== 1 || !A(p.w) || !A(p.g) || !A(p.D) || !A(p.O) || !A(p.S) || p.g.length % 3 || !p.g.every(I)) return null;
+  const ws = [];
+  for (const wl of p.w) {
+    if (!A(wl) || !A(wl[0]) || wl[0].length < 2 || !wl[0].every(I)) return null;
+    const a = wl[0], q = [];
+    for (let i = 0; i < a.length; i++) q.push(i < 2 ? a[i] : q[i - 2] + a[i]);
+    ws.push({ pts: q.map((x) => x / 10), echo: ints(wl[1], 3) ? { cu: wl[1][0] / 10, cv: wl[1][1] / 10, R: wl[1][2] / 10 } : null });
+  }
+  const gs = [];
+  let u = 0, v = 0;
+  for (let i = 0; i < p.g.length; i += 3) {
+    u += p.g[i]; v += p.g[i + 1];
+    const r = p.g[i + 2];
+    gs.push({ u: u / 10, v: v / 10, r: Math.abs(r) / 10, sign: r < 0 ? -1 : 1 });
+  }
+  if (!p.D.every((x) => ints(x, 3)) || !p.O.every((x) => ints(x, 3)) || !p.S.every((x) => ints(x, 2))) return null;
+  return {
+    walls: ws, glass: gs,
+    droppers: p.D.map(([x, y, div]) => ({ u: x / 10, v: y / 10, div })),
+    oscs: p.O.map(([x, y, f]) => ({ u: x / 10, v: y / 10, f: f / 100 })),
+    stones: p.S.map(([x, lane]) => ({ u: x / 10, lane })),
+    bpm: p.b, depth: isNum(p.d) ? p.d / 100 : undefined, scale: p.s, beach: p.e === 1,
+  };
+}
+function b64u(bytes) {
+  let s = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function unb64u(s) {
+  const b = atob(s.replace(/-/g, '+').replace(/_/g, '/'));
+  const u = new Uint8Array(b.length);
+  for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+  return u;
+}
+async function pipeBytes(bytes, stream, limit) {
+  const reader = new Blob([bytes]).stream().pipeThrough(stream).getReader();
+  const chunks = [];
+  let n = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    n += value.length;
+    if (n > limit) { reader.cancel().catch(() => {}); throw new Error(`풀린 크기가 ${limit} B를 넘습니다`); }
+    chunks.push(value);
+  }
+  const out = new Uint8Array(n);
+  let o = 0;
+  for (const c of chunks) { out.set(c, o); o += c.length; }
+  return out;
+}
+async function encodeShare() {
+  const json = new TextEncoder().encode(JSON.stringify(packTank()));
+  let z = null;
+  try { if (typeof CompressionStream === 'function') z = new CompressionStream('deflate-raw'); }
+  catch (err) { console.warn('파문: deflate-raw 압축을 쓸 수 없어 압축 없이 링크를 만듭니다 —', err); }
+  return z ? 'z' + b64u(await pipeBytes(json, z, Infinity)) : 'j' + b64u(json);
+}
+// 실패(형식 오류·압축 해제 실패·검사 탈락)는 null 또는 예외 — 호출하는 쪽이 둘 다 '읽지 못함'으로 다룬다
+async function decodeShare(code) {
+  if (typeof code !== 'string' || code.length < 2 || code.length > SHARE_MAX_CHARS) return null;
+  let bytes = unb64u(code.slice(1));
+  if (code[0] === 'z') {
+    if (typeof DecompressionStream !== 'function') return null;
+    bytes = await pipeBytes(bytes, new DecompressionStream('deflate-raw'), SHARE_MAX_BYTES);
+  } else if (code[0] !== 'j' || bytes.length > SHARE_MAX_BYTES) return null;
+  return validTank(unpackTank(JSON.parse(new TextDecoder().decode(bytes))));
+}
+const shareCodeFromHash = () => { const m = /^#t=([A-Za-z0-9_-]+)$/.exec(location.hash); return m ? m[1] : null; };
+async function shareTank() {
+  let url;
+  try { url = `${location.href.replace(/[?#].*$/, '')}#t=${await encodeShare()}`; }
+  catch (err) { console.warn('파문: 공유 링크를 만들지 못했습니다 —', err); toast(L.shareFail); return; }
+  const long = url.length > SHARE_LONG;
+  if (COARSE && typeof navigator.share === 'function') {
+    try { await navigator.share({ title: L.title, text: L.shareText, url }); if (long) toast(L.shareLong); return; }
+    catch (err) { if (err && err.name === 'AbortError') return; console.warn('파문: 공유 시트를 열지 못해 복사로 대신합니다 —', err); }
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    toast(long ? `${L.shareCopied} · ${L.shareLong}` : L.shareCopied);
+  } catch (err) {
+    // 클립보드 권한이 없거나(파일 URL·구형 브라우저) 거부되면 직접 복사할 수 있게 링크를 보여 준다
+    console.warn('파문: 클립보드에 쓰지 못했습니다 —', err);
+    openShareSheet(url);
+  }
+}
+const shareSheet = $('share-sheet'), shareUrlEl = $('share-url');
+function openShareSheet(url) {
+  closeClip();
+  shareUrlEl.value = url;
+  shareSheet.hidden = false;
+  shareUrlEl.focus(); shareUrlEl.select();
+}
+function closeShareSheet() { shareSheet.hidden = true; }
+async function copyShareUrl() {
+  shareUrlEl.focus(); shareUrlEl.select();
+  try { await navigator.clipboard.writeText(shareUrlEl.value); }
+  catch (err) {
+    // 권한이 없을 때의 마지막 수단: 선택한 입력란을 execCommand로 복사(폐기 예정이지만 여전히 동작)
+    if (!document.execCommand || !document.execCommand('copy')) { console.warn('파문: 복사 실패 —', err); return; }
+  }
+  closeShareSheet();
+  toast(L.shareCopied);
+}
+// 이미 열린 페이지에 다른 공유 링크를 붙여 넣으면(해시만 바뀜) 그 수조로 바꾼다. 되돌리기로 돌아갈 수 있다.
+window.addEventListener('hashchange', () => {
+  const code = shareCodeFromHash();
+  if (!bootDone) return;               // 부팅 전이면 start()가 이미 이 해시를 읽고 있다
+  if (!code) return;
+  decodeShare(code).then((d) => {
+    if (!d) throw new Error('형식 검사 탈락');
+    sharedTank = d;
+    ensurePresetOption('shared');
+    loadPreset('shared', false);
+    history.replaceState(null, '', location.href.replace(/#.*$/, '') + '#t=' + code);   // loadPreset의 markSave가 지운 해시를 되돌린다
+    toast(L.shareLoaded);
+  }).catch((err) => { console.warn('파문: 공유 링크를 읽지 못했습니다 —', err); toast(L.shareBad); });
+});
 let prefMotion = null;          // 'on' | 'off' | null(= OS 설정을 따름). #motion-toggle을 직접 바꿨을 때만 기록
 function savePrefs() {
   const p = { volume, scale: scaleName };
   if (prefMotion) p.motion = prefMotion;
+  if (prefLang) p.lang = prefLang;
   try { localStorage.setItem(PREF_KEY, JSON.stringify(p)); }
-  catch (err) { console.warn('파문 투영기: 설정을 저장하지 못했습니다 —', err); }
+  catch (err) { console.warn('파문: 설정을 저장하지 못했습니다 —', err); }
 }
 function loadPrefs() {
   let p = null;
   try { const raw = localStorage.getItem(PREF_KEY); p = raw ? JSON.parse(raw) : null; }
-  catch (err) { console.warn('파문 투영기: 설정을 읽지 못했습니다 —', err); }
+  catch (err) { console.warn('파문: 설정을 읽지 못했습니다 —', err); }
   return p && typeof p === 'object' ? p : null;
 }
 function setScale(name, user) {
@@ -2783,7 +3267,253 @@ function setScale(name, user) {
   inp.scale.value = name;
   drawStatic();
   for (const o of oscs) if (pitchSnap) o.f = snapOscPitch(o.f);
-  if (user) { announce(`음계: ${SCALES[name].name}`); savePrefs(); markSave(); }
+  if (user) { announce(L.scaleAnn(L.scaleName[name])); savePrefs(); markSave(); }
+}
+
+/* ---------- 언어 전환 ---------- */
+let prefLang = null;            // 'ko' | 'en' | null(= 브라우저 언어를 따름). 직접 바꿨을 때만 기록
+// 주소의 ?lang= → 직접 고른 언어 → 브라우저 첫 언어(한국어면 ko, 그 밖은 en)
+function pickLang(prefs) {
+  const q = new URLSearchParams(location.search).get('lang');
+  if (isLang(q)) return q;
+  if (prefs && isLang(prefs.lang)) return prefs.lang;
+  const nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'ko';
+  return /^ko\b/i.test(nav) ? 'ko' : 'en';
+}
+function applyStaticText() {
+  for (const el of document.querySelectorAll('[data-i18n]')) {
+    const v = getKey(el.dataset.i18n);
+    if (typeof v === 'string') el.textContent = v;
+  }
+  for (const el of document.querySelectorAll('[data-i18n-aria]')) {
+    const v = getKey(el.dataset.i18nAria);
+    if (typeof v === 'string') el.setAttribute('aria-label', v);
+  }
+}
+function setLang(code, user) {
+  lang = isLang(code) ? code : 'ko';
+  L = STR[lang];
+  root.lang = lang;
+  document.title = L.title;
+  applyStaticText();
+  for (const o of presetSel.options) if (L.preset[o.value]) o.textContent = L.preset[o.value];
+  for (const o of inp.scale.options) o.textContent = L.scaleName[o.value];
+  inp.lang.value = lang;
+  // 상태에 따라 바뀌는 문구
+  soundBtn.textContent = audioState === 'failed' ? L.soundFail : audioState === 'on' ? L.soundOff : L.soundOn;
+  pauseBtn.textContent = paused ? L.resume : L.pause;
+  $('strobe-note').textContent = reduced ? L.strobeNoteReduced : L.strobeNote;
+  outEl.damping.textContent = L.damping(beta.toFixed(2));
+  updateRecBtn();
+  if (introOpen) fillIntro();
+  plaqueCache = '';
+  if (bootDone) { updatePlaque(); updateDepthOutputs(); drawStatic(); refreshHint(); }
+  if (user) { prefLang = lang; savePrefs(); }
+}
+
+/* ---------- 첫 화면 카드 ----------
+   매 방문 첫 화면. 브라우저는 사용자 동작 없이 소리를 낼 수 없으므로 '소리 켜고 시작'이 곧 소리 허락이고,
+   '소리 없이 보기'(또는 Esc·바깥 탭)는 지금처럼 무음으로 시작한다. 카드 뒤에서도 수조는 계속 돈다.
+   받은 공유 링크로 왔으면 문구가 '누군가 보낸 곡'으로 바뀐다. */
+const introEl = $('intro');
+let introOpen = false, introShared = false, introFailed = false, lastTankHint = false;
+function fillIntro() {
+  const I = L.intro;
+  $('intro-kicker').textContent = L.kicker;
+  $('intro-tag').textContent = introShared ? I.sharedTag : I.tag;
+  $('intro-body').textContent = introShared ? I.sharedBody : I.body;
+  $('intro-start').textContent = introShared ? I.sharedStart : I.start;
+  const warn = $('intro-warn');
+  warn.hidden = !introFailed;
+  warn.textContent = introFailed ? L.shareLoadFail : '';
+  const lb = $('intro-lang');
+  lb.textContent = I.otherLang;
+  lb.lang = lang === 'ko' ? 'en' : 'ko';
+}
+function openIntro(shared) {
+  introShared = shared;
+  introOpen = true;
+  fillIntro();
+  introEl.hidden = false;
+  root.classList.add('intro-on');
+  $('intro-start').focus({ preventScroll: true });
+}
+function closeIntro(withSound) {
+  if (!introOpen) return;
+  introOpen = false;
+  introEl.hidden = true;
+  root.classList.remove('intro-on');
+  if (withSound && audioState === 'off') toggleSound();
+  firstPaintT = performance.now();              // 첫 힌트(20 s)는 카드를 닫은 뒤부터 센다
+  if (lastTankHint) { lastTankHint = false; setTimeout(() => toast(L.lastTank), 1500); }
+  refreshHint();
+  stage.focus({ preventScroll: true });
+}
+$('intro-start').addEventListener('click', () => closeIntro(true));
+$('intro-quiet').addEventListener('click', () => closeIntro(false));
+$('intro-lang').addEventListener('click', () => { setLang(lang === 'ko' ? 'en' : 'ko', true); $('intro-lang').focus(); });
+introEl.addEventListener('click', (e) => { if (e.target === introEl) closeIntro(false); });
+// 모달 카드 안에서만 Tab이 돈다. 키 처리는 onKeyDown이 카드가 열려 있을 때 이 함수로 넘긴다.
+function introTab(e) {
+  const f = [...introEl.querySelectorAll('button')], i = f.indexOf(document.activeElement);
+  e.preventDefault();
+  f[(i + (e.shiftKey ? -1 : 1) + f.length) % f.length].focus();
+}
+
+/* ---------- 클립 녹화: 수조 영역의 투영·오버레이와 소리를 짧은 영상으로(MediaRecorder) ----------
+   frame()이 렌더 직후 같은 작업 안에서 recordFrame()을 부르므로 preserveDrawingBuffer 없이도 WebGL 버퍼를
+   비워지기 전에 복사한다. 영상은 수조 비율 그대로 — 가로 화면 16:9(1280×720), 폰 세로 화면 9:16(720×1280).
+   소리는 마스터 체인의 마지막 단(audioOut)을 MediaStreamDestination에도 이어 담는다. */
+const REC_SEC = 15, REC_LONG = 1280, REC_SHORT = 720, REC_FPS = 30;
+const REC_TYPES = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
+const recSupported = typeof MediaRecorder === 'function' && typeof HTMLCanvasElement.prototype.captureStream === 'function';
+const recBtn = $('rec-btn'), clipSheet = $('clip-sheet'), clipVideo = $('clip-video');
+let rec = null, clipUrl = '', clipFile = null;
+function recMime() {
+  for (const t of REC_TYPES) {
+    try { if (MediaRecorder.isTypeSupported(t)) return t; } catch (err) { console.warn('파문: 녹화 형식 확인 실패 —', t, err); }
+  }
+  return '';
+}
+function updateRecBtn() {
+  if (!rec) { recBtn.textContent = L.rec; recBtn.setAttribute('aria-pressed', 'false'); recBtn.removeAttribute('aria-label'); return; }
+  const left = Math.max(0, Math.ceil(REC_SEC - (performance.now() - rec.t0) / 1000));
+  recBtn.textContent = L.recLeft(left);
+  recBtn.setAttribute('aria-pressed', 'true');
+  recBtn.setAttribute('aria-label', L.recStopAria);
+}
+function startRecording() {
+  if (rec) return;
+  if (!recSupported) { toast(L.recUnsupported); return; }
+  closeClip(); closeShareSheet();
+  if (audioState === 'off') toggleSound();       // 클릭 처리 안이므로 여기서 오디오를 시작할 수 있다
+  const tr = tankRectCss(), land = tr.w >= tr.h;
+  const cv = document.createElement('canvas');
+  cv.width = land ? REC_LONG : REC_SHORT; cv.height = land ? REC_SHORT : REC_LONG;
+  cv.className = 'rec-canvas';                   // 일부 브라우저는 문서 밖 캔버스의 captureStream을 멈추므로 보이지 않게 붙여 둔다
+  document.body.appendChild(cv);
+  const stream = cv.captureStream(REC_FPS);
+  let dest = null;
+  if (actx && audioOut && audioState === 'on') {
+    dest = actx.createMediaStreamDestination();
+    audioOut.connect(dest);
+    for (const t of dest.stream.getAudioTracks()) stream.addTrack(t);
+  }
+  const type = recMime();
+  let mr;
+  try { mr = new MediaRecorder(stream, type ? { mimeType: type, videoBitsPerSecond: 6e6 } : { videoBitsPerSecond: 6e6 }); }
+  catch (err) {
+    console.warn('파문: 녹화를 시작하지 못했습니다 —', err);
+    if (dest) audioOut.disconnect(dest);
+    for (const t of stream.getTracks()) t.stop();
+    cv.remove();
+    toast(L.recFail);
+    return;
+  }
+  const r = { mr, cv, ctx: cv.getContext('2d'), dest, chunks: [], t0: performance.now(), dur: 0, type: mr.mimeType || type || 'video/webm', land };
+  mr.ondataavailable = (e) => { if (e.data && e.data.size) r.chunks.push(e.data); };
+  mr.onstop = () => finishRecording(r);
+  mr.onerror = (e) => { console.warn('파문: 녹화 중 오류 —', e.error || e); if (rec === r) stopRecording(); };
+  rec = r;
+  recordFrame(performance.now());
+  mr.start(1000);
+  toast(dest ? L.recStart(REC_SEC) : L.recSilent);
+  updateRecBtn();
+}
+function stopRecording() {
+  const r = rec;
+  if (!r) return;
+  rec = null;
+  r.dur = Math.min(REC_SEC, (performance.now() - r.t0) / 1000);
+  updateRecBtn();
+  try { if (r.mr.state !== 'inactive') r.mr.stop(); else finishRecording(r); }
+  catch (err) { console.warn('파문: 녹화를 멈추지 못했습니다 —', err); finishRecording(r); }
+}
+function finishRecording(r) {
+  if (r.done) return;
+  r.done = true;
+  if (r.dest) { try { audioOut.disconnect(r.dest); } catch (err) { console.warn('파문: 녹화 오디오 연결 해제 실패 —', err); } }
+  if (actx && audioState === 'off' && actx.state === 'running') actx.suspend().catch((err) => console.warn('파문: 오디오 일시 중지 실패 —', err));
+  for (const t of r.mr.stream.getTracks()) t.stop();
+  r.cv.remove();
+  // 인코더가 첫 프레임을 내기 전에 멈추면 조각이 하나도 없다(소프트웨어 인코더는 1~2 s 걸리기도 한다)
+  if (!r.chunks.length) { toast(r.dur < 3 ? L.recTooShort : L.recFail); return; }
+  const type = r.type.split(';')[0], ext = /mp4/.test(type) ? 'mp4' : 'webm';
+  openClip(new Blob(r.chunks, { type }), ext, r.dur);
+}
+function recordFrame(now) {
+  const r = rec;
+  if ((now - r.t0) / 1000 >= REC_SEC) { stopRecording(); return; }
+  const c = r.ctx, w = r.cv.width, hh = r.cv.height, tr = tankRectCss();
+  const src = renderMode === 'gl' ? glCanvas : fbCanvas, ks = src.width / view.W, ko = stage.width / view.W;
+  c.drawImage(src, tr.x * ks, tr.y * ks, tr.w * ks, tr.h * ks, 0, 0, w, hh);
+  c.drawImage(stage, tr.x * ko, tr.y * ko, tr.w * ko, tr.h * ko, 0, 0, w, hh);
+  drawWatermark(c, w, hh);
+}
+// 영상 아래쪽 띠: 이름·한 줄 설명과 주소(영상만 퍼져도 어디서 왔는지 남게)
+function drawWatermark(c, w, hh) {
+  const fs = Math.round(Math.min(w, hh) * 0.034), band = fs * (w < hh ? 4.4 : 3.2), pad = fs;
+  const g = c.createLinearGradient(0, hh - band, 0, hh);
+  g.addColorStop(0, 'rgba(12,29,31,0)'); g.addColorStop(1, 'rgba(12,29,31,0.82)');
+  c.fillStyle = g; c.fillRect(0, hh - band, w, band);
+  c.save();
+  c.shadowColor = 'rgba(12,29,31,0.9)'; c.shadowBlur = 4;
+  c.textBaseline = 'alphabetic';
+  c.fillStyle = '#D9D3BF'; c.font = `700 ${fs}px ${SERIF}`;
+  c.textAlign = 'left';
+  if (w < hh) {
+    c.fillText(L.watermark, pad, hh - pad - fs * 1.25);
+    c.fillStyle = '#B8843C'; c.font = `${Math.round(fs * 0.78)}px ${MONO}`;
+    c.fillText(SITE_URL, pad, hh - pad);
+  } else {
+    c.fillText(L.watermark, pad, hh - pad);
+    c.fillStyle = '#B8843C'; c.font = `${Math.round(fs * 0.78)}px ${MONO}`;
+    c.textAlign = 'right';
+    c.fillText(SITE_URL, w - pad, hh - pad);
+  }
+  c.restore();
+}
+function clipStamp() {
+  const d = new Date(), p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+}
+function openClip(blob, ext, secs) {
+  closeClip(); closeShareSheet();
+  clipUrl = URL.createObjectURL(blob);
+  const name = `pamun-${clipStamp()}.${ext}`;
+  clipFile = typeof File === 'function' ? new File([blob], name, { type: blob.type }) : null;
+  clipVideo.src = clipUrl;
+  clipVideo.play().catch(() => { /* 자동 재생이 막혀도 컨트롤로 재생할 수 있다 */ });
+  const a = $('clip-save');
+  a.href = clipUrl; a.download = name;
+  $('clip-note').textContent = L.clip.note(Math.max(1, Math.round(secs)), ext.toUpperCase());
+  let canShare = false;
+  try { canShare = !!(clipFile && navigator.canShare && navigator.canShare({ files: [clipFile] })); }
+  catch (err) { console.warn('파문: 파일 공유 가능 여부 확인 실패 —', err); }
+  $('clip-share').hidden = !canShare;
+  clipSheet.hidden = false;
+  announce(L.recStopped);
+  a.focus();
+}
+function closeClip() {
+  if (clipSheet.hidden && !clipUrl) return;
+  clipSheet.hidden = true;
+  clipVideo.pause();
+  clipVideo.removeAttribute('src');
+  clipVideo.load();
+  if (clipUrl) URL.revokeObjectURL(clipUrl);
+  clipUrl = ''; clipFile = null;
+}
+async function shareClip() {
+  if (!clipFile) return;
+  try { await navigator.share({ files: [clipFile], title: L.title, text: L.shareText }); }
+  catch (err) { if (!err || err.name !== 'AbortError') { console.warn('파문: 클립 공유 실패 —', err); toast(L.shareFail); } }
+}
+// 열린 시트를 닫았으면 true (Esc 처리용)
+function closeSheets() {
+  const open = !shareSheet.hidden || !clipSheet.hidden;
+  closeShareSheet(); closeClip();
+  return open;
 }
 
 /* ---------- 컨트롤 배선 ---------- */
@@ -2791,6 +3521,13 @@ for (const b of document.querySelectorAll('.tool[role=radio]')) b.addEventListen
 moreBtn.addEventListener('click', () => setMore(moreBtn.getAttribute('aria-expanded') !== 'true'));
 soundBtn.addEventListener('click', toggleSound);
 panelToggle.addEventListener('click', () => setPanel(panelEl.hidden));
+$('share-btn').addEventListener('click', () => { shareTank(); });
+$('share-copy').addEventListener('click', () => { copyShareUrl(); });
+$('share-close').addEventListener('click', closeShareSheet);
+recBtn.addEventListener('click', () => { if (rec) stopRecording(); else startRecording(); });
+$('clip-share').addEventListener('click', () => { shareClip(); });
+$('clip-close').addEventListener('click', closeClip);
+inp.lang.addEventListener('change', () => setLang(inp.lang.value, true));
 inp.volume.addEventListener('input', () => { setVolume(inp.volume.value / 100); outEl.volume.textContent = inp.volume.value; fillRange(inp.volume); savePrefs(); });
 inp.scale.addEventListener('change', () => setScale(inp.scale.value, true));
 inp.depth.addEventListener('input', () => setDepth(+inp.depth.value, true));
@@ -2807,7 +3544,7 @@ inp.strobe.addEventListener('change', () => setStrobe(inp.strobe.checked));
 inp.strobeF.addEventListener('input', () => setStrobeF(+inp.strobeF.value));
 inp.strobeMatch.addEventListener('click', () => {
   const o = selected && selected.kind === 'osc' ? selected.obj : oscs[0];
-  if (o) { setStrobeF(o.f); announce(`스트로보 ${strobeF.toFixed(2)} Hz`); } else toast('맞출 진동자가 없어요');
+  if (o) { setStrobeF(o.f); announce(L.strobeAnn(strobeF.toFixed(2))); } else toast(L.noOscToMatch);
 });
 inp.motion.addEventListener('change', () => { setReduced(inp.motion.checked); prefMotion = inp.motion.checked ? 'on' : 'off'; savePrefs(); });
 presetSel.addEventListener('change', () => loadPreset(presetSel.value, false));
@@ -2815,7 +3552,7 @@ undoBtn.addEventListener('click', undo);
 $('calm').addEventListener('click', calm);
 pauseBtn.addEventListener('click', togglePause);
 loopBtn.addEventListener('click', toggleLoopRec);
-$('loop-clear').addEventListener('click', () => { loopLayers.length = 0; loopRec = null; loopBtn.setAttribute('aria-pressed', 'false'); announce('루프를 지웠습니다'); });
+$('loop-clear').addEventListener('click', () => { loopLayers.length = 0; loopRec = null; loopBtn.setAttribute('aria-pressed', 'false'); announce(L.loopCleared); });
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', readChrome);
 new MutationObserver(readChrome).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
 // OS 설정이 바뀌면 그것이 새 의사 표시이므로 따르고, 이전의 명시 선택은 지운다(다음 방문에도 OS를 따름)
@@ -2858,12 +3595,14 @@ function layout() {
     const rowTop = $('tool-drop').getBoundingClientRect().top - 6 - 48;
     ay = topB; ah = Math.max(60, rowTop - topB);
   } else if (lay === 'land') {
+    root.style.setProperty('--side-w', `${sideEl.offsetWidth}px`);
     const railR = dockEl.getBoundingClientRect().right + 6;
     ax = railR; aw = Math.max(60, W - railR);
   }
   view.availY = ay;
   const aar = aw / ah;
   if (aar > 1.05) view.mode = 'land'; else if (aar < 0.95) view.mode = 'port';
+  if (rec && rec.land !== (view.mode === 'land')) stopRecording();
   if (view.mode === 'land') { view.s = Math.min(aw / TANK_W, ah / TANK_H); view.ox = ax; view.oy = ay; }
   else { view.s = Math.min(aw / TANK_H, ah / TANK_W); view.ox = ax + (aw - TANK_H * view.s) / 2; view.oy = ay; }
   sizeCanvases();
@@ -2969,7 +3708,7 @@ function downgradeGrid() {
   inp.osc.max = fMax().toFixed(2);
   updateDepthOutputs();
   updatePlaque();
-  announce('저사양 격자로 전환했습니다');
+  announce(L.lowGridAnn);
 }
 function frame(now) {
   rafId = requestAnimationFrame(frame);
@@ -3007,7 +3746,7 @@ function frame(now) {
     if (frameNo % 4 === 0) computeEnergy();
     if (energy > E_SOFT) gAuto = Math.max(0.15, gAuto * 0.97); else gAuto += (1 - gAuto) * 0.01;
     if (frameNo % 60 === 0) removeDC();
-    if (frameNo % 30 === 0 && !fieldIsFinite()) { calmField(); nanResets++; toast('수면이 넘쳐 잠재웠습니다'); }
+    if (frameNo % 30 === 0 && !fieldIsFinite()) { calmField(); nanResets++; toast(L.overflow); }
     finishLoopIfDone();
   } else {
     wakeJobs.length = 0;
@@ -3027,9 +3766,11 @@ function frame(now) {
   if (renderMode === 'gl') { if (!strobing) uploadField(); renderGL(now); }
   else renderFallback();
   drawOverlay(now);
+  if (rec) recordFrame(now);
   drawStrip();
   if (now - uiTick > 200) {
     uiTick = now;
+    if (rec) updateRecBtn();
     if (firstHintOn && now - firstPaintT > 20000) firstHintOn = false;
     refreshHint();
     updatePlaque();
@@ -3043,9 +3784,11 @@ function frame(now) {
   adaptQuality(wallDt, now);
 }
 document.addEventListener('visibilitychange', () => {
+  if (!bootDone) return;               // 공유 링크를 푸는 동안(boot 전) — boot()가 rAF를 시작한다
   if (document.hidden) {
     cancelAnimationFrame(rafId); rafId = 0;
-    if (actx && audioState === 'on') actx.suspend().catch((err) => console.warn('파문 투영기: 오디오 일시 중지 실패 —', err));
+    stopRecording();
+    if (actx && audioState === 'on') actx.suspend().catch((err) => console.warn('파문: 오디오 일시 중지 실패 —', err));
   } else {
     lastNow = performance.now(); acc = 0;
     if (actx && audioState === 'on') { actx.resume().catch(audioResumeFail); needReanchor = true; }
@@ -3053,16 +3796,20 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-/* ---------- 부팅: 첫 장면 → c_eff 보정 → 선행 계산 → 첫 프레임 동기 렌더 ---------- */
-function boot() {
+/* ---------- 부팅: 언어 → c_eff 보정 → 첫 장면 → 선행 계산 → 첫 프레임 동기 렌더 → 첫 화면 카드 ---------- */
+// shareFailed: 주소에 공유 링크가 있었지만 읽지 못함(기본 수조로 시작하고 카드에 알린다)
+function boot(shareFailed) {
   const prefs = loadPrefs();
   allocGrid(320, 180, 0.2);
   updateTiming();
   if (prefs) {
-    if (typeof prefs.volume === 'number') { volume = clamp(prefs.volume, 0, 1); inp.volume.value = Math.round(volume * 100); outEl.volume.textContent = inp.volume.value; }
+    if (isNum(prefs.volume)) { volume = clamp(prefs.volume, 0, 1); inp.volume.value = Math.round(volume * 100); outEl.volume.textContent = inp.volume.value; }
     if (isScale(prefs.scale)) scaleName = prefs.scale;
     if (prefs.motion === 'on' || prefs.motion === 'off') prefMotion = prefs.motion;
+    if (isLang(prefs.lang)) prefLang = prefs.lang;
   }
+  setLang(pickLang(prefs), false);
+  recBtn.hidden = !recSupported;
   // 움직임 설정: 사용자가 #motion-toggle로 직접 고른 값이 있을 때만 그것을, 아니면 OS 설정을 따른다.
   // (이전 형식의 'reduced'는 음량·음계를 바꿀 때마다 함께 저장되어 명시 선택과 구분할 수 없으므로 무시한다)
   const rm = prefMotion ? prefMotion === 'on' : matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -3075,10 +3822,12 @@ function boot() {
   const topH = topEl.offsetHeight;
   readChrome();
   if (initGL()) setRenderMode('gl');
-  else { permFallback = true; console.warn('파문 투영기: WebGL2 투영을 쓸 수 없어 간이 투영으로 전환 —', glFailReason); setRenderMode('fallback'); }
-  loadPreset('first', true);
+  else { permFallback = true; console.warn('파문: WebGL2 투영을 쓸 수 없어 간이 투영으로 전환 —', glFailReason); setRenderMode('fallback'); }
+  // 오르골의 울림돌 위치(ringR)가 실측 c_eff·r_lead를 쓰므로 보정을 먼저 한다(보정은 수조 배치와 무관)
   calibrate();
   updateTiming();
+  if (sharedTank) { ensurePresetOption('shared'); loadPreset('shared', true); }
+  else loadPreset('musicbox', true);
   // 선행 계산: 점적기·진동자 동작, 발음은 스트립·번쩍임에만 기록, 비 없음
   precomputing = true;
   const tp = performance.now();
@@ -3104,14 +3853,16 @@ function boot() {
   drawStrip();
   firstPaintT = performance.now();
   lastInputWall = firstPaintT;
+  if (readSavedTank()) { ensureMineOption(); lastTankHint = true; }
+  introFailed = shareFailed;
+  openIntro(!!sharedTank);
   refreshHint();
-  if (readSavedTank()) { ensureMineOption(); setTimeout(() => toast('지난 수조: 프리셋 › 내 수조'), 1500); }
   bootDone = true;
   lastNow = performance.now();
   rafId = requestAnimationFrame(frame);
   if (document.fonts && document.fonts.load) {
     Promise.race([document.fonts.load('600 13px Hahmlet'), new Promise((r) => setTimeout(r, 1200))])
-      .then(() => drawStatic(), (err) => console.warn('파문 투영기: 폰트 대기 실패 —', err));
+      .then(() => drawStatic(), (err) => console.warn('파문: 폰트 대기 실패 —', err));
     document.fonts.ready.then(() => drawStatic());
   }
 }
@@ -3146,12 +3897,30 @@ window.__pamun = Object.freeze({
       walls: walls.length,
       reducedMotion: reduced,
       portrait: view.mode === 'port',
+      lang,
+      intro: introOpen,
+      preset: presetSel.value,
+      recording: !!rec,
+      recSupported,
       perf: { stepMs: +stepCostEma.toFixed(3), frameMs: +(frameIntEma * 1000).toFixed(1), workMs: +workMsEma.toFixed(1), maxSteps: Math.max(1, Math.floor(SIM_BUDGET_MS / stepCostEma)) },
     };
   },
+  // 공유 링크 왕복 점검용: 지금 수조의 링크 코드를 만들고, 코드를 검사된 수조 자료로 푼다(둘 다 상태를 바꾸지 않음)
+  shareCode: () => encodeShare(),
+  decodeShare: (code) => decodeShare(code),
 });
 
-try { boot(); } finally { root.classList.remove('booting'); }
+// 공유 링크(#t=)는 압축 해제가 비동기라 먼저 풀고 부팅한다. 읽지 못하면 기본 수조로 시작한다.
+async function start() {
+  const code = shareCodeFromHash();
+  let failed = false;
+  if (code) {
+    try { sharedTank = await decodeShare(code); } catch (err) { console.warn('파문: 공유 링크를 읽지 못했습니다 —', err); }
+    failed = !sharedTank;
+  }
+  try { boot(failed); } finally { root.classList.remove('booting'); }
+}
+start();
 })();
 </script>
 </body>
