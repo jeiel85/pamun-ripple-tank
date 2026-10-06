@@ -1,11 +1,15 @@
 // 헤드리스 Chrome으로 index.html을 열어 콘솔 에러·예외, 가로 스크롤, 진단 상태를 점검하고 스크린샷을 남긴다.
 // 외부 의존성 없음 (Node 22+ 내장 WebSocket + Chrome DevTools Protocol).
 //
-//   node tools/smoke.mjs                  데스크톱·폰 두 시나리오 점검, 스크린샷은 .smoke/ 에 저장
+//   node tools/smoke.mjs                  데스크톱·폰·영어 데스크톱 세 시나리오 점검, 스크린샷은 .smoke/ 에 저장
 //   node tools/smoke.mjs --wait 8000      로드 뒤 관찰 시간(ms, 기본 5000)
 //   node tools/smoke.mjs --og docs/og.jpg 1200×630 공유 이미지만 캡처
 //   node tools/smoke.mjs --shot docs/screenshot.png --size 1600x900
 //   node tools/smoke.mjs --shot docs/screenshot-phone.png --size 390x844 --mobile   폰(터치·DPR 2) 레이아웃으로 캡처
+//   --dismiss                             캡처 전에 첫 화면 카드를 닫는다(--shot·--og)
+//   --query "?lang=en"                    주소 뒤에 붙일 문자열(언어·공유 링크 #t= 등)
+//
+// 기본 점검: 데스크톱(공유 링크 왕복·클립 녹화 포함), 폰, 영어 데스크톱(보이는 UI에 한글이 남았는지).
 //
 // CHROME_PATH 환경 변수로 브라우저 경로를 바꿀 수 있다. 실패 항목이 있으면 종료 코드 1.
 
@@ -29,6 +33,8 @@ const ogPath = opt('--og', null);
 const shotPath = opt('--shot', null);
 const shotSize = opt('--size', '1600x900');
 const shotMobile = args.includes('--mobile');
+const shotDismiss = args.includes('--dismiss');
+const shotQuery = opt('--query', '');
 
 function findChrome() {
   const candidates = [
@@ -100,7 +106,7 @@ async function launch() {
   return { send, listeners, close };
 }
 
-async function openPage(browser, { width, height, dpr = 1, mobile = false }) {
+async function openPage(browser, { width, height, dpr = 1, mobile = false, query = '' }) {
   const { targetId } = await browser.send('Target.createTarget', { url: 'about:blank' });
   const { sessionId } = await browser.send('Target.attachToTarget', { targetId, flatten: true });
   const s = (method, params) => browser.send(method, params, sessionId);
@@ -136,7 +142,7 @@ async function openPage(browser, { width, height, dpr = 1, mobile = false }) {
     };
     browser.listeners.add(fn);
   });
-  await s('Page.navigate', { url: pageUrl });
+  await s('Page.navigate', { url: pageUrl + query });
   await Promise.race([loaded, sleep(15000)]);
 
   const evaluate = async (expression) => {
@@ -163,6 +169,50 @@ async function openPage(browser, { width, height, dpr = 1, mobile = false }) {
   return { evaluate, screenshot, tap, problems };
 }
 
+// 첫 화면 카드를 '소리 없이 보기'로 닫는다(카드가 수조 탭을 가로막으므로 탭 점검 전에 닫아야 한다).
+// 합성 click()은 키보드 조작처럼 취급되어 수조 포커스 링·조준경이 그려지므로 스크린샷을 위해 포커스를 푼다.
+const DISMISS = `(() => { const b = document.getElementById('intro-quiet'); const open = !document.getElementById('intro').hidden; if (open) { b.click(); document.getElementById('stage').blur(); } return open; })()`;
+// 보이는 UI 문구(캔버스 제외)에 한글이 남았는지 — 영어 화면 점검용. 언어 선택 목록의 '한국어'는 뺀다.
+const HANGUL_LEFT = `(() => {
+  const out = [];
+  const walk = (el) => {
+    if (el.closest('[hidden]') || el.tagName === 'SCRIPT' || el.tagName === 'STYLE' || el.tagName === 'OPTION' && el.lang === 'ko') return;
+    for (const n of el.childNodes) {
+      if (n.nodeType === 3 && /[\\uAC00-\\uD7A3]/.test(n.textContent)) out.push(n.textContent.trim().slice(0, 60));
+      else if (n.nodeType === 1) walk(n);
+    }
+    for (const a of ['aria-label', 'title']) { const v = el.getAttribute(a); if (v && /[\\uAC00-\\uD7A3]/.test(v)) out.push('@' + a + ': ' + v.slice(0, 60)); }
+  };
+  walk(document.body);
+  if (/[\\uAC00-\\uD7A3]/.test(document.title)) out.push('title: ' + document.title);
+  return out.filter((t) => t !== '언어 · Language');
+})()`;
+// 공유 링크 왕복: 지금 수조 → 코드 → 풀어서 울림돌·방울 시계 수가 같은지
+const SHARE_ROUNDTRIP = `(async () => {
+  const code = await window.__pamun.shareCode();
+  const d = await window.__pamun.decodeShare(code);
+  const g = window.__pamun.diag();
+  const bad = await window.__pamun.decodeShare('z' + 'A'.repeat(40)).catch(() => null);
+  return { len: code.length, kind: code[0], ok: !!d && d.stones.length === g.stones.length && d.droppers.length === g.droppers && d.walls.length === g.walls, rejectsGarbage: bad === null };
+})()`;
+// 클립 녹화: 녹화 버튼 → 6 s → 다시 눌러 멈춤 → 클립 시트에 영상이 붙었는지. 헤드리스 소프트웨어 인코더는
+// 첫 조각과 마지막 조각이 늦게 나오기도 해서, 시트나 실패 안내가 뜰 때까지 최대 15 s 기다린다.
+const RECORD = `(async () => {
+  const b = document.getElementById('rec-btn');
+  if (b.hidden) return { supported: false };
+  b.click();
+  const started = window.__pamun.diag().recording;
+  await new Promise((r) => setTimeout(r, 6000));
+  b.click();
+  const hint = () => document.getElementById('hint').textContent;
+  for (let i = 0; i < 150 && document.getElementById('clip-sheet').hidden && !/녹화에 실패|너무 짧아/.test(hint()); i++) await new Promise((r) => setTimeout(r, 100));
+  const sheet = !document.getElementById('clip-sheet').hidden;
+  const a = document.getElementById('clip-save');
+  const res = { supported: true, started, sheet, file: a.download, href: a.href.slice(0, 5), hint: document.getElementById('hint').textContent };
+  document.getElementById('clip-close').click();
+  return res;
+})()`;
+
 const PROBE = `(() => {
   const de = document.documentElement;
   const diag = typeof window.__pamun?.diag === 'function' ? window.__pamun.diag() : null;
@@ -178,8 +228,8 @@ const PROBE = `(() => {
   };
 })()`;
 
-async function runScenario(browser, name, viewport) {
-  const page = await openPage(browser, viewport);
+async function runScenario(browser, name, viewport, { query = '', extra = false } = {}) {
+  const page = await openPage(browser, { ...viewport, query });
   await sleep(waitMs);
   const before = await page.evaluate(PROBE);
   const seenProblems = page.problems.length;
@@ -188,6 +238,22 @@ async function runScenario(browser, name, viewport) {
   if (before.overflowX) fails.push(`가로 스크롤 발생 (scrollWidth ${before.scrollWidth} > ${before.clientWidth})`);
   if (!before.stageRect) fails.push('#stage 캔버스가 없음');
   if (!before.diag) fails.push('window.__pamun.diag() 진단 훅이 없음');
+  else if (!before.diag.intro) fails.push('첫 화면 카드가 떠 있지 않음');
+  const shotIntro = await page.screenshot(join(outDir, `smoke-${name}-intro.png`));
+
+  const checks = {};
+  checks.dismissed = await page.evaluate(DISMISS);
+  if (/lang=en/.test(query)) {
+    checks.hangulLeft = await page.evaluate(HANGUL_LEFT);
+    if (checks.hangulLeft.length) fails.push(`영어 화면에 한글 문구가 남음: ${checks.hangulLeft.join(' | ')}`);
+  }
+  if (extra) {
+    checks.share = await page.evaluate(SHARE_ROUNDTRIP);
+    if (!checks.share.ok) fails.push(`공유 링크 왕복 실패: ${JSON.stringify(checks.share)}`);
+    if (!checks.share.rejectsGarbage) fails.push('망가진 공유 코드를 거부하지 않음');
+    checks.record = await page.evaluate(RECORD);
+    if (checks.record.supported && !(checks.record.started && checks.record.sheet && checks.record.href === 'blob:')) fails.push(`클립 녹화 실패: ${JSON.stringify(checks.record)}`);
+  }
 
   let after = null;
   if (before.stageRect) {
@@ -197,8 +263,8 @@ async function runScenario(browser, name, viewport) {
     after = await page.evaluate(PROBE);
   }
   const shot = await page.screenshot(join(outDir, `smoke-${name}.png`));
-  fails.push(...page.problems.slice(seenProblems)); // 탭 이후에 새로 생긴 문제
-  return { name, viewport, fails, before, after, shot };
+  fails.push(...page.problems.slice(seenProblems)); // 카드를 닫은 뒤·탭 이후에 새로 생긴 문제
+  return { name, viewport, query, fails, checks, before, after, shots: [shotIntro, shot] };
 }
 
 async function main() {
@@ -206,7 +272,9 @@ async function main() {
   try {
     if (ogPath || shotPath) {
       const [w, h] = ogPath ? [1200, 630] : shotSize.split('x').map(Number);
-      const page = await openPage(browser, shotMobile && !ogPath ? { width: w, height: h, dpr: 2, mobile: true } : { width: w, height: h, dpr: 1 });
+      const vp = shotMobile && !ogPath ? { width: w, height: h, dpr: 2, mobile: true } : { width: w, height: h, dpr: 1 };
+      const page = await openPage(browser, { ...vp, query: shotQuery });
+      if (shotDismiss) { await sleep(1500); await page.evaluate(DISMISS); }
       await sleep(waitMs);
       const file = resolve(root, ogPath || shotPath);
       const isJpg = /\.jpe?g$/i.test(file);
@@ -216,8 +284,9 @@ async function main() {
       return;
     }
     const results = [];
-    results.push(await runScenario(browser, 'desktop', { width: 1280, height: 720, dpr: 1 }));
+    results.push(await runScenario(browser, 'desktop', { width: 1280, height: 720, dpr: 1 }, { extra: true }));
     results.push(await runScenario(browser, 'phone', { width: 390, height: 844, dpr: 3, mobile: true }));
+    results.push(await runScenario(browser, 'desktop-en', { width: 1280, height: 720, dpr: 1 }, { query: '?lang=en' }));
     console.log(JSON.stringify(results, null, 2));
     const failed = results.filter((r) => r.fails.length);
     console.log(failed.length ? `\nFAIL: ${failed.map((r) => `${r.name}(${r.fails.length})`).join(', ')}` : '\nPASS');
