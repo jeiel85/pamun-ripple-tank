@@ -1692,8 +1692,12 @@ function drawStatic() {
     c.stroke();
   }
   c.restore();
-  const fs = view.mode === 'port' || IS_PHONE ? 11 : 13;
+  let fs = view.mode === 'port' || IS_PHONE ? 11 : 13;
   c.font = `600 ${fs}px ${SERIF}`;
+  if (view.mode === 'port') {
+    const widest = Math.max(...L.notes[scaleName].map((t) => c.measureText(t).width)), room = LANE_H * view.s - 4;
+    if (widest > room) { fs = Math.max(8, Math.floor(fs * room / widest)); c.font = `600 ${fs}px ${SERIF}`; }
+  }
   c.textBaseline = 'alphabetic';
   c.fillStyle = 'rgba(217,211,191,0.66)';
   c.shadowColor = 'rgba(12,29,31,0.9)';
@@ -2311,7 +2315,7 @@ function onKeyDown(e) {
   const t = e.target;
   const inCtl = t && (/^(INPUT|SELECT|BUTTON|TEXTAREA)$/.test(t.tagName) || t.isContentEditable);
   // 첫 화면 카드가 떠 있는 동안 단축키는 쓰지 않는다(Tab·Enter는 카드 버튼이 받는다)
-  if (introOpen) { if (e.key === 'Escape') closeIntro(false); else if (e.key === 'Tab') introTab(e); return; }
+  if (introOpen) { if (e.key === 'Escape') closeIntro(false, true); else if (e.key === 'Tab') introTab(e); return; }
   if (e.key === 'Escape' && closeSheets()) return;
   if (e.key === 'Escape') {
     selected = null;
@@ -3338,7 +3342,10 @@ function openIntro(shared) {
   root.classList.add('intro-on');
   $('intro-start').focus({ preventScroll: true });
 }
-function closeIntro(withSound) {
+// viaKeyboard: Enter·Space·Esc로 닫았으면 수조로 포커스를 넘겨 곧바로 조준경을 쓰게 한다. 마우스·터치로 닫았으면
+// 넘기지 않는다 — 카드를 열 때 시작 버튼에 준 포커스가 :focus-visible이라, 스크립트로 옮긴 포커스도 그 표시를
+// 이어받아 수조 테두리·조준경이 그려진다(안드로이드 Chrome 터치에서 확인).
+function closeIntro(withSound, viaKeyboard) {
   if (!introOpen) return;
   introOpen = false;
   introEl.hidden = true;
@@ -3347,10 +3354,12 @@ function closeIntro(withSound) {
   firstPaintT = performance.now();              // 첫 힌트(20 s)는 카드를 닫은 뒤부터 센다
   if (lastTankHint) { lastTankHint = false; setTimeout(() => toast(L.lastTank), 1500); }
   refreshHint();
-  stage.focus({ preventScroll: true });
+  if (viaKeyboard) stage.focus({ preventScroll: true });
+  else if (introEl.contains(document.activeElement)) document.activeElement.blur();
 }
-$('intro-start').addEventListener('click', () => closeIntro(true));
-$('intro-quiet').addEventListener('click', () => closeIntro(false));
+// 키보드로 누른 버튼의 click은 detail이 0이다
+$('intro-start').addEventListener('click', (e) => closeIntro(true, e.detail === 0));
+$('intro-quiet').addEventListener('click', (e) => closeIntro(false, e.detail === 0));
 $('intro-lang').addEventListener('click', () => { setLang(lang === 'ko' ? 'en' : 'ko', true); $('intro-lang').focus(); });
 introEl.addEventListener('click', (e) => { if (e.target === introEl) closeIntro(false); });
 // 모달 카드 안에서만 Tab이 돈다. 키 처리는 onKeyDown이 카드가 열려 있을 때 이 함수로 넘긴다.
@@ -3415,6 +3424,8 @@ function startRecording() {
   mr.onstop = () => finishRecording(r);
   mr.onerror = (e) => { console.warn('파문: 녹화 중 오류 —', e.error || e); if (rec === r) stopRecording(); };
   rec = r;
+  // 자동 종료는 recordFrame이 하지만, rAF가 멈추는 환경(가려진 에뮬레이터 창 등)에서도 끝나도록 타이머로 한 번 더 건다
+  r.timer = setTimeout(() => { if (rec === r) stopRecording(); }, REC_SEC * 1000 + 250);
   recordFrame(performance.now());
   mr.start(1000);
   toast(dest ? L.recStart(REC_SEC) : L.recSilent);
@@ -3424,6 +3435,7 @@ function stopRecording() {
   const r = rec;
   if (!r) return;
   rec = null;
+  clearTimeout(r.timer);
   r.dur = Math.min(REC_SEC, (performance.now() - r.t0) / 1000);
   updateRecBtn();
   try { if (r.mr.state !== 'inactive') r.mr.stop(); else finishRecording(r); }
