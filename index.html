@@ -3133,7 +3133,14 @@ function packTank() {
 // packTank의 역. 모양이 틀리면 null(값 검사는 validTank)
 function unpackTank(p) {
   const A = Array.isArray, I = Number.isInteger, ints = (a, n) => A(a) && a.length === n && a.every(I);
-  if (!p || p.v !== 1 || !A(p.w) || !A(p.g) || !A(p.D) || !A(p.O) || !A(p.S) || p.g.length % 3 || !p.g.every(I)) return null;
+  if (!p || p.v !== 1 || !A(p.w) || !A(p.g) || !A(p.D) || !A(p.O) || !A(p.S) || p.g.length % 3) return null;
+  // 개수 상한은 객체를 만들기 전에 본다. 2 MB 안에도 좌표 수십만 개를 담을 수 있어, 펼친 뒤 자르면 폰에서
+  // 메모리·시간을 크게 쓴다. 우리 앱이 만든 링크는 그리기 상한을 넘지 않으므로 넘으면 링크 전체를 거부한다.
+  if (p.w.length > 500 || p.g.length > 3 * LIMITS.glass || p.D.length > LIMITS.droppers || p.O.length > LIMITS.oscs || p.S.length > LIMITS.stones) return null;
+  let coords = 0;
+  // 벽 점 여유 500: 상한에 닿은 뒤에도 원 닫기·한 점짜리 획이 점을 하나씩 더할 수 있다(endWall·startWall)
+  for (const wl of p.w) { coords += A(wl) && A(wl[0]) ? wl[0].length : 0; if (coords > 2 * (LIMITS.wallPts + 500)) return null; }
+  if (!p.g.every(I)) return null;
   const ws = [];
   for (const wl of p.w) {
     if (!A(wl) || !A(wl[0]) || wl[0].length < 2 || !wl[0].every(I)) return null;
