@@ -7,6 +7,16 @@
 <meta name="description" content="물방울을 떨어뜨리면 물결이 퍼지고, 울림돌에 닿을 때마다 소리가 나요. 거리가 박자, 높이가 음정인 브라우저 악기. An instrument you play with ripples.">
 <meta name="theme-color" content="#12272A">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2312272A'/%3E%3Cpath d='M16 5c4 6 8 10.5 8 14.5a8 8 0 0 1-16 0C8 15.5 12 11 16 5z' fill='%23B8843C'/%3E%3C/svg%3E">
+<script>
+// 웹 앱 매니페스트는 http(s)로 열 때만 연결한다. file://(tools/smoke.mjs·로컬 열기)에서는 CORS로 막혀 콘솔 오류가 나기 때문.
+if (location.protocol.startsWith('http')) {
+  const m = document.createElement('link');
+  m.rel = 'manifest';
+  m.href = 'manifest.webmanifest';
+  document.head.appendChild(m);
+}
+</script>
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta property="og:title" content="파문 Pamun — 물결로 연주하는 악기">
 <meta property="og:description" content="물결이 울림돌에 닿을 때마다 소리가 나요. 설치 없이 폰에서 바로. Drop water — every stone the ripple touches sings.">
 <meta property="og:type" content="website">
@@ -3941,6 +3951,14 @@ async function start() {
 }
 start();
 })();
+</script>
+<script>
+// 설치형 PWA: 서비스워커(sw.js)는 셸만 프리캐시하고 나머지는 처음 쓸 때 캐시한다. file:// 열기(tools/smoke.mjs)에서는 등록하지 않는다.
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch((err) => console.warn('서비스워커 등록 실패:', err));
+  });
+}
 </script>
 </body>
 </html>
